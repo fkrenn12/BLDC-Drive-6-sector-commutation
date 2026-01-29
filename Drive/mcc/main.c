@@ -14,7 +14,6 @@
 #include "gui.h"
 #include "adc-current-measurement-and-control.h"
 #include "lib/ramp.h"
-// #include <libpic30.h>
 #include "serial-command-interpreter.h"
 
 extern TGlobal g;
@@ -163,8 +162,7 @@ int main(void){
                 }                
                 g.current.ref = irefs[iref_index];
                 */
-                // g.speed_ref = speedrefs[iref_index] * 2;
-                
+                // g.speed_ref = speedrefs[iref_index] * 2;               
             }
             if (eventTimer3 == 50){  // every 50 milliseconds  
                 eventTimer3 = 0; 
