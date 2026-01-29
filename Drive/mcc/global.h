@@ -43,6 +43,7 @@ typedef struct _current{
 
 typedef struct _global{
     volatile uint64_t millis;
+    volatile uint8_t drive_on;
     volatile uint8_t direction;
     volatile uint8_t position_sector;
     volatile uint8_t energized_sector;

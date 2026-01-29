@@ -2,6 +2,7 @@
 #include <errno.h>
 TGlobal g={
     .millis = 0,
+    .drive_on = 0,
     .vlink = 0,
     .direction = 0,
     .position_sector = 0,

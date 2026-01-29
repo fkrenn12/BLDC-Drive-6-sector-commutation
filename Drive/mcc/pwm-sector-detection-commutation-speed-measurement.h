@@ -4,3 +4,4 @@
 #include "global.h"
 
 void PWM_override(uint8_t energized_sector);
+uint8_t get_actual_sector(void);

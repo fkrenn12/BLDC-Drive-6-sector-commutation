@@ -130,7 +130,6 @@ int main(void){
         #ifdef FLETUINO  
            fletuino_loop();
         #endif       
-        // IO_LED_Toggle();
 
         if (actual_millis > previous_millis)
         {   
@@ -145,14 +144,15 @@ int main(void){
                 IO_LED_Toggle();
             }
                                                                                
-            if (eventTimer2 == 5000){   // every 5sec
+            if (eventTimer2 == 200){ 
                 eventTimer2 = 0;
                 static uint16_t iref = 0; 
                 if (iref==1000) iref = 200;
                 else iref=1000;
-                //g.current.ref = ref;
+                // g.current.ref = iref;
+                g.drive_on = 1;
                 g.speed.controller_activated=1;
-                drive_set_speed_rpm(800);
+                drive_set_speed_rpm(100);
                 iref_index++;
                 iref_index %= 10; 
                 /*
