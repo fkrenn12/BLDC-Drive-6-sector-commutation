@@ -1,0 +1,125 @@
+{
+    "version": "1.8",
+    "configurations": [
+        {
+            "name": "default",
+            "id": "",
+            "device": "dsPIC33CK64MC105",
+            "imageType": "application",
+            "imagePath": "./out/Drive/default.elf",
+            "toolProperties": "default-tool-base",
+            "tool": "PKOB nano",
+            "packs": [
+                {
+                    "name": "dsPIC33CK-MC_DFP",
+                    "vendor": "Microchip",
+                    "version": "1.8.299"
+                }
+            ],
+            "fileSet": "default",
+            "toolchain": "default-XC16",
+            "userVariables": "default-uservariables"
+        }
+    ],
+    "propertyGroups": [
+        {
+            "name": "default-uservariables",
+            "type": "uservariables",
+            "properties": {}
+        },
+        {
+            "name": "default-XC16",
+            "type": "toolchain",
+            "provider": "microchip.toolchains:xc16@2.10",
+            "properties": {
+                "compiler.isolate-each-function": true,
+                "compiler.enable-short-double": true,
+                "linker.heap-size": "0",
+                "linker.remove-unused-sections": true,
+                "compiler.additional-warnings": true,
+                "compiler.make-warnings-into-errors": true,
+                "compiler.place-data-into-section": true,
+                "compiler++.isolate-each-function": true,
+                "compiler++.optimization-level": "-O1",
+                "compiler.optimization-level": "-O1"
+            }
+        },
+        {
+            "name": "default-tool-base",
+            "type": "tool",
+            "properties": {}
+        }
+    ],
+    "fileSets": [
+        {
+            "name": "default",
+            "files": [
+                {
+                    "include": "**/*",
+                    "exclude": "**/(_build|out|cmake|.vscode)/**/*"
+                },
+                "My_MCC_Config/mcc/mcc_generated_files/adc/adc1.h",
+                "My_MCC_Config/mcc/mcc_generated_files/adc/adc_types.h",
+                "My_MCC_Config/mcc/mcc_generated_files/adc/adc_interface.h",
+                "My_MCC_Config/mcc/mcc_generated_files/adc/adc_features.h",
+                "My_MCC_Config/mcc/mcc_generated_files/adc/src/adc1.c",
+                "My_MCC_Config/mcc/mcc_generated_files/system/watchdog.h",
+                "My_MCC_Config/mcc/mcc_generated_files/system/src/reset.c",
+                "My_MCC_Config/mcc/mcc_generated_files/system/reset_types.h",
+                "My_MCC_Config/mcc/mcc_generated_files/system/reset.h",
+                "My_MCC_Config/mcc/mcc_generated_files/system/src/clock.c",
+                "My_MCC_Config/mcc/mcc_generated_files/system/clock.h",
+                "My_MCC_Config/mcc/mcc_generated_files/timer/timer_interface.h",
+                "My_MCC_Config/mcc/mcc_generated_files/system/src/config_bits.c",
+                "My_MCC_Config/mcc/mcc_generated_files/system/system_types.h",
+                "My_MCC_Config/mcc/main.c",
+                "My_MCC_Config/mcc/mcc_generated_files/system/src/system.c",
+                "My_MCC_Config/mcc/mcc_generated_files/system/system.h",
+                "My_MCC_Config/mcc/mcc_generated_files/system/pins.h",
+                "My_MCC_Config/mcc/mcc_generated_files/system/src/pins.c",
+                "My_MCC_Config/mcc/mcc_generated_files/system/src/where_was_i.s",
+                "My_MCC_Config/mcc/mcc_generated_files/system/interrupt_types.h",
+                "My_MCC_Config/mcc/mcc_generated_files/system/src/interrupt.c",
+                "My_MCC_Config/mcc/mcc_generated_files/system/src/traps.c",
+                "My_MCC_Config/mcc/mcc_generated_files/system/traps.h",
+                "My_MCC_Config/mcc/mcc_generated_files/system/interrupt.h",
+                "My_MCC_Config/mcc/mcc_generated_files/pwm_hs/pwm_hs_types.h",
+                "My_MCC_Config/mcc/mcc_generated_files/pwm_hs/pwm_features.h",
+                "My_MCC_Config/mcc/mcc_generated_files/pwm_hs/pwm.h",
+                "My_MCC_Config/mcc/mcc_generated_files/pwm_hs/pwm_hs_interface.h",
+                "My_MCC_Config/mcc/mcc_generated_files/pwm_hs/src/pwm.c",
+                "My_MCC_Config/mcc/mcc_generated_files/system/src/dmt_asm.s",
+                "My_MCC_Config/mcc/mcc_generated_files/system/dmt.h",
+                "My_MCC_Config/mcc/mcc_generated_files/system/src/dmt.c",
+                "My_MCC_Config/mcc/mcc_generated_files/examples/timer_example/timer_example.c",
+                "Drive/mcc/mcc_generated_files/adc/adc_features.h",
+                "Drive/mcc/mcc_generated_files/adc/adc_types.h",
+                "Drive/mcc/mcc_generated_files/adc/src/adc1.c",
+                "Drive/mcc/mcc_generated_files/adc/adc1.h",
+                "Drive/mcc/mcc_generated_files/adc/adc_interface.h",
+                "Drive/mcc/mcc_generated_files/system/watchdog.h",
+                "Drive/mcc/mcc_generated_files/system/src/reset.c",
+                "Drive/mcc/mcc_generated_files/system/reset.h",
+                "Drive/mcc/mcc_generated_files/system/reset_types.h",
+                "Drive/mcc/mcc_generated_files/system/src/clock.c",
+                "Drive/mcc/mcc_generated_files/system/clock.h",
+                "Drive/mcc/mcc_generated_files/system/src/config_bits.c",
+                "Drive/mcc/main.c",
+                "Drive/mcc/mcc_generated_files/system/system_types.h",
+                "Drive/mcc/mcc_generated_files/system/src/system.c",
+                "Drive/mcc/mcc_generated_files/system/system.h",
+                "Drive/mcc/mcc_generated_files/system/pins.h",
+                "Drive/mcc/mcc_generated_files/system/src/pins.c",
+                "Drive/mcc/mcc_generated_files/system/interrupt.h",
+                "Drive/mcc/mcc_generated_files/system/src/traps.c",
+                "Drive/mcc/mcc_generated_files/system/src/interrupt.c",
+                "Drive/mcc/mcc_generated_files/system/traps.h",
+                "Drive/mcc/mcc_generated_files/system/src/where_was_i.s",
+                "Drive/mcc/mcc_generated_files/system/interrupt_types.h",
+                "Drive/mcc/mcc_generated_files/system/src/dmt_asm.s",
+                "Drive/mcc/mcc_generated_files/system/src/dmt.c",
+                "Drive/mcc/mcc_generated_files/system/dmt.h"
+            ]
+        }
+    ]
+}

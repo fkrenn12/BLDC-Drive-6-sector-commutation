@@ -1,0 +1,4 @@
+git subtree add --prefix My_MCC_Config/mcc/fletuino https://github.com/fkrenn12/fletuino.git master --squash
+
+git subtree pull --prefix My_MCC_Config/mcc/fletuino https://github.com/fkrenn12/fletuino.git master --squash
+
