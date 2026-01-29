@@ -14,7 +14,7 @@
 #include "gui.h"
 #include "adc-current-measurement-and-control.h"
 #include "lib/ramp.h"
-#include <libpic30.h>
+// #include <libpic30.h>
 #include "serial-command-interpreter.h"
 
 extern TGlobal g;
@@ -30,26 +30,19 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     volatile static uint16_t speed_control_timer = 0;
     volatile static uint16_t precounter = 0;
     volatile static uint64_t  previous_millis = 0;
-    // f = 1/250µs = 40000Hz
-    #define TIMER1_CALLBACK_FREQUENCY (uint16_t)1000UL
-    #define INTERVAL_BETWEEN_MEASUREMENTS_MS (uint16_t)(TIMER1_CALLBACK_FREQUENCY/SPEED_MEASUREMENTS_PER_SECOND)
-    #define SEONDS_OF_ONE_MINUTE 60
+
+    #define INTERVAL_BETWEEN_MEASUREMENTS_MS (uint16_t)(1000UL/SPEED_MEASUREMENTS_PER_SECOND)
     
-    
-    // This section ist done every 250µs
+        // This section ist done every 250µs
     precounter++;
     switch (precounter){
         case 1:
-            // SerialCommandRxService();  
             break;
         case 2:
-            // SerialCommandTxService();
             break;
         case 3:
-            // UART2_RXBufferedService();
             break;
         case 4:
-            // UART2_TxBufferedService(); 
             precounter = 0;
             g.millis++;
             break;
@@ -70,7 +63,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     {      
         speed_control_timer = 0;
         // speed caculation
-        g.speed.value = g.speed.sectors_counted * (SEONDS_OF_ONE_MINUTE * SPEED_MEASUREMENTS_PER_SECOND / HALL_PULSES_PER_ROTATION);   // rpm 10*60/PULSES_PER_ROTATION = 100
+        g.speed.value = g.speed.sectors_counted * (60 * SPEED_MEASUREMENTS_PER_SECOND / HALL_PULSES_PER_ROTATION);   // rpm 10*60/PULSES_PER_ROTATION = 100
         g.speed.sectors_counted = 0;
         switch (state){
             // delaying start of speedcontroller to wait for valid speed measurement values
@@ -109,9 +102,7 @@ int main(void){
     UART2_Initialize();
     PWM_Initialize();
     GLOBAL_Init();
-    // PIController_Init(&pi_current, g.KP_CURRENT, g.KI_CURRENT, g.MIN_OUTPUT_CURRENT, g.MAX_OUTPUT_CURRENT);
-    // PIController_Init(&pi_speed, g.KP_SPEED, g.KI_SPEED, g.MIN_OUTPUT_SPEED, g.MAX_OUTPUT_SPEED);
-    // fletuino_init(UART2_IsRxReady, UART2_Read, UART2_Write, start_page); 
+
     #ifdef FLETUINO 
         fletuino_init(UART2_RxBufferedAvailable, UART2_RxBufferedReadByte, UART2_WriteBlockingByte, start_page); 
     #endif
@@ -187,28 +178,6 @@ int main(void){
                 #ifdef FLETUINO
                     gui_update();
                 #endif
-                // debug data output
-                // printf("speed stpt=%li,error=%li,intgrtr=%li,strtd=%li,output=%li\n\r",(int32_t)g.speed.controller.setpoint,(int32_t)g.speed.controller.error,g.speed.controller.integrator, (int32_t)g.speed.controller.saturated,(int32_t)g.speed.controller.output);
-                // printf("current stpt=%li,error=%li,intgrtr=%li,strtd=%li,output=%li\n\r",(int32_t)g.current.controller.setpoint,(int32_t)g.current.controller.error,g.current.controller.integrator, (int32_t)g.current.controller.saturated,(int32_t)g.current.controller.output);
-                // printf("speed target=%li,speed value=%li,speed ref=%li\n\r",(int32_t)g.speed.ramp.target,(int32_t)g.speed.ramp.value,(int32_t)g.speed.ref);
-                // printf("%li,%li,%li\n\r",(int32_t)g.speed.ramp.target,(int32_t)g.speed.ramp.value,(int32_t)g.speed.ref);
-             
-                // uint8_t hallpattern = (PORTC & 0xE0)>>5;
-                // uint8_t sector = SECTOR[hallpattern];
-                // snprintf(temp, sizeof(temp), "Position Sector %d\n\r",sector);
-                //UART1_WriteString(temp);
-                /*
-                uint8_t energized_sector = _ANTICLOCKWISE[sector];
-                hallpattern = (PORTC & 0xE0)>>5;
-                sector = SECTOR[hallpattern];
-                
-                energized_sector = sector;
-                energized_sector = (energized_sector>6)? 1 : energized_sector;
-                energized_sector = (energized_sector<1)? 6 : energized_sector;
-                PG1IOCONL = PWMState1[energized_sector];
-                PG2IOCONL = PWMState2[energized_sector];
-                PG3IOCONL = PWMState3[energized_sector];
-                */
             }
         }
     }
