@@ -45,156 +45,207 @@
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RB0 GPIO Pin which has a custom name of DEBUG_0 to High
+ * @brief    Sets the RA1 GPIO Pin which has a custom name of LED2 to High
+ * @pre      The RA1 must be set as Output Pin             
+ * @param    none
+ * @return   none  
+ */
+#define LED2_SetHigh()          (_LATA1 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RA1 GPIO Pin which has a custom name of LED2 to Low
+ * @pre      The RA1 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define LED2_SetLow()           (_LATA1 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Toggles the RA1 GPIO Pin which has a custom name of LED2
+ * @pre      The RA1 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define LED2_Toggle()           (_LATA1 ^= 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Reads the value of the RA1 GPIO Pin which has a custom name of LED2
+ * @param    none
+ * @return   none  
+ */
+#define LED2_GetValue()         _RA1
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RA1 GPIO Pin which has a custom name of LED2 as Input
+ * @param    none
+ * @return   none  
+ */
+#define LED2_SetDigitalInput()  (_TRISA1 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RA1 GPIO Pin which has a custom name of LED2 as Output
+ * @param    none
+ * @return   none  
+ */
+#define LED2_SetDigitalOutput() (_TRISA1 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RB0 GPIO Pin which has a custom name of DIRECTION to High
  * @pre      The RB0 must be set as Output Pin             
  * @param    none
  * @return   none  
  */
-#define DEBUG_0_SetHigh()          (_LATB0 = 1)
+#define DIRECTION_SetHigh()          (_LATB0 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RB0 GPIO Pin which has a custom name of DEBUG_0 to Low
+ * @brief    Sets the RB0 GPIO Pin which has a custom name of DIRECTION to Low
  * @pre      The RB0 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define DEBUG_0_SetLow()           (_LATB0 = 0)
+#define DIRECTION_SetLow()           (_LATB0 = 0)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Toggles the RB0 GPIO Pin which has a custom name of DEBUG_0
+ * @brief    Toggles the RB0 GPIO Pin which has a custom name of DIRECTION
  * @pre      The RB0 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define DEBUG_0_Toggle()           (_LATB0 ^= 1)
+#define DIRECTION_Toggle()           (_LATB0 ^= 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Reads the value of the RB0 GPIO Pin which has a custom name of DEBUG_0
+ * @brief    Reads the value of the RB0 GPIO Pin which has a custom name of DIRECTION
  * @param    none
  * @return   none  
  */
-#define DEBUG_0_GetValue()         _RB0
+#define DIRECTION_GetValue()         _RB0
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RB0 GPIO Pin which has a custom name of DEBUG_0 as Input
+ * @brief    Configures the RB0 GPIO Pin which has a custom name of DIRECTION as Input
  * @param    none
  * @return   none  
  */
-#define DEBUG_0_SetDigitalInput()  (_TRISB0 = 1)
+#define DIRECTION_SetDigitalInput()  (_TRISB0 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RB0 GPIO Pin which has a custom name of DEBUG_0 as Output
+ * @brief    Configures the RB0 GPIO Pin which has a custom name of DIRECTION as Output
  * @param    none
  * @return   none  
  */
-#define DEBUG_0_SetDigitalOutput() (_TRISB0 = 0)
+#define DIRECTION_SetDigitalOutput() (_TRISB0 = 0)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RB3 GPIO Pin which has a custom name of IO_RB3 to High
+ * @brief    Sets the RB3 GPIO Pin which has a custom name of RxD to High
  * @pre      The RB3 must be set as Output Pin             
  * @param    none
  * @return   none  
  */
-#define IO_RB3_SetHigh()          (_LATB3 = 1)
+#define RxD_SetHigh()          (_LATB3 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RB3 GPIO Pin which has a custom name of IO_RB3 to Low
+ * @brief    Sets the RB3 GPIO Pin which has a custom name of RxD to Low
  * @pre      The RB3 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define IO_RB3_SetLow()           (_LATB3 = 0)
+#define RxD_SetLow()           (_LATB3 = 0)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Toggles the RB3 GPIO Pin which has a custom name of IO_RB3
+ * @brief    Toggles the RB3 GPIO Pin which has a custom name of RxD
  * @pre      The RB3 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define IO_RB3_Toggle()           (_LATB3 ^= 1)
+#define RxD_Toggle()           (_LATB3 ^= 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Reads the value of the RB3 GPIO Pin which has a custom name of IO_RB3
+ * @brief    Reads the value of the RB3 GPIO Pin which has a custom name of RxD
  * @param    none
  * @return   none  
  */
-#define IO_RB3_GetValue()         _RB3
+#define RxD_GetValue()         _RB3
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RB3 GPIO Pin which has a custom name of IO_RB3 as Input
+ * @brief    Configures the RB3 GPIO Pin which has a custom name of RxD as Input
  * @param    none
  * @return   none  
  */
-#define IO_RB3_SetDigitalInput()  (_TRISB3 = 1)
+#define RxD_SetDigitalInput()  (_TRISB3 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RB3 GPIO Pin which has a custom name of IO_RB3 as Output
+ * @brief    Configures the RB3 GPIO Pin which has a custom name of RxD as Output
  * @param    none
  * @return   none  
  */
-#define IO_RB3_SetDigitalOutput() (_TRISB3 = 0)
+#define RxD_SetDigitalOutput() (_TRISB3 = 0)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RB4 GPIO Pin which has a custom name of IO_RB4 to High
+ * @brief    Sets the RB4 GPIO Pin which has a custom name of TxD to High
  * @pre      The RB4 must be set as Output Pin             
  * @param    none
  * @return   none  
  */
-#define IO_RB4_SetHigh()          (_LATB4 = 1)
+#define TxD_SetHigh()          (_LATB4 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RB4 GPIO Pin which has a custom name of IO_RB4 to Low
+ * @brief    Sets the RB4 GPIO Pin which has a custom name of TxD to Low
  * @pre      The RB4 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define IO_RB4_SetLow()           (_LATB4 = 0)
+#define TxD_SetLow()           (_LATB4 = 0)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Toggles the RB4 GPIO Pin which has a custom name of IO_RB4
+ * @brief    Toggles the RB4 GPIO Pin which has a custom name of TxD
  * @pre      The RB4 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define IO_RB4_Toggle()           (_LATB4 ^= 1)
+#define TxD_Toggle()           (_LATB4 ^= 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Reads the value of the RB4 GPIO Pin which has a custom name of IO_RB4
+ * @brief    Reads the value of the RB4 GPIO Pin which has a custom name of TxD
  * @param    none
  * @return   none  
  */
-#define IO_RB4_GetValue()         _RB4
+#define TxD_GetValue()         _RB4
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RB4 GPIO Pin which has a custom name of IO_RB4 as Input
+ * @brief    Configures the RB4 GPIO Pin which has a custom name of TxD as Input
  * @param    none
  * @return   none  
  */
-#define IO_RB4_SetDigitalInput()  (_TRISB4 = 1)
+#define TxD_SetDigitalInput()  (_TRISB4 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RB4 GPIO Pin which has a custom name of IO_RB4 as Output
+ * @brief    Configures the RB4 GPIO Pin which has a custom name of TxD as Output
  * @param    none
  * @return   none  
  */
-#define IO_RB4_SetDigitalOutput() (_TRISB4 = 0)
+#define TxD_SetDigitalOutput() (_TRISB4 = 0)
 
 /**
  * @ingroup  pinsdriver
@@ -453,6 +504,210 @@
 
 /**
  * @ingroup  pinsdriver
+ * @brief    Sets the RC10 GPIO Pin which has a custom name of D0 to High
+ * @pre      The RC10 must be set as Output Pin             
+ * @param    none
+ * @return   none  
+ */
+#define D0_SetHigh()          (_LATC10 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RC10 GPIO Pin which has a custom name of D0 to Low
+ * @pre      The RC10 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define D0_SetLow()           (_LATC10 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Toggles the RC10 GPIO Pin which has a custom name of D0
+ * @pre      The RC10 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define D0_Toggle()           (_LATC10 ^= 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Reads the value of the RC10 GPIO Pin which has a custom name of D0
+ * @param    none
+ * @return   none  
+ */
+#define D0_GetValue()         _RC10
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RC10 GPIO Pin which has a custom name of D0 as Input
+ * @param    none
+ * @return   none  
+ */
+#define D0_SetDigitalInput()  (_TRISC10 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RC10 GPIO Pin which has a custom name of D0 as Output
+ * @param    none
+ * @return   none  
+ */
+#define D0_SetDigitalOutput() (_TRISC10 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RC11 GPIO Pin which has a custom name of D1 to High
+ * @pre      The RC11 must be set as Output Pin             
+ * @param    none
+ * @return   none  
+ */
+#define D1_SetHigh()          (_LATC11 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RC11 GPIO Pin which has a custom name of D1 to Low
+ * @pre      The RC11 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define D1_SetLow()           (_LATC11 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Toggles the RC11 GPIO Pin which has a custom name of D1
+ * @pre      The RC11 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define D1_Toggle()           (_LATC11 ^= 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Reads the value of the RC11 GPIO Pin which has a custom name of D1
+ * @param    none
+ * @return   none  
+ */
+#define D1_GetValue()         _RC11
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RC11 GPIO Pin which has a custom name of D1 as Input
+ * @param    none
+ * @return   none  
+ */
+#define D1_SetDigitalInput()  (_TRISC11 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RC11 GPIO Pin which has a custom name of D1 as Output
+ * @param    none
+ * @return   none  
+ */
+#define D1_SetDigitalOutput() (_TRISC11 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RC12 GPIO Pin which has a custom name of D2 to High
+ * @pre      The RC12 must be set as Output Pin             
+ * @param    none
+ * @return   none  
+ */
+#define D2_SetHigh()          (_LATC12 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RC12 GPIO Pin which has a custom name of D2 to Low
+ * @pre      The RC12 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define D2_SetLow()           (_LATC12 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Toggles the RC12 GPIO Pin which has a custom name of D2
+ * @pre      The RC12 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define D2_Toggle()           (_LATC12 ^= 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Reads the value of the RC12 GPIO Pin which has a custom name of D2
+ * @param    none
+ * @return   none  
+ */
+#define D2_GetValue()         _RC12
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RC12 GPIO Pin which has a custom name of D2 as Input
+ * @param    none
+ * @return   none  
+ */
+#define D2_SetDigitalInput()  (_TRISC12 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RC12 GPIO Pin which has a custom name of D2 as Output
+ * @param    none
+ * @return   none  
+ */
+#define D2_SetDigitalOutput() (_TRISC12 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RC13 GPIO Pin which has a custom name of D3 to High
+ * @pre      The RC13 must be set as Output Pin             
+ * @param    none
+ * @return   none  
+ */
+#define D3_SetHigh()          (_LATC13 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RC13 GPIO Pin which has a custom name of D3 to Low
+ * @pre      The RC13 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define D3_SetLow()           (_LATC13 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Toggles the RC13 GPIO Pin which has a custom name of D3
+ * @pre      The RC13 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define D3_Toggle()           (_LATC13 ^= 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Reads the value of the RC13 GPIO Pin which has a custom name of D3
+ * @param    none
+ * @return   none  
+ */
+#define D3_GetValue()         _RC13
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RC13 GPIO Pin which has a custom name of D3 as Input
+ * @param    none
+ * @return   none  
+ */
+#define D3_SetDigitalInput()  (_TRISC13 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RC13 GPIO Pin which has a custom name of D3 as Output
+ * @param    none
+ * @return   none  
+ */
+#define D3_SetDigitalOutput() (_TRISC13 = 0)
+
+/**
+ * @ingroup  pinsdriver
  * @brief    Sets the RD10 GPIO Pin which has a custom name of IO_LED to High
  * @pre      The RD10 must be set as Output Pin             
  * @param    none
@@ -504,54 +759,54 @@
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RD13 GPIO Pin which has a custom name of DEBUG_1 to High
+ * @brief    Sets the RD13 GPIO Pin which has a custom name of LED1 to High
  * @pre      The RD13 must be set as Output Pin             
  * @param    none
  * @return   none  
  */
-#define DEBUG_1_SetHigh()          (_LATD13 = 1)
+#define LED1_SetHigh()          (_LATD13 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RD13 GPIO Pin which has a custom name of DEBUG_1 to Low
+ * @brief    Sets the RD13 GPIO Pin which has a custom name of LED1 to Low
  * @pre      The RD13 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define DEBUG_1_SetLow()           (_LATD13 = 0)
+#define LED1_SetLow()           (_LATD13 = 0)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Toggles the RD13 GPIO Pin which has a custom name of DEBUG_1
+ * @brief    Toggles the RD13 GPIO Pin which has a custom name of LED1
  * @pre      The RD13 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define DEBUG_1_Toggle()           (_LATD13 ^= 1)
+#define LED1_Toggle()           (_LATD13 ^= 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Reads the value of the RD13 GPIO Pin which has a custom name of DEBUG_1
+ * @brief    Reads the value of the RD13 GPIO Pin which has a custom name of LED1
  * @param    none
  * @return   none  
  */
-#define DEBUG_1_GetValue()         _RD13
+#define LED1_GetValue()         _RD13
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RD13 GPIO Pin which has a custom name of DEBUG_1 as Input
+ * @brief    Configures the RD13 GPIO Pin which has a custom name of LED1 as Input
  * @param    none
  * @return   none  
  */
-#define DEBUG_1_SetDigitalInput()  (_TRISD13 = 1)
+#define LED1_SetDigitalInput()  (_TRISD13 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RD13 GPIO Pin which has a custom name of DEBUG_1 as Output
+ * @brief    Configures the RD13 GPIO Pin which has a custom name of LED1 as Output
  * @param    none
  * @return   none  
  */
-#define DEBUG_1_SetDigitalOutput() (_TRISD13 = 0)
+#define LED1_SetDigitalOutput() (_TRISD13 = 0)
 
 /**
  * @ingroup  pinsdriver

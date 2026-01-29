@@ -19,7 +19,7 @@ endforeach()
 
 set(Drive_default_default_XC16_FILE_TYPE_compile
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/adc-current-measurement-and-control.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/debug.c"
+
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/drive.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/fletuino/fletuino.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/fletuino/json/json_decoder.c"

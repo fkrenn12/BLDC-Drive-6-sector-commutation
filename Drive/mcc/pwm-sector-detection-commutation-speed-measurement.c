@@ -1,5 +1,4 @@
 #include "pwm-sector-detection-commutation-speed-measurement.h"
-#include "debug.h"
 
 #define COMMUTATING 
 #define PWM 0x0000      // NO override, PWM is on Pins

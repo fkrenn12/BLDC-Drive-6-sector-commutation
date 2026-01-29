@@ -193,6 +193,9 @@ inline static uint16_t ADC1_ConversionResultGet( enum ADC_CHANNEL channel )
         case _MOMENTUM:
                 result = ADCBUF6;
                 break;
+        case _TEMPERATURE3:
+                result = ADCBUF9;
+                break;
         case _I2:
                 result = ADCBUF11;
                 break;
@@ -243,6 +246,9 @@ inline static bool ADC1_IsConversionComplete(enum ADC_CHANNEL channel)
                 break;
         case _MOMENTUM:
                 status = ADSTATLbits.AN6RDY;
+                break;
+        case _TEMPERATURE3:
+                status = ADSTATLbits.AN9RDY;
                 break;
         case _I2:
                 status = ADSTATLbits.AN11RDY;
@@ -380,6 +386,10 @@ inline static void ADC1_IndividualChannelInterruptEnable(enum ADC_CHANNEL channe
                 IEC6bits.ADCAN6IE = 1;
                 ADIELbits.IE6 = 1;
                 break;
+        case _TEMPERATURE3:
+                IEC6bits.ADCAN9IE = 1;
+                ADIELbits.IE9 = 1;
+                break;
         case _I2:
                 IEC6bits.ADCAN11IE = 1;
                 ADIELbits.IE11 = 1;
@@ -431,6 +441,10 @@ inline static void ADC1_IndividualChannelInterruptDisable(enum ADC_CHANNEL chann
                 IEC6bits.ADCAN6IE = 0;
                 ADIELbits.IE6 = 0;
                 break;
+        case _TEMPERATURE3:
+                IEC6bits.ADCAN9IE = 0;
+                ADIELbits.IE9 = 0;
+                break;
         case _I2:
                 IEC6bits.ADCAN11IE = 0;
                 ADIELbits.IE11 = 0;
@@ -478,6 +492,9 @@ inline static void ADC1_IndividualChannelInterruptFlagClear(enum ADC_CHANNEL cha
         case _MOMENTUM:
                 IFS6bits.ADCAN6IF = 0;
                 break;
+        case _TEMPERATURE3:
+                IFS6bits.ADCAN9IF = 0;
+                break;
         case _I2:
                 IFS6bits.ADCAN11IF = 0;
                 break;
@@ -520,6 +537,9 @@ inline static void ADC1_IndividualChannelInterruptPrioritySet(enum ADC_CHANNEL c
 				break;
 		case _MOMENTUM:
 				IPC24bits.ADCAN6IP = priorityValue;
+				break;
+		case _TEMPERATURE3:
+				IPC25bits.ADCAN9IP = priorityValue;
 				break;
 		case _I2:
 				IPC25bits.ADCAN11IP = priorityValue;

@@ -9,7 +9,6 @@
 #include "peripheral/pwm.h"
 #include "lib/pi-controller.h"
 #include "global.h"
-#include "debug.h"
 #include "configuration.h"
 #include "gui.h"
 #include "adc-current-measurement-and-control.h"

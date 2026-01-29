@@ -466,6 +466,9 @@ void ADC1_PWMTriggerSourceSet(enum ADC_CHANNEL channel, enum ADC_PWM_INSTANCE pw
         case _MOMENTUM:
                 ADTRIG1Hbits.TRGSRC6 = adcTriggerValue;
                 break;
+        case _TEMPERATURE3:
+                ADTRIG2Lbits.TRGSRC9 = adcTriggerValue;
+                break;
         case _I2:
                 ADTRIG2Hbits.TRGSRC11 = adcTriggerValue;
                 break;
@@ -555,6 +558,16 @@ void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCInterrupt ( void )
             (*ADC1_ChannelHandler)(_MOMENTUM, adcVal);
         }
         IFS6bits.ADCAN6IF = 0;
+    }
+    if(IFS6bits.ADCAN9IF == 1)
+    {
+        //Read the ADC value from the ADCBUF before clearing interrupt
+        adcVal = ADCBUF9;
+        if(NULL != ADC1_ChannelHandler)
+        {
+            (*ADC1_ChannelHandler)(_TEMPERATURE3, adcVal);
+        }
+        IFS6bits.ADCAN9IF = 0;
     }
     if(IFS6bits.ADCAN11IF == 1)
     {
@@ -740,6 +753,29 @@ void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCAN6Interrupt ( voi
 * Reasoning: Interrupt declaration are provided by compiler and are available
 * outside the driver folder
 */
+void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCAN9Interrupt ( void )
+{
+    uint16_t val_TEMPERATURE3;
+    //Read the ADC value from the ADCBUF
+    val_TEMPERATURE3 = ADCBUF9;
+
+    if(NULL != ADC1_ChannelHandler)
+    {
+        (*ADC1_ChannelHandler)(_TEMPERATURE3, val_TEMPERATURE3);
+    }
+
+    //clear the _TEMPERATURE3 interrupt flag
+    IFS6bits.ADCAN9IF = 0;
+}
+
+/* cppcheck-suppress misra-c2012-8.4
+*
+* (Rule 8.4) REQUIRED: A compatible declaration shall be visible when an object or 
+* function with external linkage is defined
+*
+* Reasoning: Interrupt declaration are provided by compiler and are available
+* outside the driver folder
+*/
 void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCAN11Interrupt ( void )
 {
     uint16_t val_I2;
@@ -896,6 +932,18 @@ void __attribute__ ((weak)) ADC1_ChannelTasks (enum ADC_CHANNEL channel)
             {
                 //Read the ADC value from the ADCBUF
                 adcVal = ADCBUF6;
+
+                if(NULL != ADC1_ChannelHandler)
+                {
+                    (*ADC1_ChannelHandler)(channel, adcVal);
+                }
+            }
+            break;
+        case _TEMPERATURE3:
+            if((bool)ADSTATLbits.AN9RDY == 1)
+            {
+                //Read the ADC value from the ADCBUF
+                adcVal = ADCBUF9;
 
                 if(NULL != ADC1_ChannelHandler)
                 {
