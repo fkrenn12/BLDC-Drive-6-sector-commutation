@@ -40,10 +40,14 @@ void current_controller(void){
         // DEBUG_1_SetHigh();
         count = 0;
         // dynamic current limiter 
-        g.current.ref = (g.current.ref > g.current.limit)? g.current.limit : g.current.ref;
-        int32_t out = PIController_Compute(&g.current.controller, g.current.ref, g.current.value);
-        g.direction = (out < 0)? ANTICLOCKWISE : CLOCKWISE;
-        MDC = abs(out);
+        int32_t iref = (g.current.ref > g.current.limit)? g.current.limit : g.current.ref;
+        iref = (g.current.ref < -g.current.limit)? g.current.limit : g.current.ref;
+        int32_t duty_cycle = PIController_Compute(&g.current.controller, iref, g.current.value);
+        g.direction = (duty_cycle < 0)? ANTICLOCKWISE : CLOCKWISE;
+        duty_cycle = abs(duty_cycle);
+        duty_cycle = (duty_cycle > PWM_MAX_DUTY)? PWM_MAX_DUTY : duty_cycle; // limit duty cycle to 100%
+        MDC = abs(duty_cycle);
+        // adjust adc interrupt trigger time
         PG1TRIGA = (MDC > 8000)? MDC-100 : MDC+100;
         PG1TRIGB = PG1TRIGA;
         PG1STATbits.UPDREQ = 1; 

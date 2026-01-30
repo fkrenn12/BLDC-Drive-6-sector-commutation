@@ -1,4 +1,5 @@
 #include "pwm.h"
+#include "../configuration.h"
 #include <xc.h>
 
 #define DEAD_TIME 400   // 400*1/200Mhz = 2µs 
@@ -15,7 +16,7 @@
 void PWM_Initialize(void){
     PCLKCONbits.MCLKSEL = 0b00;     // High Speed PLL Clock = 200Mhz
     PCLKCONbits.DIVSEL = 0b00;      // Divided by 2 (not for Master Clock)
-    MPER = 8191;                    // 200Mhz/(9999+1) = 24.41kHz
+    MPER = PWM_PERIOD;              // 200Mhz/(PWM_PERIOD+1) 
     MDC = 0;                        // 0% for init
 
     // *****************************************************************************

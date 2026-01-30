@@ -34,17 +34,17 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _PWM1Interrupt ( void )
     // ********************************************************************
     volatile static uint8_t previous_sector = 0;
     // actual sector detection - swap b0 -b2 because of suboptimal hardware wiring
-    volatile uint8_t actual_sector =  (PORTC & 0xE0)>>5;
+    volatile uint8_t actual_position_sector =  (PORTC & 0xE0)>>5;
     // commutating
-    g.energized_sector = (g.direction==CLOCKWISE) ? ENERGIZED_SECTOR_CLOCKWISE[actual_sector]: ENERGIZED_SECTOR_ANTICLOCKWISE[actual_sector];
+    g.energized_sector = (g.direction==CLOCKWISE) ? ENERGIZED_SECTOR_CLOCKWISE[actual_position_sector]: ENERGIZED_SECTOR_ANTICLOCKWISE[actual_position_sector];
     #ifdef COMMUTATING
         if (g.drive_on)
             PWM_override(g.energized_sector);
         else PWM_override(0);
     #endif
     // counting sectors for speed measurement
-    g.speed.sectors_counted = (previous_sector != actual_sector)? g.speed.sectors_counted+1 : g.speed.sectors_counted;
-    previous_sector = (previous_sector != actual_sector)? actual_sector : previous_sector;
+    g.speed.sectors_counted = (previous_sector != actual_position_sector)? g.speed.sectors_counted+1 : g.speed.sectors_counted;
+    previous_sector = (previous_sector != actual_position_sector)? actual_position_sector : previous_sector;
     IFS4bits.PWM1IF = 0;
 }
 

@@ -28,14 +28,14 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     volatile static uint16_t speed_control_timer = 0;
     volatile static uint16_t timer_50ms = 0;
     volatile static uint16_t timer_100ms = 0;
-    volatile static uint16_t precounter = 0;
+    volatile static uint16_t postdivider = 0;
     volatile static uint64_t  previous_millis = 0;
 
     #define INTERVAL_BETWEEN_MEASUREMENTS_MS (uint16_t)(1000UL/SPEED_MEASUREMENTS_PER_SECOND)
     
-        // This section ist done every 250µs
-    precounter++;
-    switch (precounter){
+    // This section ist done every 250µs
+    postdivider++;
+    switch (postdivider){
         case 1:
             break;
         case 2:
@@ -43,11 +43,11 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         case 3:
             break;
         case 4:
-            precounter = 0;
+            postdivider = 0;
             g.millis++;
             break;
         default:
-            precounter = 0;
+            postdivider = 0;
             break;
     }
 
@@ -70,10 +70,9 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.speed.sectors_counted = 0;
         switch (state){
             // delaying start of speedcontroller to wait for valid speed measurement values
-            case 0: 
-            case 1: state++; 
+            case 0: state++; 
                     break;
-            case 2:
+            case 1:
                 if (g.speed.controller_activated) {
                     // not a good solution yet
                     /*
