@@ -14,6 +14,10 @@
 
 #define CLOCKWISE 1
 #define ANTICLOCKWISE 0
+#define IREF_SELECTOR_ZERO 0
+#define IREF_SELECTOR_SPEEDCONTROLLER 1
+#define IREF_SELECTOR_MOMENTUM 2
+#define IREF_SELECTOR_IREF 3
 
 // console output colors
 #define COL_RED "\033[31m"
@@ -44,6 +48,7 @@ typedef struct _current{
 typedef struct _global{
     volatile uint64_t millis;
     volatile uint8_t drive_on;
+    volatile uint16_t iref_selector;
     volatile uint8_t direction;
     volatile uint8_t position_sector;
     volatile uint8_t energized_sector;

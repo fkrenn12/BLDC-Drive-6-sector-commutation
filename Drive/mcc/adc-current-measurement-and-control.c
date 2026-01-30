@@ -36,11 +36,25 @@ void ADC_SoftwareTriggerChannelSequencing(void)
 
 void current_controller(void){
     volatile static uint32_t count=0;
+    int32_t iref;
     if (++count % 10 == 0){  // every 10th calling
         // DEBUG_1_SetHigh();
         count = 0;
+        switch(g.iref_selector){
+            case IREF_SELECTOR_ZERO:    iref = 0;
+                                        break; 
+            case IREF_SELECTOR_SPEEDCONTROLLER:
+                                        iref = g.speed.out;
+                                        break;
+            case IREF_SELECTOR_MOMENTUM:
+                                        iref = 666;
+                                        break;
+            case IREF_SELECTOR_IREF:    iref = g.current.ref;
+                                        break;
+        }
+
         // dynamic current limiter 
-        int32_t iref = (g.current.ref > g.current.limit)? g.current.limit : g.current.ref;
+        iref = (g.current.ref > g.current.limit)? g.current.limit : g.current.ref;
         iref = (g.current.ref < -g.current.limit)? g.current.limit : g.current.ref;
         int32_t duty_cycle = PIController_Compute(&g.current.controller, iref, g.current.value);
         g.direction = (duty_cycle < 0)? ANTICLOCKWISE : CLOCKWISE;
