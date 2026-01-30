@@ -1,4 +1,17 @@
 
+sequenceDiagram
+  participant UART1
+  participant IC as Interrupt Controller
+  participant CPU as CPU/ISR
+  participant RB as RingBuffer
+
+  UART1->>IC: «interrupt» U1RXIF = 1
+  IC->>CPU: dispatch (IPL=1)
+  activate CPU
+  CPU->>RB: Write(byte)
+  CPU->>IC: IFS0.U1RXIF = 0
+  deactivate CPU
+
 # BLDC Drive
 
 A dsPIC33CK-based BLDC motor control firmware with UART/RS485 communication, ring-buffered I/O, ISR-driven timing (Timer1), PWM commutation, ADC sampling, and a simple serial command interface.

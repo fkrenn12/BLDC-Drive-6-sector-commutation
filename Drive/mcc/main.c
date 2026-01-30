@@ -27,6 +27,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     volatile static int8_t state = 0;
     volatile static uint16_t speed_control_timer = 0;
     volatile static uint16_t timer_50ms = 0;
+    volatile static uint16_t timer_100ms = 0;
     volatile static uint16_t precounter = 0;
     volatile static uint64_t  previous_millis = 0;
 
@@ -98,8 +99,12 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.speed.ramp.target = (g.speed.ramp.target > g.speed.max)? g.speed.max : g.speed.ramp.target;
     }
 
+    // every 100ms
+    if( ++timer_100ms == 100){
+        timer_100ms = 0;
+        ADC_SoftwareTriggerChannelSequencing(); // Sequencially start software triggered ADC channels
+    }    
     IFS0bits.T1IF = 0;  
-    
 }
 
 // ########################################################################
@@ -122,15 +127,11 @@ int main(void){
         static uint16_t eventTimer1 = 0;
         static uint16_t eventTimer2 = 0;
         static uint16_t eventTimer3 = 0;
-
-        static int32_t irefs[10]={100,150,200,250,250,250,200,150,100,0};
-        static int32_t speedrefs[10]={100,150,300,400,600,500,200,150,100,0};
-        static uint8_t iref_index = 0;
         static uint64_t previous_millis = 0;
         uint64_t actual_millis = millis();
         /*
           Service calls - preferably in the main loop
-          because using printf (sprintf) is not allowed in interrupts
+          because using printf (sprintf) is not a good advise in interrupts
         */
         SerialCommandRxService(); 
         SerialCommandTxService();
@@ -141,6 +142,8 @@ int main(void){
            fletuino_loop();
         #endif       
 
+        g.drive_on = 1;
+
         if (actual_millis > previous_millis)
         {   
             previous_millis = actual_millis; 
@@ -150,40 +153,17 @@ int main(void){
 
             if (eventTimer1 == 100){  // every 100 milliseconds 
                 eventTimer1 = 0;         
-                ADC_SoftwareTriggerChannelSequencing(); // Sequencially start software triggered ADC channels
                 IO_LED_Toggle();
             }
                                                                                
             if (eventTimer2 == 200){ 
                 eventTimer2 = 0;
-                static uint16_t iref = 0; 
-                if (iref==1000) iref = 200;
-                else iref=1000;
-                // g.current.ref = iref;
-                g.drive_on = 1;
-                g.speed.controller_activated=1;
-                // drive_set_speed_rpm(100);
-                iref_index++;
-                iref_index %= 10; 
-                /*
-                if (iref_index==0)
-                {
-                    if (g.direction == CLOCKWISE) g.direction = ANTICLOCKWISE;
-                    else g.direction = CLOCKWISE;
-                }                
-                g.current.ref = irefs[iref_index];
-                */
-                // g.speed_ref = speedrefs[iref_index] * 2;               
+                // g.drive_on = 1;
+                // g.speed.controller_activated=1;
+                // drive_set_speed_rpm(100);              
             }
             if (eventTimer3 == 50){  // every 50 milliseconds  
-                eventTimer3 = 0; 
-                // IO_LED_Toggle();
-                // if (g.speed.controller.saturated == 1) IO_LED_SetLow();
-                // else IO_LED_SetHigh();
-                // g.vlink = ADC_Result(_VLINK);
-                // g.speed.max = (SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.vlink * ADC_FACTOR_VLINK;
-                // g.speed.ramp.target = (g.speed.ramp.target > g.speed.max)? g.speed.max : g.speed.ramp.target;
-                
+                eventTimer3 = 0;                
                 #ifdef FLETUINO
                     gui_update();
                 #endif
