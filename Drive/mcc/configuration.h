@@ -7,14 +7,15 @@ Mostly used configuration defines are listet first
 #define VLINK_CUTOFF_VOLTAGE_LOW 10                 // * switching to error state reaching this value !
 #define VLINK_CUTOFF_VOLTAGE_HIGH 60                // * switching to error state reaching this value !   
 #define SPEED_AT_NOMINAL_VOLTAGE 5000               // rpm at nominal voltage
-#define SPEED_MEASUREMENTS_PER_SECOND 10            // number of measurements per second and calls of speed controller per second (1...1000sec)
+#define SPEED_MEASUREMENTS_PER_SECOND 10            // number of measurements per second and calls of speed controller per second (1...1000)
 /*
 ADC conversion factors
 */
-#define ADC_FACTOR_VLINK 0.01622                    // factor - hardware dependend
-#define ADC_FACTOR_CURRENT 0.0030525                // factor - hardware dependend
-#define ADC_FACTOR_TEMPERATURE -0.001               // * factor - hardware dependend  
-#define ADC_FACTOR_OFFSET 25.0                      // * factor - hardware dependend  
+#define ADC_FACTOR_VLINK 0.01622                    // factor - hardware dependend 3.3V * 20 / 4095 = 0.01622
+// #define ADC_FACTOR_CURRENT 0.03021                  // factor - Drive Hardware 3.3V / 4095 / 26.67mV/A = 0.03021
+#define ADC_FACTOR_CURRENT 0.0030525                // factor - SmartPowerLab Hardware
+#define ADC_FACTOR_TEMPERATURE -0.001               // * factor - hardware dependend - not yet determined  
+#define ADC_FACTOR_OFFSET 25.0                      // * factor - hardware dependend - not yet determined   
 /*
 Cotroller kp and ki factors
 */

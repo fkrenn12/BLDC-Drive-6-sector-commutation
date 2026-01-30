@@ -26,6 +26,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     // ***************************************
     volatile static int8_t state = 0;
     volatile static uint16_t speed_control_timer = 0;
+    volatile static uint16_t timer_50ms = 0;
     volatile static uint16_t precounter = 0;
     volatile static uint64_t  previous_millis = 0;
 
@@ -55,8 +56,11 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         return;
     }
     
+    // here we are every ms
     previous_millis = g.millis;
+
     g.speed.ref = ramp(&g.speed.ramp); 
+
     if (++speed_control_timer == INTERVAL_BETWEEN_MEASUREMENTS_MS)
     {      
         speed_control_timer = 0;
@@ -86,6 +90,14 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
                 break;
         }
     } 
+    // every 50ms
+    if( ++timer_50ms == 50){
+        timer_50ms = 0;
+        g.vlink = ADC_Result(_VLINK);
+        g.speed.max = (SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.vlink * ADC_FACTOR_VLINK;
+        g.speed.ramp.target = (g.speed.ramp.target > g.speed.max)? g.speed.max : g.speed.ramp.target;
+    }
+
     IFS0bits.T1IF = 0;  
     
 }
@@ -150,7 +162,7 @@ int main(void){
                 // g.current.ref = iref;
                 g.drive_on = 1;
                 g.speed.controller_activated=1;
-                drive_set_speed_rpm(100);
+                // drive_set_speed_rpm(100);
                 iref_index++;
                 iref_index %= 10; 
                 /*
@@ -168,9 +180,9 @@ int main(void){
                 // IO_LED_Toggle();
                 // if (g.speed.controller.saturated == 1) IO_LED_SetLow();
                 // else IO_LED_SetHigh();
-                g.vlink = ADC_Result(_VLINK);
-                g.speed.max = (SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.vlink * ADC_FACTOR_VLINK;
-                g.speed.ramp.target = (g.speed.ramp.target > g.speed.max)? g.speed.max : g.speed.ramp.target;
+                // g.vlink = ADC_Result(_VLINK);
+                // g.speed.max = (SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.vlink * ADC_FACTOR_VLINK;
+                // g.speed.ramp.target = (g.speed.ramp.target > g.speed.max)? g.speed.max : g.speed.ramp.target;
                 
                 #ifdef FLETUINO
                     gui_update();

@@ -11,8 +11,8 @@
 
 #define HARDWARE_TEST
 // #define DEBUG_SERIAL_COMMAND_HANDLING 
-#define DEBUG               // only one option is allowed
-// #define FLETUINO            // DEBUG or FLETUINO or nothing
+// #define DEBUG               // only one option is allowed
+#define FLETUINO            // DEBUG or FLETUINO or nothing
 
 
 #if defined(DEBUG) && defined(FLETUINO)
