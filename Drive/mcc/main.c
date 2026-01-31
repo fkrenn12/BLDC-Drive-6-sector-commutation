@@ -155,11 +155,25 @@ int main(void){
                 IO_LED_Toggle();
             }
                                                                                
-            if (eventTimer2 == 200){ 
+            if (eventTimer2 == 2000){ 
                 eventTimer2 = 0;
-                // g.drive_on = 1;
-                // g.speed.controller_activated=1;
-                // drive_set_speed_rpm(100);              
+                // g.current.ref = 500;
+                /*
+                static uint8_t sector_index = 1;
+                uint8_t sector;
+                uint8_t ENERGIZED_SECTOR_CLOCKWISE[7] =     {0,3,1,2,5,4,6};  
+                // uint8_t ENERGIZED_SECTOR_ANTICLOCKWISE[7] = {0,5,4,6,3,1,2};
+                uint8_t ENERGIZED_SECTOR_ANTICLOCKWISE[7] = {0,5,4,6,3,1,2};
+                if (++sector_index == 7) sector_index = 1;
+                sector = ENERGIZED_SECTOR_CLOCKWISE[sector_index];
+                // char buffer[100];
+                // sprintf(buffer,"%d - %d\n\r", sector_index, sector);
+                // UART2_WriteNoneBlockingString(buffer);
+                // PWM_override(sector_index);
+                 g.drive_on = 1;
+                 g.speed.controller_activated=1;
+                 // drive_set_speed_rpm(200);              
+                 */
             }
             if (eventTimer3 == 50){  // every 50 milliseconds  
                 eventTimer3 = 0;                

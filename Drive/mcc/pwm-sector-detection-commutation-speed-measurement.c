@@ -9,10 +9,15 @@
 uint8_t ENERGIZED_SECTOR_CLOCKWISE[7] =     {0,3,1,2,5,4,6};  
 uint8_t ENERGIZED_SECTOR_ANTICLOCKWISE[7] = {0,5,4,6,3,1,2};
 
+//uint8_t ENERGIZED_SECTOR_CLOCKWISE[7] =     {0,4,5,6,1,2,3};  
+// uint8_t ENERGIZED_SECTOR_ANTICLOCKWISE[7] = {0,1,2,3,4,5,6};
+
+uint8_t SECTOR_FROM_HALLPATTER[7] = {0,6,4,5,2,1,3};
 
 uint16_t PWM_U[8] = {CLAMP, CLAMP, CLAMP, FLOAT, PWM,   PWM,   FLOAT, FLOAT};
 uint16_t PWM_V[8] = {CLAMP, PWM,   FLOAT, CLAMP, CLAMP, FLOAT, PWM,   FLOAT};
 uint16_t PWM_W[8] = {CLAMP, FLOAT, PWM,   PWM,   FLOAT, CLAMP, CLAMP, FLOAT};
+
 
 
 // override pwm with PWM_U, PWM_V or PWM_W depending on sector
@@ -35,6 +40,7 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _PWM1Interrupt ( void )
     volatile static uint8_t previous_sector = 0;
     // actual sector detection - swap b0 -b2 because of suboptimal hardware wiring
     volatile uint8_t actual_position_sector =  (PORTC & 0xE0)>>5;
+    // volatile uint8_t actual_position_sector =  SECTOR_FROM_HALLPATTER[ (PORTC & 0xE0)>>5];
     // commutating
     g.energized_sector = (g.direction==CLOCKWISE) ? ENERGIZED_SECTOR_CLOCKWISE[actual_position_sector]: ENERGIZED_SECTOR_ANTICLOCKWISE[actual_position_sector];
     #ifdef COMMUTATING

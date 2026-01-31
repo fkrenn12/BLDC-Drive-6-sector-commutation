@@ -122,8 +122,8 @@ void ADC1_Initialize (void)
     ADMOD0H = 0x0U;
     // SIGN16 disabled; DIFF16 disabled; SIGN17 disabled; DIFF17 disabled; 
     ADMOD1L = 0x0U;
-    // IE0 enabled; IE1 disabled; IE2 disabled; IE3 enabled; IE4 disabled; IE5 disabled; IE6 disabled; IE7 disabled; IE8 disabled; IE9 disabled; IE10 disabled; IE11 enabled; IE12 disabled; IE13 disabled; IE14 disabled; IE15 disabled; 
-    ADIEL = 0x809U;
+    // IE0 enabled; IE1 disabled; IE2 disabled; IE3 enabled; IE4 enabled; IE5 disabled; IE6 disabled; IE7 disabled; IE8 disabled; IE9 disabled; IE10 disabled; IE11 enabled; IE12 disabled; IE13 disabled; IE14 disabled; IE15 disabled; 
+    ADIEL = 0x819U;
     // IE16 disabled; IE17 disabled; 
     ADIEH = 0x0U;
     // 
@@ -250,8 +250,12 @@ void ADC1_Initialize (void)
     // Enabling _I3 interrupt.
     IEC5bits.ADCAN3IE = 1;
     // Clearing _I2 interrupt flag.
-    IFS6bits.ADCAN11IF = 0;
+    IFS5bits.ADCAN4IF = 0;
     // Enabling _I2 interrupt.
+    IEC5bits.ADCAN4IE = 1;
+    // Clearing _I2_PowerLab interrupt flag.
+    IFS6bits.ADCAN11IF = 0;
+    // Enabling _I2_PowerLab interrupt.
     IEC6bits.ADCAN11IE = 1;
 
     // Setting WARMTIME bit
@@ -261,22 +265,22 @@ void ADC1_Initialize (void)
     // Enabling Power for the Shared Core
     ADC1_SharedCorePowerEnable();
 
-    //TRGSRC0 PWM1 Trigger1; TRGSRC1 None; 
-    ADTRIG0L = 0x4U;
+    //TRGSRC0 PWM1 Trigger1; TRGSRC1 Common Software Trigger; 
+    ADTRIG0L = 0x104U;
     //TRGSRC2 None; TRGSRC3 PWM1 Trigger1; 
     ADTRIG0H = 0x400U;
-    //TRGSRC4 None; TRGSRC5 None; 
-    ADTRIG1L = 0x0U;
-    //TRGSRC6 None; TRGSRC7 None; 
-    ADTRIG1H = 0x0U;
-    //TRGSRC8 None; TRGSRC9 None; 
-    ADTRIG2L = 0x0U;
+    //TRGSRC4 PWM1 Trigger1; TRGSRC5 None; 
+    ADTRIG1L = 0x4U;
+    //TRGSRC6 Common Software Trigger; TRGSRC7 None; 
+    ADTRIG1H = 0x1U;
+    //TRGSRC8 None; TRGSRC9 Common Software Trigger; 
+    ADTRIG2L = 0x100U;
     //TRGSRC10 None; TRGSRC11 PWM1 Trigger1; 
     ADTRIG2H = 0x400U;
-    //TRGSRC12 Common Software Trigger; TRGSRC13 None; 
-    ADTRIG3L = 0x1U;
-    //TRGSRC14 None; TRGSRC15 None; 
-    ADTRIG3H = 0x0U;
+    //TRGSRC12 Common Software Trigger; TRGSRC13 Common Software Trigger; 
+    ADTRIG3L = 0x101U;
+    //TRGSRC14 Common Software Trigger; TRGSRC15 Common Software Trigger; 
+    ADTRIG3H = 0x101U;
     //TRGSRC16 None; TRGSRC17 None; 
     ADTRIG4L = 0x0U;
 }
@@ -292,6 +296,10 @@ void ADC1_Deinitialize (void)
     (void) ADCBUF3;
     IFS5bits.ADCAN3IF = 0;
     IEC5bits.ADCAN3IE = 0;
+    
+    (void) ADCBUF4;
+    IFS5bits.ADCAN4IF = 0;
+    IEC5bits.ADCAN4IE = 0;
     
     (void) ADCBUF11;
     IFS6bits.ADCAN11IF = 0;
@@ -463,13 +471,16 @@ void ADC1_PWMTriggerSourceSet(enum ADC_CHANNEL channel, enum ADC_PWM_INSTANCE pw
         case _I3:
                 ADTRIG0Hbits.TRGSRC3 = adcTriggerValue;
                 break;
+        case _I2:
+                ADTRIG1Lbits.TRGSRC4 = adcTriggerValue;
+                break;
         case _MOMENTUM:
                 ADTRIG1Hbits.TRGSRC6 = adcTriggerValue;
                 break;
         case _TEMPERATURE3:
                 ADTRIG2Lbits.TRGSRC9 = adcTriggerValue;
                 break;
-        case _I2:
+        case _I2_PowerLab:
                 ADTRIG2Hbits.TRGSRC11 = adcTriggerValue;
                 break;
         case _VLINK:
@@ -549,6 +560,16 @@ void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCInterrupt ( void )
         }
         IFS5bits.ADCAN3IF = 0;
     }
+    if(IFS5bits.ADCAN4IF == 1)
+    {
+        //Read the ADC value from the ADCBUF before clearing interrupt
+        adcVal = ADCBUF4;
+        if(NULL != ADC1_ChannelHandler)
+        {
+            (*ADC1_ChannelHandler)(_I2, adcVal);
+        }
+        IFS5bits.ADCAN4IF = 0;
+    }
     if(IFS6bits.ADCAN6IF == 1)
     {
         //Read the ADC value from the ADCBUF before clearing interrupt
@@ -575,7 +596,7 @@ void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCInterrupt ( void )
         adcVal = ADCBUF11;
         if(NULL != ADC1_ChannelHandler)
         {
-            (*ADC1_ChannelHandler)(_I2, adcVal);
+            (*ADC1_ChannelHandler)(_I2_PowerLab, adcVal);
         }
         IFS6bits.ADCAN11IF = 0;
     }
@@ -730,6 +751,29 @@ void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCAN3Interrupt ( voi
 * Reasoning: Interrupt declaration are provided by compiler and are available
 * outside the driver folder
 */
+void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCAN4Interrupt ( void )
+{
+    uint16_t val_I2;
+    //Read the ADC value from the ADCBUF
+    val_I2 = ADCBUF4;
+
+    if(NULL != ADC1_ChannelHandler)
+    {
+        (*ADC1_ChannelHandler)(_I2, val_I2);
+    }
+
+    //clear the _I2 interrupt flag
+    IFS5bits.ADCAN4IF = 0;
+}
+
+/* cppcheck-suppress misra-c2012-8.4
+*
+* (Rule 8.4) REQUIRED: A compatible declaration shall be visible when an object or 
+* function with external linkage is defined
+*
+* Reasoning: Interrupt declaration are provided by compiler and are available
+* outside the driver folder
+*/
 void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCAN6Interrupt ( void )
 {
     uint16_t val_MOMENTUM;
@@ -778,16 +822,16 @@ void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCAN9Interrupt ( voi
 */
 void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCAN11Interrupt ( void )
 {
-    uint16_t val_I2;
+    uint16_t val_I2_PowerLab;
     //Read the ADC value from the ADCBUF
-    val_I2 = ADCBUF11;
+    val_I2_PowerLab = ADCBUF11;
 
     if(NULL != ADC1_ChannelHandler)
     {
-        (*ADC1_ChannelHandler)(_I2, val_I2);
+        (*ADC1_ChannelHandler)(_I2_PowerLab, val_I2_PowerLab);
     }
 
-    //clear the _I2 interrupt flag
+    //clear the _I2_PowerLab interrupt flag
     IFS6bits.ADCAN11IF = 0;
 }
 
@@ -927,6 +971,18 @@ void __attribute__ ((weak)) ADC1_ChannelTasks (enum ADC_CHANNEL channel)
                 }
             }
             break;
+        case _I2:
+            if((bool)ADSTATLbits.AN4RDY == 1)
+            {
+                //Read the ADC value from the ADCBUF
+                adcVal = ADCBUF4;
+
+                if(NULL != ADC1_ChannelHandler)
+                {
+                    (*ADC1_ChannelHandler)(channel, adcVal);
+                }
+            }
+            break;
         case _MOMENTUM:
             if((bool)ADSTATLbits.AN6RDY == 1)
             {
@@ -951,7 +1007,7 @@ void __attribute__ ((weak)) ADC1_ChannelTasks (enum ADC_CHANNEL channel)
                 }
             }
             break;
-        case _I2:
+        case _I2_PowerLab:
             if((bool)ADSTATLbits.AN11RDY == 1)
             {
                 //Read the ADC value from the ADCBUF

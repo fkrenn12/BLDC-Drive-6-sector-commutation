@@ -86,7 +86,12 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
             g.current.value = abs((g.energized_sector==1 || g.energized_sector==2)? ((int32_t)adcVal - 2048) : g.current.value);
             g.current.value = (g.direction == ANTICLOCKWISE)? -g.current.value : g.current.value;
             break;
-        case _I2:
+
+    // #ifdef POWERLAB_HARDWARE
+        case _I2_PowerLab:
+    //#else
+        // case _I2:
+    //#endif
             g.current.value  = abs((g.energized_sector==3 || g.energized_sector==4)? ((int32_t)adcVal - 2048) : g.current.value);
             g.current.value = (g.direction == ANTICLOCKWISE)? -g.current.value : g.current.value;
             current_controller(); // channel I2 is the last channel to be read, so, the best place to call the current controller is here.
