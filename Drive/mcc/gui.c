@@ -3,7 +3,7 @@
 
 extern TGlobal g;
 
-uint16_t BUTTON_EMERGENCY_OFF, SLIDER_SPEED_REF, SLIDER_IREF, iRefReset, BUTTON_SPEED_REF_RESET, controller_selector,  NUMERIC_RPM, NUMERIC_CURRENT, NUMERIC_VOLT;
+uint16_t BUTTON_EMERGENCY_OFF, SLIDER_SPEED_REF, SLIDER_IREF, IREF_RESET, BUTTON_SPEED_REF_RESET, CONTROLLER_SELECTOR, NUMERIC_RPM, NUMERIC_CURRENT, NUMERIC_VOLT;
 
 static void on_speed_changed(const char* event, const char* value);
 static void on_iref_changed(const char* event, const char* value);
@@ -14,7 +14,7 @@ static void on_switch(const char* event, const char* value);
 void on_speed_changed(const char* event, const char* value) {
     if (strcmp(event, EVENT_CHANGED)==0) {
         // slider change
-        int32_t rpm = drive_set_speed_rpm(atoi(value));
+        int16_t rpm = drive_set_speed_rpm((int16_t)atoi(value));
         if (rpm >= g.speed.max){
             fletuino_set_property_int(SLIDER_SPEED_REF, "value", g.speed.max);
         }
@@ -33,8 +33,8 @@ void on_ki_speed_changed(const char* event, const char* value){
 
 static void on_iref_changed(const char* event, const char* value){
         g.current.ref = (int32_t)(atoi(value)) * 1;
-        g.speed.controller_activated = 0;
-        fletuino_set_property_int(controller_selector, "value", 0);
+        g.mode_selector = MODE_SELECTOR_IREF;
+        fletuino_set_property_int(CONTROLLER_SELECTOR, "value", 0);
 }
 
 static void on_kp_current_changed(const char* event, const char* value){
@@ -49,12 +49,12 @@ static void on_ki_current_changed(const char* event, const char* value){
 }
 
 static void on_emergency_off(const char* event, const char* value){
-    drive_stop(1);  
+    drive_stop();  
 }
 
 static void on_zero_moment(const char* event, const char* value){
     drive_stop(1);
-    fletuino_set_property_int(controller_selector, "value", 0);
+    fletuino_set_property_int(CONTROLLER_SELECTOR, "value", 0);
     fletuino_set_property_int(SLIDER_IREF, "value", 0);
     fletuino_set_property_int(SLIDER_SPEED_REF, "value", 0);
 }
@@ -76,6 +76,7 @@ static void on_switch(const char* event, const char* value)
 {
     g.speed.controller_activated = (uint8_t)(atoi(value));
     if (g.speed.controller_activated){
+        g.mode_selector = MODE_SELECTOR_SPEEDCONTROLLER;
         if (g.current.ref >= 0){
             g.speed.ramp.target = g.speed.value;
             g.speed.controller.integrator = g.current.ref;
@@ -83,8 +84,9 @@ static void on_switch(const char* event, const char* value)
         }
         else{
             // no speed control in reverse direction
+            g.mode_selector = MODE_SELECTOR_IREF;
             g.speed.controller_activated = 0;
-            fletuino_set_property_int(controller_selector, "value", 0);
+            fletuino_set_property_int(CONTROLLER_SELECTOR, "value", 0);
         }
     }
     else{
@@ -104,14 +106,14 @@ void start_page(){
     fletuino_bar((CONTROLS){NUMERIC_VOLT, NUMERIC_RPM, NUMERIC_CURRENT},3,"center-space-evenly");
     SLIDER_IREF = fletuino_slider("Iref - Momentum", /*init*/0, /*min*/-2048, /*max*/2048 ,/*size*/30, /*event*/on_iref_changed);
     fletuino_set_property_int(SLIDER_IREF, "width", 600);
-    iRefReset = fletuino_button("Reset momentum", "tag1", 30, on_zero_moment);
-    fletuino_bar((CONTROLS){SLIDER_IREF, iRefReset},2,"center-space-evenly");
+   IREF_RESET = fletuino_button("Reset momentum", "tag1", 30, on_zero_moment);
+    fletuino_bar((CONTROLS){SLIDER_IREF,IREF_RESET},2,"center-space-evenly");
     fletuino_slider("KP Current", fixed32_to_double(g.current.controller.kp)*10000, 0, 30000, 30, on_kp_current_changed);
     fletuino_slider("KI Current", fixed32_to_double(g.current.controller.ki)*10000, 0, 1000, 30, on_ki_current_changed);
     fletuino_divider(3);
-    controller_selector = fletuino_switch("Speed Controller (cruiser) ON/OFF ", 30, 0, on_switch);
+    CONTROLLER_SELECTOR = fletuino_switch("Speed Controller (cruiser) ON/OFF ", 30, 0, on_switch);
     fletuino_divider(3);
-    SLIDER_SPEED_REF = fletuino_slider("Speed RPM", g.speed.ref, 0, 3000, 30, on_speed_changed);
+    SLIDER_SPEED_REF = fletuino_slider("Speed RPM",(int16_t)g.speed.ref, 0, 3000, 30, on_speed_changed);
     fletuino_set_property_int(SLIDER_SPEED_REF, "width", 600);
     BUTTON_SPEED_REF_RESET = fletuino_button("Reset speed", "tag2", 30, on_zero_speed);
     fletuino_bar((CONTROLS){SLIDER_SPEED_REF, BUTTON_SPEED_REF_RESET},2,"center-space-evenly");

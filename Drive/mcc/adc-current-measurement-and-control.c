@@ -40,23 +40,25 @@ void current_controller(void){
     if (++count % 10 == 0){  // every 10th calling
         // DEBUG_1_SetHigh();
         count = 0;
-        switch(g.iref_selector){
-            case IREF_SELECTOR_ZERO:    iref = 0;
+        switch(g.mode_selector){
+            case MODE_SELECTOR_ZERO_MOTOR_BLOCKED:
+            case MODE_SELECTOR_ZERO_MOTOR_FLOATING:
+                                        iref = 0;
                                         break; 
-            case IREF_SELECTOR_SPEEDCONTROLLER:
+            case MODE_SELECTOR_SPEEDCONTROLLER:
                                         iref = g.speed.out;
                                         break;
-            case IREF_SELECTOR_MOMENTUM:
-                                        iref = 50;
+            case MODE_SELECTOR_MOMENTUM:iref = g.current.momentum; // reading momentum (gas)
                                         break;
-            case IREF_SELECTOR_IREF:    iref = g.current.ref;
+            case MODE_SELECTOR_IREF:    iref = g.current.ref;
                                         break;
         }
         
         // dynamic current limiter 
-        iref = (g.current.ref > g.current.limit)? g.current.limit : g.current.ref;
-        iref = (g.current.ref < -g.current.limit)? g.current.limit : g.current.ref;
-        int32_t duty_cycle = PIController_Compute(&g.current.controller, iref, g.current.value);
+        // iref = g.current.ref;
+        iref = (iref > g.current.limit)? g.current.limit : iref;
+        iref = (iref  < -g.current.limit)? g.current.limit : iref;
+        int16_t duty_cycle = PIController_Compute(&g.current.controller, iref, g.current.value);
         g.direction = (duty_cycle < 0)? ANTICLOCKWISE : CLOCKWISE;
         duty_cycle = abs(duty_cycle);
         duty_cycle = (duty_cycle > PWM_MAX_DUTY)? PWM_MAX_DUTY : duty_cycle; // limit duty cycle to 100%

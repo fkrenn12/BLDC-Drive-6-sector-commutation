@@ -9,23 +9,22 @@ void drive_init(void){
 }
 
 void drive_run(void){
-    g.drive_on = 1;
+    g.mode_selector = MODE_SELECTOR_MOMENTUM;
 }
 
-int32_t drive_set_speed_rpm(int32_t rpm){
+int16_t drive_set_speed_rpm(int16_t rpm){
      g.speed.ramp.target = (g.speed.ramp.target > g.speed.max)? g.speed.max : rpm;
      return g.speed.ramp.target;
 }
 
-void drive_stop(uint8_t clamp){
-    g.drive_on = 0;
-    g.current.ref = 0;
+void drive_stop(void){
+    g.mode_selector = MODE_SELECTOR_ZERO_MOTOR_BLOCKED;
     g.speed.ref = 0;
     g.speed.ramp.target = 0;
     g.speed.controller_activated = 0;
 }
 
-uint8_t drive_state(){
+uint16_t drive_state(){
     return 0;
 }
 

@@ -66,7 +66,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     {      
         speed_control_timer = 0;
         // speed caculation
-        g.speed.value = g.speed.sectors_counted * (60 * SPEED_MEASUREMENTS_PER_SECOND / HALL_PULSES_PER_ROTATION);   // rpm 10*60/PULSES_PER_ROTATION = 100
+        g.speed.value = (int16_t)((int32_t)g.speed.sectors_counted * (60 * SPEED_MEASUREMENTS_PER_SECOND / HALL_PULSES_PER_ROTATION));   // rpm 10*60/PULSES_PER_ROTATION = 100
         g.speed.sectors_counted = 0;
         switch (state){
             // delaying start of speedcontroller to wait for valid speed measurement values
@@ -84,8 +84,8 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
                     else  PIController_Synthetise_ki(&g.speed.controller, double_to_fixed32(SPEED_CONTROLLER_KI));
                     */
                     PIController_Synthetise_ki(&g.speed.controller, double_to_fixed32(SPEED_CONTROLLER_KI));
-                    g.speed.out  = PIController_Compute(&g.speed.controller, g.speed.ref, g.speed.value); 
-                    g.current.ref = g.speed.out;
+                    g.speed.out  = (int16_t)PIController_Compute(&g.speed.controller, g.speed.ref, g.speed.value); 
+                    // g.current.ref = g.speed.out;
                 }
                 break;
         }
@@ -94,8 +94,9 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     if( ++timer_50ms == 50){
         timer_50ms = 0;
         g.vlink = ADC_Result(_VLINK);
-        g.speed.max = (SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.vlink * ADC_FACTOR_VLINK;
+        g.speed.max = (int16_t)((SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.vlink * ADC_FACTOR_VLINK);
         g.speed.ramp.target = (g.speed.ramp.target > g.speed.max)? g.speed.max : g.speed.ramp.target;
+        g.current.momentum = ADC_Result(_MOMENTUM)>1; // :2 0...2047
     }
 
     // every 100ms
@@ -141,7 +142,6 @@ int main(void){
            fletuino_loop();
         #endif       
 
-        g.drive_on = 1;
         if (actual_millis > previous_millis)
         {   
             previous_millis = actual_millis; 
@@ -163,7 +163,6 @@ int main(void){
                 //UART2_WriteNoneBlockingString(buffer);
                 // PWM_override(sector_index);
                 // PWM_override(7);
-                // g.drive_on = 1;
                 // g.speed.controller_activated=1;
                 // drive_set_speed_rpm(200);              
                  
