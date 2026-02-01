@@ -53,7 +53,7 @@ static void on_emergency_off(const char* event, const char* value){
 }
 
 static void on_zero_moment(const char* event, const char* value){
-    drive_stop(1);
+    drive_stop();
     fletuino_set_property_int(CONTROLLER_SELECTOR, "value", 0);
     fletuino_set_property_int(SLIDER_IREF, "value", 0);
     fletuino_set_property_int(SLIDER_SPEED_REF, "value", 0);

@@ -34,8 +34,29 @@ void ADC_SoftwareTriggerChannelSequencing(void)
     ADC_SoftwareTriggerConversion(ADC_GetSoftwareTriggeredChannel(index)); 
 }
 
+void handle_mode_selector_changing(void){
+    static uint16_t previous_mode_selector = 0; //g.mode_selector;
+    if (g.mode_selector == previous_mode_selector) return;
+    // changed
+    
+    if ((g.mode_selector == MODE_SELECTOR_ZERO_MOTOR_BLOCKED) || (g.mode_selector == MODE_SELECTOR_ZERO_MOTOR_FLOATING)){
+        
+    }
+    else if (g.mode_selector == MODE_SELECTOR_IREF){
+
+    }
+    else if ((g.mode_selector == MODE_SELECTOR_SPEEDCONTROLLER) && (previous_mode_selector == MODE_SELECTOR_MOMENTUM)){
+        // changed from speedcontroller to momentum (gas)
+    }
+    else if ((g.mode_selector == MODE_SELECTOR_MOMENTUM) && (previous_mode_selector == MODE_SELECTOR_SPEEDCONTROLLER )){
+        // changed from momentum (gas)to speedcontroller 
+    }
+    previous_mode_selector = g.mode_selector;
+}
+
 void current_controller(void){
     volatile static uint32_t count=0;
+    
     int32_t iref;
     if (++count % 10 == 0){  // every 10th calling
         // DEBUG_1_SetHigh();
@@ -87,6 +108,7 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
         case _I1:
             g.current.value = abs((g.energized_sector==1 || g.energized_sector==2)? ((int32_t)adcVal - 2048) : g.current.value);
             g.current.value = (g.direction == ANTICLOCKWISE)? -g.current.value : g.current.value;
+            handle_mode_selector_changing();
             break;
 
     #ifdef POWERLAB_HARDWARE
