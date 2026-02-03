@@ -29,6 +29,7 @@
 #define COL_WHITE "\033[0m"
 
 typedef struct _speed{
+    volatile uint8_t overruled_off;
     volatile uint16_t sectors_counted;
     volatile int16_t max;
     volatile int16_t ref;

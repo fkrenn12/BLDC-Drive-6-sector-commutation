@@ -140,7 +140,9 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
                     else  PIController_Synthetise_ki(&g.speed.controller, double_to_fixed32(SPEED_CONTROLLER_KI));
                     */
                     PIController_Synthetise_ki(&g.speed.controller, double_to_fixed32(SPEED_CONTROLLER_KI));
-                    g.speed.out  = (int16_t)PIController_Compute(&g.speed.controller, g.speed.ref, g.speed.value); 
+                    if (!g.speed.overruled_off){
+                        g.speed.out  = (int16_t)PIController_Compute(&g.speed.controller, g.speed.ref, g.speed.value); 
+                    }
                 }
                 break;
         }

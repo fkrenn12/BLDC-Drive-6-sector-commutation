@@ -38,7 +38,6 @@ void ADC_SoftwareTriggerChannelSequencing(void)
 
 void current_controller(void){
     volatile static uint32_t count=0;
-    
     int32_t iref;
     if (++count % 10 == 0){  // every 10th calling
         // DEBUG_1_SetHigh();
@@ -50,10 +49,17 @@ void current_controller(void){
                                         break; 
             case MODE_SELECTOR_SPEEDCONTROLLER:
                                         iref = g.speed.out;
-                                        iref = (g.current.momentum > iref)? g.current.momentum: iref;
+                                        // gehi noch nivht das umschalten 
+                                        /*
+                                        if ((g.direction == CLOCKWISE) && (g.current.momentum > iref)){
+                                            g.speed.overruled_off = 1;
+                                            iref = g.current.momentum;
+                                            PIController_SetIntegrator(&g.speed.controller, 0);
+                                        }
+                                        else g.speed.overruled_off = 0;
+                                        */
                                         break;
             case MODE_SELECTOR_MOMENTUM:iref = g.current.momentum; // reading momentum (gas)
-                                        
                                         iref = (g.direction == ANTICLOCKWISE)? -iref : iref;
                                         iref = (g.direction_request != g.direction)? 0 : iref;
                                         break;
