@@ -22,9 +22,21 @@ void on_speed_changed(const char* event, const char* value) {
 }
 
 static void on_momentum_changed(const char* event, const char* value){
-        Drive_setSoftwareCurrentRef((int16_t)(atoi(value)) * CURRENT_USAGE_OF_MAX_CURRENT);
-        // g.mode_selector = MODE_SELECTOR_IREF;
-        // fletuino_set_property_int(MODE_SELECTOR, "value", 0);
+        int16_t momentum = (int16_t)(atoi(value));
+        Drive_setSoftwareCurrentRef(momentum * CURRENT_USAGE_OF_MAX_CURRENT);
+        if (momentum > 50){
+            Drive_RunModeMomentum();
+            if (direction) Drive_RunForward();
+            else Drive_RunBackward();
+        }
+        else {
+            if (momentum_activated == 0)
+            {
+                Drive_RunModeCruiser();
+                Drive_setSpeedRpm(rpm);
+                fletuino_set_property_int(SLIDER_SPEED_REF, "value", rpm);
+            }
+        }
 }
 
 static void on_emergency_off(const char* event, const char* value){
@@ -59,15 +71,13 @@ static void on_switch(const char* event, const char* value)
     momentum_activated = (uint8_t)(atoi(value));
     if (momentum_activated){
         Drive_RunModeMomentum();
-        if (direction) Drive_RunBackward();
-        else Drive_RunForward();
+        if (direction) Drive_RunForward();
+        else Drive_RunBackward();
     }
     else {
         Drive_RunModeCruiser();
         Drive_setSpeedRpm(rpm);
         fletuino_set_property_int(SLIDER_SPEED_REF, "value", rpm);
-        // g.speed.controller.integrator = 0;
-        // g.speed.controller.output = 0;
     }
 }
 
