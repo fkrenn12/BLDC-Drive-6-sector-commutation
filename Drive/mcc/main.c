@@ -38,12 +38,11 @@ void handle_mode_selector(void){
 
     }
     else if ((g.mode_selector == MODE_SELECTOR_SPEEDCONTROLLER) && (previous_mode_selector == MODE_SELECTOR_MOMENTUM)){
-        // changed from momentum (gas)to speedcontroller 
-        g.speed.controller.integrator = 0;
+        // changed from momentum(gas) to speedcontroller 
+        PIController_ResetIntegrator(&g.speed.controller);
     }
     else if ((g.mode_selector == MODE_SELECTOR_MOMENTUM) && (previous_mode_selector == MODE_SELECTOR_SPEEDCONTROLLER )){
-        // changed from speedcontroller to momentum (gas) 
-        
+        // changed from speedcontroller to momentum(gas) 
     }
     previous_mode_selector = g.mode_selector;
 }
@@ -106,7 +105,6 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
             break;
     }
 
-    
     if (previous_millis == g.millis) {
         IFS0bits.T1IF = 0;
         return;
