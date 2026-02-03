@@ -43,7 +43,6 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _PWM1Interrupt ( void )
     g.energized_vector = (g.mode_selector==MODE_SELECTOR_ZERO_MOTOR_FLOATING)? 7 : g.energized_vector;
     g.energized_vector = (g.mode_selector==MODE_SELECTOR_ZERO_MOTOR_BLOCKED)? 0 : g.energized_vector;
     #ifdef COMMUTATING      
-        g.energized_vector = (MDC < 100)?0:g.energized_vector;
         PWM_override(g.energized_vector);
     #endif
     // counting sectors for speed measurement

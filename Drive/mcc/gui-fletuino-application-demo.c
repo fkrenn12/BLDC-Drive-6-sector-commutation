@@ -85,7 +85,7 @@ void start_page(){
     NUMERIC_VOLT = fletuino_numeric(0, ADC_FACTOR_VLINK, 0, 1 ," V",30);
     NUMERIC_DEBUG = fletuino_numeric(0, 1, 0, 0 ,"DIG",30);
     fletuino_bar((CONTROLS){NUMERIC_VOLT, NUMERIC_RPM, NUMERIC_CURRENT},4,"center-space-evenly");
-    SLIDER_MOMENTUM = fletuino_slider("Momentum-GAS", /*init*/0, /*min*/0, /*max*/4095 ,/*size*/30, /*event*/on_momentum_changed);
+    SLIDER_MOMENTUM = fletuino_slider("Momentum-GAS", /*init*/0, /*min*/0, /*max*/2047 ,/*size*/30, /*event*/on_momentum_changed);
     fletuino_set_property_int(SLIDER_MOMENTUM, "width", 600);
     MOMENTUM_RESET = fletuino_button("Reset momentum", "tag1", 30, on_zero_moment);
     fletuino_bar((CONTROLS){SLIDER_MOMENTUM,MOMENTUM_RESET},2,"center-space-evenly");
