@@ -1,5 +1,4 @@
 #pragma once 
-
 #include "fletuino/fletuino.h"
 #include "global.h"
 #include <string.h> 
@@ -8,6 +7,6 @@
 #include <inttypes.h>
 #include "lib/pi-controller.h"
 #include "drive.h"
-
+extern TGlobal g;
 void start_page(void);
 void gui_update(void);

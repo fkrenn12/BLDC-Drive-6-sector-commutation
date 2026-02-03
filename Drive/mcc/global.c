@@ -1,46 +1,33 @@
 #include "global.h"
 #include <errno.h>
 TGlobal g={
+    .demo = 0,
+    .address = 0,
     .millis = 0,
-    .mode_selector = MODE_SELECTOR_IREF,
+    .mode_selector = MODE_SELECTOR_ZERO_MOTOR_FLOATING,
     .vlink = 0,
     .direction = 0,
+    .direction_request = CLOCKWISE,
     .position_sector = 0,
-    .energized_sector = 0,
+    .energized_vector = 0,
     .current.value = 0,
     .current.ref = 0,
     .speed.value = 0,
     .speed.sectors_counted = 0,
-    .speed.ramp.value = 0,
-    .speed.ramp.target = 0,
+    .speed.ramp.out = 0,
+    .speed.ramp.in = 0,
     .MIN_OUTPUT_SPEED = 0,
     .MAX_OUTPUT_SPEED = 0
 };
 
 
-void GLOBAL_Init(void){
-    g.speed.ramp.counter = 0; // 50ms ramp interval
-    g.speed.ramp.interval = 100; // 50ms ramp interval
-    g.speed.ramp.upstep = 20;
-    g.speed.ramp.downstep = 200;
-
-    PIController_Init(&g.current.controller,
-        double_to_fixed32(CURRENT_CONTROLLER_KP), 
-        double_to_fixed32(CURRENT_CONTROLLER_KI),
-        double_to_fixed32(-3.99951171875),
-        double_to_fixed32(3.99951171875));
+void GLOBAL_Init(void){   
     
-    PIController_Init(&g.speed.controller,
-        double_to_fixed32(SPEED_CONTROLLER_KP), 
-        double_to_fixed32(SPEED_CONTROLLER_KI),
-        double_to_fixed32(-1.0 * CURRENT_USAGE_OF_MAX_CURRENT),
-        double_to_fixed32(0.99951171875 * CURRENT_USAGE_OF_MAX_CURRENT));
-
-    g.current.limit = double_to_fixed32(0.5);
     
-
+    // read addess from switch
+    g.address = (PORTC & 0x3C00)>>10; // RC10 to RC13
     INTCON1bits.NSTDIS = 0; // 0 = Interrupt nesting is enabled 
-    IPC16bits.PWM1IP = 4;
+    IPC16bits.PWM1IP = 4; // PWM has highest priority
 }
 
 uint64_t millis(void)

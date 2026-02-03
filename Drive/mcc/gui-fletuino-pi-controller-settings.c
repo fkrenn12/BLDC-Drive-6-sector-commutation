@@ -1,8 +1,6 @@
-#include "gui.h"
+#include "gui-fletuino-pi-controller-settings.h"
 
-
-extern TGlobal g;
-
+#ifdef FLETUINO_PI_CONTROLLER_SETTINGS
 uint16_t BUTTON_EMERGENCY_OFF, SLIDER_SPEED_REF, SLIDER_IREF, IREF_RESET, BUTTON_SPEED_REF_RESET, CONTROLLER_SELECTOR, NUMERIC_RPM, NUMERIC_CURRENT, NUMERIC_VOLT;
 
 static void on_speed_changed(const char* event, const char* value);
@@ -14,7 +12,7 @@ static void on_switch(const char* event, const char* value);
 void on_speed_changed(const char* event, const char* value) {
     if (strcmp(event, EVENT_CHANGED)==0) {
         // slider change
-        int16_t rpm = drive_set_speed_rpm((int16_t)atoi(value));
+        int16_t rpm = Drive_setSpeedRpm((int16_t)atoi(value));
         if (rpm >= g.speed.max){
             fletuino_set_property_int(SLIDER_SPEED_REF, "value", g.speed.max);
         }
@@ -28,11 +26,12 @@ void on_kp_speed_changed(const char* event, const char* value){
 void on_ki_speed_changed(const char* event, const char* value){
     double ki = (double)atof(value)*0.0001;
     PIController_Synthetise_ki(&g.speed.controller, double_to_fixed32(ki));
-    PIController_Reset_integrator(&g.speed.controller);
+    PIController_ResetIntegrator(&g.speed.controller);
 }
 
 static void on_iref_changed(const char* event, const char* value){
-        g.current.ref = (int32_t)(atoi(value)) * 1;
+        Drive_setSoftwareCurrentRef((int16_t)(atoi(value)) * CURRENT_USAGE_OF_MAX_CURRENT);
+        // g.current.ref = (int16_t)(atoi(value)) * 1;
         g.mode_selector = MODE_SELECTOR_IREF;
         fletuino_set_property_int(CONTROLLER_SELECTOR, "value", 0);
 }
@@ -45,23 +44,22 @@ static void on_kp_current_changed(const char* event, const char* value){
 static void on_ki_current_changed(const char* event, const char* value){
     double ki = (double)atof(value)*0.0001;
     PIController_Synthetise_ki(&g.current.controller, double_to_fixed32(ki));
-    PIController_Reset_integrator(&g.current.controller);
+    PIController_ResetIntegrator(&g.current.controller);
 }
 
 static void on_emergency_off(const char* event, const char* value){
-    drive_stop();  
+    Drive_Stop();  
 }
 
 static void on_zero_moment(const char* event, const char* value){
-    drive_stop();
+    Drive_Stop();
     fletuino_set_property_int(CONTROLLER_SELECTOR, "value", 0);
     fletuino_set_property_int(SLIDER_IREF, "value", 0);
     fletuino_set_property_int(SLIDER_SPEED_REF, "value", 0);
 }
 
 static void on_zero_speed(const char* event, const char* value){
-    g.speed.ref = 0;
-    g.speed.ramp.target = 0;
+    Drive_setSpeedRpm(0);
     fletuino_set_property_int(SLIDER_SPEED_REF, "value", 0);
 }
 
@@ -74,18 +72,17 @@ bool on_any_event(const uint16_t id,const char* event, const char* value)
 
 static void on_switch(const char* event, const char* value)
 {
-    g.speed.controller_activated = (uint8_t)(atoi(value));
-    if (g.speed.controller_activated){
-        g.mode_selector = MODE_SELECTOR_SPEEDCONTROLLER;
+    uint8_t activated = (uint8_t)(atoi(value));
+    if (activated) g.mode_selector = MODE_SELECTOR_SPEEDCONTROLLER;
+    else g.mode_selector = MODE_SELECTOR_IREF;
+    if (activated){
         if (g.current.ref >= 0){
-            g.speed.ramp.target = g.speed.value;
+            g.speed.ramp.in = g.speed.value;
             g.speed.controller.integrator = g.current.ref;
             fletuino_set_property_int(SLIDER_SPEED_REF, "value", g.speed.value);
         }
         else{
             // no speed control in reverse direction
-            g.mode_selector = MODE_SELECTOR_IREF;
-            g.speed.controller_activated = 0;
             fletuino_set_property_int(CONTROLLER_SELECTOR, "value", 0);
         }
     }
@@ -127,3 +124,4 @@ void gui_update(void){
     fletuino_set_value_int(NUMERIC_CURRENT, g.current.value);
     fletuino_set_value_int(NUMERIC_VOLT, g.vlink);
 }
+#endif

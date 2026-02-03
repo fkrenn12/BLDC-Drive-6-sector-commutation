@@ -10,12 +10,65 @@
 #include "lib/pi-controller.h"
 #include "global.h"
 #include "configuration.h"
-#include "gui.h"
 #include "adc-current-measurement-and-control.h"
 #include "lib/ramp.h"
 #include "serial-command-interpreter.h"
+#ifdef FLETUINO_PI_CONTROLLER_SETTINGS
+    #include "gui-fletuino-pi-controller-settings.h"
+#endif
+#ifdef FLETUINO_APPLICATION_DEMO
+    #include "gui-fletuino-application-demo.h"
+#endif
 
 extern TGlobal g;
+
+
+void handle_mode_selector(void){
+    static uint16_t previous_mode_selector = 0; //g.mode_selector;
+    if (g.mode_selector == previous_mode_selector) return;
+    // changed
+    
+    if ((g.mode_selector == MODE_SELECTOR_ZERO_MOTOR_BLOCKED) || (g.mode_selector == MODE_SELECTOR_ZERO_MOTOR_FLOATING)){
+        PIController_ResetIntegrator(&g.speed.controller);
+        PIController_ResetIntegrator(&g.current.controller);
+        g.speed.ramp.in = 0;
+        ramp_reset(&g.speed.ramp);
+    }
+    else if (g.mode_selector == MODE_SELECTOR_IREF){
+
+    }
+    else if ((g.mode_selector == MODE_SELECTOR_SPEEDCONTROLLER) && (previous_mode_selector == MODE_SELECTOR_MOMENTUM)){
+        // changed from momentum (gas)to speedcontroller 
+        g.speed.controller.integrator = 0;
+    }
+    else if ((g.mode_selector == MODE_SELECTOR_MOMENTUM) && (previous_mode_selector == MODE_SELECTOR_SPEEDCONTROLLER )){
+        // changed from speedcontroller to momentum (gas) 
+        
+    }
+    previous_mode_selector = g.mode_selector;
+}
+
+void handle_direction_request(void){
+    static uint8_t previous_direction_request = 0; 
+    static uint8_t state = 0;
+    if (g.direction_request != previous_direction_request) {
+        previous_direction_request = g.direction_request;  
+        state = 0;
+    }
+    IO_LED_SetHigh();
+    switch (state){
+        case 0: if (g.mode_selector == MODE_SELECTOR_MOMENTUM) state++;
+                break;
+        case 1: if (abs(g.speed.value) > SPEED_THRESHOLD_FOR_DIRECTION_CHANGE) break;
+                // to take new direction the rotating speed must be below threshold
+                IO_LED_SetLow();
+                g.direction = g.direction_request;
+                state++;
+                break;
+        default: break;
+    }   
+}
+
 // ########################################################################
 //              Timer1 Interrupt Service Routine ( 250µs Callback ) 
 // ########################################################################
@@ -37,8 +90,10 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     postdivider++;
     switch (postdivider){
         case 1:
+            handle_mode_selector();
             break;
         case 2:
+            handle_direction_request();
             break;
         case 3:
             break;
@@ -60,7 +115,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     // here we are every ms
     previous_millis = g.millis;
 
-    g.speed.ref = ramp(&g.speed.ramp); 
+    g.speed.ref = ramp_calculate(&g.speed.ramp); 
 
     if (++speed_control_timer == INTERVAL_BETWEEN_MEASUREMENTS_MS)
     {      
@@ -68,24 +123,24 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         // speed caculation
         g.speed.value = (int16_t)((int32_t)g.speed.sectors_counted * (60 * SPEED_MEASUREMENTS_PER_SECOND / HALL_PULSES_PER_ROTATION));   // rpm 10*60/PULSES_PER_ROTATION = 100
         g.speed.sectors_counted = 0;
+        g.speed.value = (g.direction_of_rotation == CLOCKWISE)? g.speed.value: -g.speed.value; 
         switch (state){
             // delaying start of speedcontroller to wait for valid speed measurement values
             case 0: state++; 
                     break;
             case 1:
-                if (g.speed.controller_activated) {
+                if (g.mode_selector == MODE_SELECTOR_SPEEDCONTROLLER) {
                     // not a good solution yet
                     /*
                     if (g.speed.value > g.speed.ref + 200)
                     {
                         PIController_Synthetise_ki(&g.speed.controller, double_to_fixed32(0)); // double_to_fixed32(SPEED_CONTROLLER_KI),
-                        PIController_Reset_integrator(&g.speed.controller);
+                        PIController_ResetIntegrator(&g.speed.controller);
                     }
                     else  PIController_Synthetise_ki(&g.speed.controller, double_to_fixed32(SPEED_CONTROLLER_KI));
                     */
                     PIController_Synthetise_ki(&g.speed.controller, double_to_fixed32(SPEED_CONTROLLER_KI));
                     g.speed.out  = (int16_t)PIController_Compute(&g.speed.controller, g.speed.ref, g.speed.value); 
-                    // g.current.ref = g.speed.out;
                 }
                 break;
         }
@@ -95,8 +150,9 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         timer_50ms = 0;
         g.vlink = ADC_Result(_VLINK);
         g.speed.max = (int16_t)((SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.vlink * ADC_FACTOR_VLINK);
-        g.speed.ramp.target = (g.speed.ramp.target > g.speed.max)? g.speed.max : g.speed.ramp.target;
-        g.current.momentum = ADC_Result(_MOMENTUM)>1; // :2 0...2047
+        g.speed.ramp.in = (g.speed.ramp.in > g.speed.max)? g.speed.max : g.speed.ramp.in;
+        g.current.momentum = ADC_Result(_MOMENTUM)>1; // :2 =  0...2047
+        g.current.momentum = (g.demo)? g.current.ref: g.current.momentum;
     }
 
     // every 100ms
@@ -106,6 +162,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     }    
     IFS0bits.T1IF = 0;  
 }
+
 
 // ########################################################################
 //                  Main Function
@@ -117,6 +174,7 @@ int main(void){
     UART2_Initialize();
     PWM_Initialize();
     GLOBAL_Init();
+    Drive_Init();
 
     #ifdef FLETUINO 
         fletuino_init(UART2_RxBufferedAvailable, UART2_RxBufferedReadByte, UART2_WriteBlockingByte, start_page); 
@@ -151,20 +209,19 @@ int main(void){
 
             if (eventTimer1 == 100){  // every 100 milliseconds 
                 eventTimer1 = 0;         
-                IO_LED_Toggle();
+                // IO_LED_Toggle();
             }
                                                                                
             if (eventTimer2 == 2000){ 
                 eventTimer2 = 0;
-                // g.direction = ANTICLOCKWISE; //CLOCKWISE; //  ANTICLOCKWISE; 
+                // g.direction_of_rotation = ANTICLOCKWISE; //CLOCKWISE; //  ANTICLOCKWISE; 
                 // MDC = 5000;
                 // PG1STATbits.UPDREQ = 1; 
                 //sprintf(buffer,"index %d - energized %d - actual %d\n\r", sector_index, sector, get_actual_sector());
                 //UART2_WriteNoneBlockingString(buffer);
                 // PWM_override(sector_index);
                 // PWM_override(7);
-                // g.speed.controller_activated=1;
-                // drive_set_speed_rpm(200);              
+                // Drive_setSpeedRpm(200);              
                  
             }
             if (eventTimer3 == 50){  // every 50 milliseconds  

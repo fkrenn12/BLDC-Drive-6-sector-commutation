@@ -18,5 +18,7 @@ typedef struct _piController{
 void PIController_Init(PIController* controller, fixed32_point_t kp, fixed32_point_t ki, fixed32_point_t limit_min, fixed32_point_t limit_max);
 void PIController_Synthetise_kp(PIController* controller, fixed32_point_t kp);
 void PIController_Synthetise_ki(PIController* controller, fixed32_point_t ki);
-void PIController_Reset_integrator(PIController* controller);
+void PIController_ResetIntegrator(PIController* controller);
+void PIController_SetIntegrator(PIController* controller, fixed32_point_t integrator);
+fixed32_point_t PIController_GetIntegrator(PIController* controller);
 fixed32_point_t PIController_Compute(PIController *controller, fixed32_point_t setpoint, fixed32_point_t measured_value);

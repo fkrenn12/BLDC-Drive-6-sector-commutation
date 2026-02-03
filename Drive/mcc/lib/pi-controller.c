@@ -27,8 +27,14 @@ void PIController_Synthetise_kp(PIController* controller, fixed32_point_t kp)
 void PIController_Synthetise_ki(PIController* controller, fixed32_point_t ki)
     {controller->ki = ki;}
 
-void PIController_Reset_integrator(PIController* controller)
+void PIController_ResetIntegrator(PIController* controller)
     {controller->integrator = 0;}
+
+fixed32_point_t PIController_GetIntegrator(PIController* controller)
+    {return controller->integrator;}
+
+void PIController_SetIntegrator(PIController* controller, fixed32_point_t integrator)
+    {controller->integrator = integrator;}
 
 //Function to calculate the PI controller output
 fixed32_point_t PIController_Compute(PIController *controller, fixed32_point_t setpoint, fixed32_point_t measured_value)

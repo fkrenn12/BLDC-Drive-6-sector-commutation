@@ -34,25 +34,7 @@ void ADC_SoftwareTriggerChannelSequencing(void)
     ADC_SoftwareTriggerConversion(ADC_GetSoftwareTriggeredChannel(index)); 
 }
 
-void handle_mode_selector_changing(void){
-    static uint16_t previous_mode_selector = 0; //g.mode_selector;
-    if (g.mode_selector == previous_mode_selector) return;
-    // changed
-    
-    if ((g.mode_selector == MODE_SELECTOR_ZERO_MOTOR_BLOCKED) || (g.mode_selector == MODE_SELECTOR_ZERO_MOTOR_FLOATING)){
-        
-    }
-    else if (g.mode_selector == MODE_SELECTOR_IREF){
 
-    }
-    else if ((g.mode_selector == MODE_SELECTOR_SPEEDCONTROLLER) && (previous_mode_selector == MODE_SELECTOR_MOMENTUM)){
-        // changed from speedcontroller to momentum (gas)
-    }
-    else if ((g.mode_selector == MODE_SELECTOR_MOMENTUM) && (previous_mode_selector == MODE_SELECTOR_SPEEDCONTROLLER )){
-        // changed from momentum (gas)to speedcontroller 
-    }
-    previous_mode_selector = g.mode_selector;
-}
 
 void current_controller(void){
     volatile static uint32_t count=0;
@@ -68,19 +50,22 @@ void current_controller(void){
                                         break; 
             case MODE_SELECTOR_SPEEDCONTROLLER:
                                         iref = g.speed.out;
+                                        iref = (g.current.momentum > iref)? g.current.momentum: iref;
                                         break;
             case MODE_SELECTOR_MOMENTUM:iref = g.current.momentum; // reading momentum (gas)
+                                        
+                                        iref = (g.direction == ANTICLOCKWISE)? -iref : iref;
+                                        iref = (g.direction_request != g.direction)? 0 : iref;
                                         break;
-            case MODE_SELECTOR_IREF:    iref = g.current.ref;
+            case MODE_SELECTOR_IREF:    iref = (int32_t)g.current.ref;
                                         break;
         }
         
         // dynamic current limiter 
-        // iref = g.current.ref;
         iref = (iref > g.current.limit)? g.current.limit : iref;
         iref = (iref  < -g.current.limit)? g.current.limit : iref;
         int16_t duty_cycle = PIController_Compute(&g.current.controller, iref, g.current.value);
-        g.direction = (duty_cycle < 0)? ANTICLOCKWISE : CLOCKWISE;
+        g.direction_of_rotation = (duty_cycle < 0)? ANTICLOCKWISE : CLOCKWISE;
         duty_cycle = abs(duty_cycle);
         duty_cycle = (duty_cycle > PWM_MAX_DUTY)? PWM_MAX_DUTY : duty_cycle; // limit duty cycle to 100%
         MDC = abs(duty_cycle);
@@ -106,23 +91,22 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     // DEBUG_0_SetHigh();
     switch(channel){
         case _I1:
-            g.current.value = abs((g.energized_sector==1 || g.energized_sector==2)? ((int32_t)adcVal - 2048) : g.current.value);
-            g.current.value = (g.direction == ANTICLOCKWISE)? -g.current.value : g.current.value;
-            handle_mode_selector_changing();
+            g.current.value = abs((g.energized_vector==1 || g.energized_vector==2)? ((int32_t)adcVal - 2048) : g.current.value);
+            g.current.value = (g.direction_of_rotation == ANTICLOCKWISE)? -g.current.value : g.current.value;
             break;
 
-    #ifdef POWERLAB_HARDWARE
+    #ifdef SMART_POWERLAB_HARDWARE
         case _I2_PowerLab:
     #else
         case _I2:
     #endif
-            g.current.value  = abs((g.energized_sector==3 || g.energized_sector==4)? ((int32_t)adcVal - 2048) : g.current.value);
-            g.current.value = (g.direction == ANTICLOCKWISE)? -g.current.value : g.current.value;
+            g.current.value  = abs((g.energized_vector==3 || g.energized_vector==4)? ((int32_t)adcVal - 2048) : g.current.value);
+            g.current.value = (g.direction_of_rotation == ANTICLOCKWISE)? -g.current.value : g.current.value;
             current_controller(); // channel I2 is the last channel to be read, so, the best place to call the current controller is here.
             break;
         case _I3:
-            g.current.value = abs((g.energized_sector==5 || g.energized_sector==6)? ((int32_t)adcVal - 2048) : g.current.value);
-            g.current.value = (g.direction == ANTICLOCKWISE)? -g.current.value : g.current.value;           
+            g.current.value = abs((g.energized_vector==5 || g.energized_vector==6)? ((int32_t)adcVal - 2048) : g.current.value);
+            g.current.value = (g.direction_of_rotation == ANTICLOCKWISE)? -g.current.value : g.current.value;           
             break;
         default:
             break;

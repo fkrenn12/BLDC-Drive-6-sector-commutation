@@ -1,8 +1,8 @@
 #include "ramp.h"
 
-void ramp_init(TRamp* ramp, int32_t value, int32_t target, int32_t upstep, int32_t downstep, int32_t interval){
-    ramp->value = value;
-    ramp->target = target;
+void ramp_init(TRamp* ramp, int16_t out, int16_t in, int16_t upstep, int16_t downstep, int16_t interval){
+    ramp->out = out;
+    ramp->in = in;
     ramp->upstep = upstep;
     ramp->downstep = downstep;
     ramp->interval = interval;
@@ -10,21 +10,21 @@ void ramp_init(TRamp* ramp, int32_t value, int32_t target, int32_t upstep, int32
 }
 
 void ramp_reset(TRamp* ramp){
-    ramp->value = ramp->target;
+    ramp->out = ramp->in;
     ramp->counter = 0;
 }
 
-int32_t ramp(TRamp* ramp){
+int16_t ramp_calculate(TRamp* ramp){
     if (++ramp->counter % ramp->interval == 0){  
         ramp->counter = 0;
-        if (ramp->target > ramp->value){
-            ramp->value += ramp->upstep;
-            ramp->value = (ramp->value > ramp->target)? ramp->target : ramp->value; // upper border
+        if (ramp->in > ramp->out){
+            ramp->out += ramp->upstep;
+            ramp->out = (ramp->out > ramp->in)? ramp->in : ramp->out; // upper border
         }
-        else if (ramp->target < ramp->value){
-            ramp->value -= ramp->downstep;
-            ramp->value = (ramp->value < ramp->target)? ramp->target : ramp->value; // lower border
+        else if (ramp->in < ramp->out){
+            ramp->out -= ramp->downstep;
+            ramp->out = (ramp->out < ramp->in)? ramp->in : ramp->out; // lower border
         }
     }
-    return ramp->value;
+    return ramp->out;
 }

@@ -4,12 +4,16 @@
 #include <inttypes.h>
 #include "global.h"
 
-void drive_init(void);
-void drive_run(void);
-void drive_stop(void);
-uint16_t drive_state();
-int16_t drive_set_speed_rpm(int16_t rpm);
-void set_current_limit();
-void reset_current_limit();
-void set_cruise_mode();
-void set_momentum_mode();
+void Drive_Init(void);
+void Drive_RunModeMomentum(void);
+void Drive_RunForward(void);
+void Drive_RunBackward(void);
+void Drive_RunModeCruiser(void);
+void Drive_Stop(void);
+int16_t Drive_setSpeedRpm(int16_t rpm);
+int16_t Drive_getSpeedRpm(void);
+void Drive_setSoftwareCurrentRef(int16_t currentRef);
+void Drive_SetCurrentLimit();
+void Drive_ResetCurrentLimit();
+uint16_t Drive_getState(void);
+
