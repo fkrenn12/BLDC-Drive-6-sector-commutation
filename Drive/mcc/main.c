@@ -22,50 +22,109 @@
 
 extern TGlobal g;
 
+void statemachine(void){
+    enum {INIT, START, RUN_MOMENTUM, RUN_SPEEDCONTROLLER ,CHANGE_DIRECTION };
+    static uint8_t  state = INIT;
+    g.state = state;  // zum debuggen 
+    switch (state){
+        case INIT:      ramp_init(&g.speed.ramp, 0, 0, 20, 200, 100); // up 20rpm/100ms;down 200rpm/100ms
+                        ramp_init(&g.current.ramp, 0, 0, 200, 50, 50); 
+                        state = START; 
+                        break;
 
-void handle_mode_selector(void){
-    static uint16_t previous_mode_selector = 0; //g.mode_selector;
-    if (g.mode_selector == previous_mode_selector) return;
-    // changed
-    
-    if ((g.mode_selector == MODE_SELECTOR_ZERO_MOTOR_BLOCKED) || (g.mode_selector == MODE_SELECTOR_ZERO_MOTOR_FLOATING)){
-        PIController_ResetIntegrator(&g.speed.controller);
-        PIController_ResetIntegrator(&g.current.controller);
-        g.speed.ramp.in = 0;
-        ramp_reset(&g.speed.ramp);
-    }
-    else if (g.mode_selector == MODE_SELECTOR_IREF){
+        case START:     if (abs(g.speed.value) < 100)
+                            g.mode_selector = MODE_MOTOR_BLOCKED;
+
+                        if (g.input.f_r != g.direction){ 
+                            state = CHANGE_DIRECTION;
+                            g.mode_selector = MODE_MOMENTUM_ZERO_CURRENT;
+                            break;
+                        }
+                        // wait until momentum required
+                        if (g.current.momentum != 0){
+                            g.mode_selector = MODE_MOMENTUM;
+                            state = RUN_MOMENTUM; 
+                            break;
+                        }
+                        // check speedcontrol
+                        if ((g.input.a_m) && (g.input.speedRpm)){
+                            g.mode_selector = MODE_SPEEDCONTROLLER;
+                            g.speed.ramp.in = 0;
+                            ramp_reset(&g.speed.ramp);
+                            state = RUN_SPEEDCONTROLLER; 
+                            break;
+                        }
+                        break;
+        case RUN_MOMENTUM: 
+                        if (g.current.ref == 0 && abs(g.speed.value) < 200){ 
+                            // halted
+                            g.mode_selector = MODE_MOTOR_BLOCKED; 
+                            state = START;
+                            break;
+                        }
+                        if (g.input.f_r != g.direction){ 
+                            state = CHANGE_DIRECTION;
+                            g.mode_selector = MODE_MOMENTUM_ZERO_CURRENT;
+                            break;
+                        }
+                        break;
+        case RUN_SPEEDCONTROLLER:    
+                        g.speed.ramp.in = g.input.speedRpm;
+                        if ((g.input.speedRpm == 0) || (!g.input.a_m)){
+                            g.speed.ramp.in = 0;  // slow down
+                            if (abs(g.speed.value) <100){
+                                state = START;
+                            }
+                            break;
+                        }
+                        if (g.current.momentum != 0){
+                            g.mode_selector = MODE_MOMENTUM;
+                            state = RUN_MOMENTUM; 
+                            break;
+                        }
+                        break;
+        case CHANGE_DIRECTION:
+                        // wait until speed goes below threshold
+                        if (abs(g.speed.value) < 100){
+                            g.direction = g.input.f_r;
+                            state = START;
+                        }
+                        break;
+        default:        state = INIT;
+                        break;
 
     }
-    else if ((g.mode_selector == MODE_SELECTOR_SPEEDCONTROLLER) && (previous_mode_selector == MODE_SELECTOR_MOMENTUM)){
-        // changed from momentum(gas) to speedcontroller 
-        PIController_ResetIntegrator(&g.speed.controller);
-    }
-    else if ((g.mode_selector == MODE_SELECTOR_MOMENTUM) && (previous_mode_selector == MODE_SELECTOR_SPEEDCONTROLLER )){
-        // changed from speedcontroller to momentum(gas) 
-    }
-    previous_mode_selector = g.mode_selector;
 }
 
-void handle_direction_request(void){
-    static uint8_t previous_direction_request = 0; 
-    static uint8_t state = 0;
-    if (g.direction_request != previous_direction_request) {
-        previous_direction_request = g.direction_request;  
-        state = 0;
+// select g.current.ref depending on mode_selector
+void iref_selector(void){
+    switch(g.mode_selector){
+        case MODE_MOTOR_BLOCKED:
+        case MODE_MOTOR_FLOATING:
+        case MODE_SPEEDCONTROLLER_ZERO_CURRENT:
+        case MODE_MOMENTUM_ZERO_CURRENT:
+                                    // g.current.ramp.in = 0;
+                                    g.current.ref = 0; //g.current.ref_ramped;
+                                    break; 
+        case MODE_SPEEDCONTROLLER:  g.current.ref = g.speed.out;
+                                    break;
+        case MODE_MOMENTUM:         // g.current.ramp.in = g.current.momentum;
+                                    g.current.ref = g.current.momentum; //g.current.ref_ramped; 
+                                    g.current.ref = (g.direction == CLOCKWISE)? g.current.ref : -g.current.ref;
+                                    break;
     }
-    IO_LED_SetHigh();
-    switch (state){
-        case 0: if (g.mode_selector == MODE_SELECTOR_MOMENTUM) state++;
-                break;
-        case 1: if (abs(g.speed.value) > SPEED_THRESHOLD_FOR_DIRECTION_CHANGE) break;
-                // to take new direction the rotating speed must be below threshold
-                IO_LED_SetLow();
-                g.direction = g.direction_request;
-                state++;
-                break;
-        default: break;
-    }   
+}
+
+// KI generated value clamped to range
+static inline uint16_t map_range_clamped(uint16_t in,
+                                         uint16_t in_min, uint16_t in_max,
+                                         uint16_t out_min, uint16_t out_max)
+{
+    if (in <= in_min) return out_min;
+    if (in >= in_max) return out_max;
+    uint32_t num = (uint32_t)(in - in_min) * (out_max - out_min);
+    uint32_t den = (uint32_t)(in_max - in_min);
+    return (uint16_t)(out_min + (num + (den >> 1)) / den);
 }
 
 // ########################################################################
@@ -89,10 +148,12 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     postdivider++;
     switch (postdivider){
         case 1:
-            handle_mode_selector();
+            #ifndef FLETUINO_PI_CONTROLLER_SETTINGS
+                statemachine();
+            #endif
             break;
         case 2:
-            handle_direction_request();
+            iref_selector();
             break;
         case 3:
             break;
@@ -113,7 +174,8 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     // here we are every ms
     previous_millis = g.millis;
 
-    g.speed.ref = ramp_calculate(&g.speed.ramp); 
+    g.speed.ref            = ramp_calculate(&g.speed.ramp);
+    g.current.ref_ramped   = ramp_calculate(&g.current.ramp);  
 
     if (++speed_control_timer == INTERVAL_BETWEEN_MEASUREMENTS_MS)
     {      
@@ -127,7 +189,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
             case 0: state++; 
                     break;
             case 1:
-                if (g.mode_selector == MODE_SELECTOR_SPEEDCONTROLLER) {
+                if (g.mode_selector == MODE_SPEEDCONTROLLER) {
                     // not a good solution yet
                     /*
                     if (g.speed.value > g.speed.ref + 200)
@@ -138,21 +200,23 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
                     else  PIController_Synthetise_ki(&g.speed.controller, double_to_fixed32(SPEED_CONTROLLER_KI));
                     */
                     PIController_Synthetise_ki(&g.speed.controller, double_to_fixed32(SPEED_CONTROLLER_KI));
-                    if (!g.speed.overruled_off){
-                        g.speed.out  = (int16_t)PIController_Compute(&g.speed.controller, g.speed.ref, g.speed.value); 
-                    }
+                    g.speed.out  = (int16_t)PIController_Compute(&g.speed.controller, g.speed.ref, g.speed.value); 
                 }
                 break;
         }
     } 
-    // every 50ms
+    // every 50ms reading inputs
     if( ++timer_50ms == 50){
         timer_50ms = 0;
         g.vlink = ADC_Result(_VLINK);
         g.speed.max = (int16_t)((SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.vlink * ADC_FACTOR_VLINK);
         g.speed.ramp.in = (g.speed.ramp.in > g.speed.max)? g.speed.max : g.speed.ramp.in;
-        g.current.momentum = ADC_Result(_MOMENTUM)>1; // :2 =  0...2047
-        g.current.momentum = (g.demo)? g.current.ref: g.current.momentum;
+        g.input.gas = (g.demo)? g.input.gas: ADC_Result(_MOMENTUM);
+        g.input.f_r = (g.demo)? g.input.f_r: (uint8_t)(PORTB & 0x01); //RB0
+        g.input.a_m = (g.demo)? g.input.a_m: (uint8_t)(PORTD & 0x400); //RD10
+        #ifndef FLETUINO_PI_CONTROLLER_SETTINGS
+            g.current.momentum = map_range_clamped(g.input.gas, 150, 4095, 0, 2047);
+        #endif
     }
 
     // every 100ms

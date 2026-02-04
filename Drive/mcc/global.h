@@ -15,11 +15,13 @@
 
 #define CLOCKWISE 1
 #define ANTICLOCKWISE 0
-#define MODE_SELECTOR_ZERO_MOTOR_BLOCKED 0
-#define MODE_SELECTOR_ZERO_MOTOR_FLOATING 1
-#define MODE_SELECTOR_SPEEDCONTROLLER 2
-#define MODE_SELECTOR_MOMENTUM 3
-#define MODE_SELECTOR_IREF 4
+#define MODE_MOTOR_BLOCKED 0
+#define MODE_MOTOR_FLOATING 1
+#define MODE_SPEEDCONTROLLER 2
+#define MODE_SPEEDCONTROLLER_ZERO_CURRENT 3
+#define MODE_MOMENTUM 4
+#define MODE_MOMENTUM_ZERO_CURRENT 5
+
 
 // console output colors
 #define COL_RED "\033[31m"
@@ -28,8 +30,14 @@
 #define COL_VIOLETT "\033[35m"
 #define COL_WHITE "\033[0m"
 
+typedef struct _input{
+    volatile int16_t gas;      // gas pedal
+    volatile int16_t speedRpm; // speed
+    volatile uint8_t f_r;       // forwars/backward pin
+    volatile uint8_t a_m;       // automatic/momentum pin
+}TInput;
+
 typedef struct _speed{
-    volatile uint8_t overruled_off;
     volatile uint16_t sectors_counted;
     volatile int16_t max;
     volatile int16_t ref;
@@ -41,9 +49,11 @@ typedef struct _speed{
 
 typedef struct _current{
     volatile int16_t ref;
+    volatile int16_t ref_ramped;
     volatile int32_t value;
     volatile int32_t limit;
     volatile int16_t momentum;
+    TRamp ramp;
     PIController controller;
 }TCurrent;
 
@@ -52,14 +62,15 @@ typedef struct _global{
     volatile uint8_t address;
     volatile uint64_t millis;    
     volatile uint8_t direction;
-    volatile uint8_t direction_request;
     volatile uint8_t direction_of_rotation;
     volatile uint16_t mode_selector;
     volatile uint8_t position_sector;
     volatile uint8_t energized_vector;
     volatile int32_t vlink;
+    volatile uint8_t state;
     TSpeed speed;
     TCurrent current; 
+    TInput input;
     fixed32_point_t MIN_OUTPUT_SPEED;
     fixed32_point_t MAX_OUTPUT_SPEED;
 }TGlobal;

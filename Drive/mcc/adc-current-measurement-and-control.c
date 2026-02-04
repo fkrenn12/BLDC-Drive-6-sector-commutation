@@ -34,43 +34,15 @@ void ADC_SoftwareTriggerChannelSequencing(void)
     ADC_SoftwareTriggerConversion(ADC_GetSoftwareTriggeredChannel(index)); 
 }
 
-
-
 void current_controller(void){
     volatile static uint32_t count=0;
-    int32_t iref;
     if (++count % 10 == 0){  // every 10th calling
         // DEBUG_1_SetHigh();
         count = 0;
-        switch(g.mode_selector){
-            case MODE_SELECTOR_ZERO_MOTOR_BLOCKED:
-            case MODE_SELECTOR_ZERO_MOTOR_FLOATING:
-                                        iref = 0;
-                                        break; 
-            case MODE_SELECTOR_SPEEDCONTROLLER:
-                                        iref = g.speed.out;
-                                        // gehi noch nivht das umschalten 
-                                        /*
-                                        if ((g.direction == CLOCKWISE) && (g.current.momentum > iref)){
-                                            g.speed.overruled_off = 1;
-                                            iref = g.current.momentum;
-                                            PIController_SetIntegrator(&g.speed.controller, 0);
-                                        }
-                                        else g.speed.overruled_off = 0;
-                                        */
-                                        break;
-            case MODE_SELECTOR_MOMENTUM:iref = g.current.momentum; // reading momentum (gas)
-                                        iref = (g.direction == ANTICLOCKWISE)? -iref : iref;
-                                        iref = (g.direction_request != g.direction)? 0 : iref;
-                                        break;
-            case MODE_SELECTOR_IREF:    iref = (int32_t)g.current.ref;
-                                        break;
-        }
-        
-        // dynamic current limiter 
-        iref = (iref > g.current.limit)? g.current.limit : iref;
-        iref = (iref  < -g.current.limit)? g.current.limit : iref;
-        int16_t duty_cycle = PIController_Compute(&g.current.controller, iref, g.current.value);
+        // current limiter 
+        g.current.ref = (g.current.ref > g.current.limit)? g.current.limit : g.current.ref;
+        g.current.ref = (g.current.ref < -g.current.limit)? -g.current.limit : g.current.ref;
+        int16_t duty_cycle = PIController_Compute(&g.current.controller, g.current.ref, g.current.value);
         g.direction_of_rotation = (duty_cycle < 0)? ANTICLOCKWISE : CLOCKWISE;
         duty_cycle = abs(duty_cycle);
         duty_cycle = (duty_cycle > PWM_MAX_DUTY)? PWM_MAX_DUTY : duty_cycle; // limit duty cycle to 100%

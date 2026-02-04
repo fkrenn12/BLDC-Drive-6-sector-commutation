@@ -2,6 +2,7 @@
 
 #ifdef FLETUINO_PI_CONTROLLER_SETTINGS
 uint16_t BUTTON_EMERGENCY_OFF, SLIDER_SPEED_REF, SLIDER_IREF, IREF_RESET, BUTTON_SPEED_REF_RESET, CONTROLLER_SELECTOR, NUMERIC_RPM, NUMERIC_CURRENT, NUMERIC_VOLT;
+uint16_t SLIDER_CURRENT_KI, SLIDER_CURRENT_KP, SLIDER_SPEED_KI, SLIDER_SPEED_KP;
 
 static void on_speed_changed(const char* event, const char* value);
 static void on_iref_changed(const char* event, const char* value);
@@ -13,6 +14,7 @@ void on_speed_changed(const char* event, const char* value) {
     if (strcmp(event, EVENT_CHANGED)==0) {
         // slider change
         int16_t rpm = Drive_setSpeedRpm((int16_t)atoi(value));
+        g.speed.ramp.in = rpm;
         if (rpm >= g.speed.max){
             fletuino_set_property_int(SLIDER_SPEED_REF, "value", g.speed.max);
         }
@@ -22,29 +24,42 @@ void on_speed_changed(const char* event, const char* value) {
 void on_kp_speed_changed(const char* event, const char* value){
     double kp = (double)atof(value)*0.0001;
     PIController_Synthetise_kp(&g.speed.controller, double_to_fixed32(kp));
+    char t[50];
+    sprintf(t, "KP Speed %.8f", kp);
+    fletuino_set_property_str(SLIDER_SPEED_KP, "text", t);
 }
+
 void on_ki_speed_changed(const char* event, const char* value){
     double ki = (double)atof(value)*0.0001;
     PIController_Synthetise_ki(&g.speed.controller, double_to_fixed32(ki));
-    PIController_ResetIntegrator(&g.speed.controller);
+    // PIController_ResetIntegrator(&g.speed.controller);
+    char t[50];
+    sprintf(t, "KI Speed %.8f", ki);
+    fletuino_set_property_str(SLIDER_SPEED_KI, "text", t);
 }
 
 static void on_iref_changed(const char* event, const char* value){
-        Drive_setSoftwareCurrentRef((int16_t)(atoi(value)) * CURRENT_USAGE_OF_MAX_CURRENT);
-        // g.current.ref = (int16_t)(atoi(value)) * 1;
-        g.mode_selector = MODE_SELECTOR_IREF;
+        // Drive_setSoftwareCurrentRef((int16_t)(atoi(value)) * CURRENT_USAGE_OF_MAX_CURRENT);
+        g.current.momentum = -(int16_t)(atoi(value)); // korrektur *-1 ?? Warum notwendig nicht geklärt
+        g.mode_selector = MODE_MOMENTUM;
         fletuino_set_property_int(CONTROLLER_SELECTOR, "value", 0);
 }
 
 static void on_kp_current_changed(const char* event, const char* value){
     double kp = (double)atof(value)*0.0001;
     PIController_Synthetise_kp(&g.current.controller, double_to_fixed32(kp));
+    char t[50];
+    sprintf(t, "KP Current %.8f", kp);
+    fletuino_set_property_str(SLIDER_CURRENT_KP, "text", t);
 }
 
 static void on_ki_current_changed(const char* event, const char* value){
     double ki = (double)atof(value)*0.0001;
     PIController_Synthetise_ki(&g.current.controller, double_to_fixed32(ki));
-    PIController_ResetIntegrator(&g.current.controller);
+    // PIController_ResetIntegrator(&g.current.controller);
+    char t[50];
+    sprintf(t, "KI Current %.8f", ki);
+    fletuino_set_property_str(SLIDER_CURRENT_KI, "text", t);
 }
 
 static void on_emergency_off(const char* event, const char* value){
@@ -60,6 +75,7 @@ static void on_zero_moment(const char* event, const char* value){
 
 static void on_zero_speed(const char* event, const char* value){
     Drive_setSpeedRpm(0);
+    g.speed.ramp.in = 0;
     fletuino_set_property_int(SLIDER_SPEED_REF, "value", 0);
 }
 
@@ -73,8 +89,8 @@ bool on_any_event(const uint16_t id,const char* event, const char* value)
 static void on_switch(const char* event, const char* value)
 {
     uint8_t activated = (uint8_t)(atoi(value));
-    if (activated) g.mode_selector = MODE_SELECTOR_SPEEDCONTROLLER;
-    else g.mode_selector = MODE_SELECTOR_IREF;
+    if (activated) g.mode_selector = MODE_SPEEDCONTROLLER;
+    else g.mode_selector = MODE_MOMENTUM;
     if (activated){
         if (g.current.ref >= 0){
             g.speed.ramp.in = g.speed.value;
@@ -92,6 +108,7 @@ static void on_switch(const char* event, const char* value)
 }
 
 void start_page(){ 
+     g.demo = 1;
     fletunio_page("BLDC Drive - ET@HTL-Hollabrunn", "default", "dark");
     fletuino_text("BLDC Motor Drive Dashboard", 40);
     fletuino_divider(3);
@@ -103,10 +120,10 @@ void start_page(){
     fletuino_bar((CONTROLS){NUMERIC_VOLT, NUMERIC_RPM, NUMERIC_CURRENT},3,"center-space-evenly");
     SLIDER_IREF = fletuino_slider("Iref - Momentum", /*init*/0, /*min*/-2048, /*max*/2048 ,/*size*/30, /*event*/on_iref_changed);
     fletuino_set_property_int(SLIDER_IREF, "width", 600);
-   IREF_RESET = fletuino_button("Reset momentum", "tag1", 30, on_zero_moment);
+    IREF_RESET = fletuino_button("Reset momentum", "tag1", 30, on_zero_moment);
     fletuino_bar((CONTROLS){SLIDER_IREF,IREF_RESET},2,"center-space-evenly");
-    fletuino_slider("KP Current", fixed32_to_double(g.current.controller.kp)*10000, 0, 30000, 30, on_kp_current_changed);
-    fletuino_slider("KI Current", fixed32_to_double(g.current.controller.ki)*10000, 0, 1000, 30, on_ki_current_changed);
+    SLIDER_CURRENT_KP=fletuino_slider("KP Current", fixed32_to_double(g.current.controller.kp)*10000, 0, 30000, 30, on_kp_current_changed);
+    SLIDER_CURRENT_KI=fletuino_slider("KI Current", fixed32_to_double(g.current.controller.ki)*10000, 0, 1000, 30, on_ki_current_changed);
     fletuino_divider(3);
     CONTROLLER_SELECTOR = fletuino_switch("Speed Controller (cruiser) ON/OFF ", 30, 0, on_switch);
     fletuino_divider(3);
@@ -114,8 +131,8 @@ void start_page(){
     fletuino_set_property_int(SLIDER_SPEED_REF, "width", 600);
     BUTTON_SPEED_REF_RESET = fletuino_button("Reset speed", "tag2", 30, on_zero_speed);
     fletuino_bar((CONTROLS){SLIDER_SPEED_REF, BUTTON_SPEED_REF_RESET},2,"center-space-evenly");
-    fletuino_slider("KP Speed", fixed32_to_double(g.speed.controller.kp)*10000, 0, 10000, 30, on_kp_speed_changed);
-    fletuino_slider("KI Speed", fixed32_to_double(g.speed.controller.ki)*10000, 0, 1000, 30, on_ki_speed_changed);
+    SLIDER_SPEED_KP=fletuino_slider("KP Speed", fixed32_to_double(g.speed.controller.kp)*10000, 0, 10000, 30, on_kp_speed_changed);
+    SLIDER_SPEED_KI=fletuino_slider("KI Speed", fixed32_to_double(g.speed.controller.ki)*10000, 0, 1000, 30, on_ki_speed_changed);
     fletuino_add_any_event_callback(on_any_event);
 }
 

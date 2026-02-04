@@ -40,8 +40,8 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _PWM1Interrupt ( void )
     volatile uint8_t actual_position_sector =  SECTOR_FROM_HALLPATTERN[ (PORTC & 0xE0)>>5];
     // commutating
     g.energized_vector = (g.direction_of_rotation==CLOCKWISE) ? ENERGIZED_VECTOR_CLOCKWISE[actual_position_sector]: ENERGIZED_VECTOR_ANTICLOCKWISE[actual_position_sector];
-    g.energized_vector = (g.mode_selector==MODE_SELECTOR_ZERO_MOTOR_FLOATING)? 7 : g.energized_vector;
-    g.energized_vector = (g.mode_selector==MODE_SELECTOR_ZERO_MOTOR_BLOCKED)? 0 : g.energized_vector;
+    g.energized_vector = (g.mode_selector==MODE_MOTOR_FLOATING)? 7 : g.energized_vector;
+    g.energized_vector = (g.mode_selector==MODE_MOTOR_BLOCKED)? 0 : g.energized_vector;
     #ifdef COMMUTATING      
         PWM_override(g.energized_vector);
     #endif
