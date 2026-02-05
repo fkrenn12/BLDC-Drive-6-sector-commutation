@@ -5,8 +5,6 @@
 #include "global.h"
 
 void Drive_Init(void);
-void Drive_RunModeMomentum(void);
-void Drive_RunModeCruiser(void);
 void Drive_Stop(void);
 int16_t Drive_setSpeedRpm(int16_t rpm);
 int16_t Drive_getSpeedRpm(void);

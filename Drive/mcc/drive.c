@@ -21,14 +21,6 @@ void Drive_Init(void){
     g.mode_selector = MODE_MOTOR_BLOCKED;
 }
 
-void Drive_RunModeMomentum(void){
-    g.mode_selector = MODE_MOMENTUM;
-}
-
-void Drive_RunModeCruiser(void){
-    g.mode_selector = MODE_SPEEDCONTROLLER;
-}
-
 int16_t Drive_setSpeedRpm(int16_t rpm){
     rpm = (rpm < 0)? 0 : rpm;  // speed can't be negative 
     g.input.speedRpm = (rpm > g.speed.max)? g.speed.max : rpm;

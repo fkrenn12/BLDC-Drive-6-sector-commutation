@@ -102,6 +102,7 @@ void behandlungsfunction(char * line){
             sendoutput(1, from_address);  // 1 correct
         }
         else if (strcmp(command,"*SDC?")==0){   // Save Discharging Current
+            Drive_SetCurrentLimit(intCommandValue);
             sendoutput(1, from_address);  // 1 correct
         }
         else if (strcmp(command,"*RPM?")==0){   // Groyßergleichmethode, get speed in rpm

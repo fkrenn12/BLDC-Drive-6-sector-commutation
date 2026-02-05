@@ -27,9 +27,7 @@ void statemachine(void){
     static uint8_t  state = INIT;
     g.state = state;  // zum debuggen 
     switch (state){
-        case INIT:      ramp_init(&g.speed.ramp, 0, 0, 20, 200, 100); // up 20rpm/100ms;down 200rpm/100ms
-                        ramp_init(&g.current.ramp, 0, 0, 200, 50, 50); 
-                        state = START; 
+        case INIT:      state = START; 
                         break;
 
         case START:     if (abs(g.speed.value) < 100)
@@ -103,13 +101,13 @@ void iref_selector(void){
         case MODE_MOTOR_FLOATING:
         case MODE_SPEEDCONTROLLER_ZERO_CURRENT:
         case MODE_MOMENTUM_ZERO_CURRENT:
-                                    // g.current.ramp.in = 0;
-                                    g.current.ref = 0; //g.current.ref_ramped;
+                                    g.current.ramp.in = 0;
+                                    g.current.ref = g.current.ref_ramped;
                                     break; 
         case MODE_SPEEDCONTROLLER:  g.current.ref = g.speed.out;
                                     break;
-        case MODE_MOMENTUM:         // g.current.ramp.in = g.current.momentum;
-                                    g.current.ref = g.current.momentum; //g.current.ref_ramped; 
+        case MODE_MOMENTUM:         g.current.ramp.in = g.current.momentum;
+                                    g.current.ref = g.current.ref_ramped; 
                                     g.current.ref = (g.direction == CLOCKWISE)? g.current.ref : -g.current.ref;
                                     break;
     }
@@ -174,8 +172,8 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     // here we are every ms
     previous_millis = g.millis;
 
-    g.speed.ref            = ramp_calculate(&g.speed.ramp);
-    g.current.ref_ramped   = ramp_calculate(&g.current.ramp);  
+    g.speed.ref = (USE_SPEED_RAMP_FUNCTION)?ramp_calculate(&g.speed.ramp):g.speed.ramp.in;
+    g.current.ref_ramped = (USE_CURRENT_RAMP_FUNCTION)?ramp_calculate(&g.current.ramp):g.current.ramp.in;
 
     if (++speed_control_timer == INTERVAL_BETWEEN_MEASUREMENTS_MS)
     {      
@@ -190,16 +188,6 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
                     break;
             case 1:
                 if (g.mode_selector == MODE_SPEEDCONTROLLER) {
-                    // not a good solution yet
-                    /*
-                    if (g.speed.value > g.speed.ref + 200)
-                    {
-                        PIController_Synthetise_ki(&g.speed.controller, double_to_fixed32(0)); // double_to_fixed32(SPEED_CONTROLLER_KI),
-                        PIController_ResetIntegrator(&g.speed.controller);
-                    }
-                    else  PIController_Synthetise_ki(&g.speed.controller, double_to_fixed32(SPEED_CONTROLLER_KI));
-                    */
-                    PIController_Synthetise_ki(&g.speed.controller, double_to_fixed32(SPEED_CONTROLLER_KI));
                     g.speed.out  = (int16_t)PIController_Compute(&g.speed.controller, g.speed.ref, g.speed.value); 
                 }
                 break;
