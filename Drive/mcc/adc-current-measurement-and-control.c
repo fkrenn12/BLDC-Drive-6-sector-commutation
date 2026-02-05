@@ -65,7 +65,7 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     // DEBUG_0_SetHigh();
     switch(channel){
         case _I1:
-            g.current.value = abs((g.energized_vector==1 || g.energized_vector==2)? ((int32_t)adcVal - 2048) : g.current.value);
+            g.current.value = abs((PG1IOCONL == CLAMP)? ((int32_t)adcVal - 2048) : g.current.value);
             g.current.value = (g.direction_of_rotation == ANTICLOCKWISE)? -g.current.value : g.current.value;
             break;
 
@@ -74,12 +74,12 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     #else
         case _I2:
     #endif
-            g.current.value  = abs((g.energized_vector==3 || g.energized_vector==4)? ((int32_t)adcVal - 2048) : g.current.value);
+            g.current.value  = abs((PG2IOCONL == CLAMP)? ((int32_t)adcVal - 2048) : g.current.value);
             g.current.value = (g.direction_of_rotation == ANTICLOCKWISE)? -g.current.value : g.current.value;
             current_controller(); // channel I2 is the last channel to be read, so, the best place to call the current controller is here.
             break;
         case _I3:
-            g.current.value = abs((g.energized_vector==5 || g.energized_vector==6)? ((int32_t)adcVal - 2048) : g.current.value);
+            g.current.value = abs((PG3IOCONL == CLAMP)? ((int32_t)adcVal - 2048) : g.current.value);
             g.current.value = (g.direction_of_rotation == ANTICLOCKWISE)? -g.current.value : g.current.value;           
             break;
         default:
@@ -87,38 +87,3 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     }   
     // DEBUG_0_SetLow();
 }
-/*
-// ########################################################################
-//                  ADC Interrupt Service Routine
-// ########################################################################
-void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
-{   
-    // ********************************************************************
-    // adc readings for current and current controller
-    // ********************************************************************
-    // DIG 4095     +A          ┌────┐     
-    // DIG 2048      0     ┌────┘    └────┐   
-    // DIG 0        -A ────┘              └───
-    // DEBUG_0_SetHigh();
-    uint8_t is_valid_vector = 0;
-  
-    is_valid_vector = ((channel == _I1) && (PG1IOCONL == CLAMP));
-
-    #ifdef SMART_POWERLAB_HARDWARE
-    is_valid_vector = ((channel == _I2_PowerLab) && (PG2IOCONL == CLAMP));
-    #else
-    is_valid_vector = ((channel == _I2) && (PG2IOCONL == CLAMP));
-    #endif
-    is_valid_vector = ((channel == _I3) && (PG3IOCONL == CLAMP));
-
-    g.current.value = abs((is_valid_vector) ? ((int32_t)adcVal - 2048) : g.current.value); 
-    g.current.value = (g.direction_of_rotation == CLOCKWISE) ? g.current.value : -g.current.value;
-
-    #ifdef SMART_POWERLAB_HARDWARE
-    if (channel == _I2_PowerLab) current_controller(); 
-    #else
-    if (channel == _I2) current_controller(); 
-    #endif
-    // DEBUG_0_SetLow();
-}
-    */
