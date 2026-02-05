@@ -43,10 +43,9 @@ void current_controller(void){
         g.current.ref = (g.current.ref > g.current.limit)? g.current.limit : g.current.ref;
         g.current.ref = (g.current.ref < -g.current.limit)? -g.current.limit : g.current.ref;
         int16_t duty_cycle = PIController_Compute(&g.current.controller, g.current.ref, g.current.value);
-        g.direction_of_rotation = (duty_cycle < 0)? ANTICLOCKWISE : CLOCKWISE;
+        g.direction_of_rotation = (duty_cycle >= 0)? CLOCKWISE : ANTICLOCKWISE;
         duty_cycle = abs(duty_cycle);
-        duty_cycle = (duty_cycle > PWM_MAX_DUTY)? PWM_MAX_DUTY : duty_cycle; // limit duty cycle to 100%
-        MDC = abs(duty_cycle);
+        MDC = (duty_cycle > PWM_MAX_DUTY)? PWM_MAX_DUTY : duty_cycle; // limit duty cycle to 100%
         // adjust adc interrupt trigger time
         PG1TRIGA = (MDC > 8000)? MDC-100 : MDC+100;
         PG1TRIGB = PG1TRIGA;
@@ -67,27 +66,24 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     // DIG 2048      0     ┌────┘    └────┐   
     // DIG 0        -A ────┘              └───
     // DEBUG_0_SetHigh();
-    switch(channel){
-        case _I1:
-            g.current.value = abs((g.energized_vector==1 || g.energized_vector==2)? ((int32_t)adcVal - 2048) : g.current.value);
-            g.current.value = (g.direction_of_rotation == ANTICLOCKWISE)? -g.current.value : g.current.value;
-            break;
+    uint8_t is_valid_vector = 0;
+  
+    is_valid_vector = ((channel == _I1) && (PG1IOCONL == CLAMP));
 
     #ifdef SMART_POWERLAB_HARDWARE
-        case _I2_PowerLab:
+    is_valid_vector = ((channel == _I2_PowerLab) && (PG2IOCONL == CLAMP));
     #else
-        case _I2:
+    is_valid_vector = ((channel == _I2) && (PG2IOCONL == CLAMP));
     #endif
-            g.current.value  = abs((g.energized_vector==3 || g.energized_vector==4)? ((int32_t)adcVal - 2048) : g.current.value);
-            g.current.value = (g.direction_of_rotation == ANTICLOCKWISE)? -g.current.value : g.current.value;
-            current_controller(); // channel I2 is the last channel to be read, so, the best place to call the current controller is here.
-            break;
-        case _I3:
-            g.current.value = abs((g.energized_vector==5 || g.energized_vector==6)? ((int32_t)adcVal - 2048) : g.current.value);
-            g.current.value = (g.direction_of_rotation == ANTICLOCKWISE)? -g.current.value : g.current.value;           
-            break;
-        default:
-            break;
-    }   
+    is_valid_vector = ((channel == _I3) && (PG3IOCONL == CLAMP));
+
+    g.current.value = abs((is_valid_vector) ? ((int32_t)adcVal - 2048) : g.current.value); 
+    g.current.value = (g.direction_of_rotation == CLOCKWISE) ? g.current.value : -g.current.value;
+
+    #ifdef SMART_POWERLAB_HARDWARE
+    if (channel == _I2_PowerLab) current_controller(); 
+    #else
+    if (channel == _I2) current_controller(); 
+    #endif
     // DEBUG_0_SetLow();
 }
