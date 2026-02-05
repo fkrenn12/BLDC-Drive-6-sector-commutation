@@ -51,7 +51,7 @@ void behandlungsfunction(char * line){
         line[posSeparator]='\0';
         strcpy(from_address,line);
 
-        if(strcmp(myadress,g.myaddress)!=0){          // reaction for incorrect address
+        if(strcmp(myadress,(char*)g.myaddress)!=0){          // reaction for incorrect address
             #if defined(DEBUG) && defined(DEBUG_SERIAL_COMMAND_HANDLING)
                 sprintf(debugBuffer, "%sNot addressed%s\r\n",COL_RED,COL_WHITE);  // rot
                 UART2_WriteNoneBlockingString(debugBuffer); 
