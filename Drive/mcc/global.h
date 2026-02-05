@@ -49,11 +49,9 @@ typedef struct _speed{
 
 typedef struct _current{
     volatile int16_t ref;
-    volatile int16_t ref_ramped;
     volatile int32_t value;
     volatile int32_t limit;
     volatile int16_t momentum;
-    TRamp ramp;
     PIController controller;
 }TCurrent;
 

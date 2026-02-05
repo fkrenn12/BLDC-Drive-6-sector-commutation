@@ -10,7 +10,6 @@ TGlobal g={
     .energized_vector = 0,
     .current.value = 0,
     .current.ref = 0,
-    .current.ref_ramped = 0,
     .speed.value = 0,
     .speed.sectors_counted = 0,
     .speed.ramp.out = 0,

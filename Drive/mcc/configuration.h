@@ -13,7 +13,6 @@ Mostly used configuration defines are listet first
 
 
 #define USE_SPEED_RAMP_FUNCTION 1                   // 0: not used 1: used 
-#define USE_CURRENT_RAMP_FUNCTION 0                 // 0: not used 1: used 
 /*
 ADC conversion factors
 */

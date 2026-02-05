@@ -101,13 +101,11 @@ void iref_selector(void){
         case MODE_MOTOR_FLOATING:
         case MODE_SPEEDCONTROLLER_ZERO_CURRENT:
         case MODE_MOMENTUM_ZERO_CURRENT:
-                                    g.current.ramp.in = 0;
-                                    g.current.ref = g.current.ref_ramped;
+                                    g.current.ref = 0;
                                     break; 
         case MODE_SPEEDCONTROLLER:  g.current.ref = g.speed.out;
                                     break;
-        case MODE_MOMENTUM:         g.current.ramp.in = g.current.momentum;
-                                    g.current.ref = g.current.ref_ramped; 
+        case MODE_MOMENTUM:         g.current.ref = g.current.momentum;
                                     g.current.ref = (g.direction == CLOCKWISE)? g.current.ref : -g.current.ref;
                                     break;
     }
@@ -153,7 +151,6 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         case 3:
             // ramp exccution
             g.speed.ref_ramped = (USE_SPEED_RAMP_FUNCTION)?ramp_calculate(&g.speed.ramp):g.speed.ramp.in;
-            g.current.ref_ramped = (USE_CURRENT_RAMP_FUNCTION)?ramp_calculate(&g.current.ramp):g.current.ramp.in;
             return;
         default:
             sequencer = 0;
