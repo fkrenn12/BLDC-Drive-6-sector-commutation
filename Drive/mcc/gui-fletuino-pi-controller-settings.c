@@ -127,7 +127,7 @@ void start_page(){
     fletuino_divider(3);
     CONTROLLER_SELECTOR = fletuino_switch("Speed Controller (cruiser) ON/OFF ", 30, 0, on_switch);
     fletuino_divider(3);
-    SLIDER_SPEED_REF = fletuino_slider("Speed RPM",(int16_t)g.speed.ref, 0, 3000, 30, on_speed_changed);
+    SLIDER_SPEED_REF = fletuino_slider("Speed RPM",(int16_t)g.speed.ref_ramped, 0, 3000, 30, on_speed_changed);
     fletuino_set_property_int(SLIDER_SPEED_REF, "width", 600);
     BUTTON_SPEED_REF_RESET = fletuino_button("Reset speed", "tag2", 30, on_zero_speed);
     fletuino_bar((CONTROLS){SLIDER_SPEED_REF, BUTTON_SPEED_REF_RESET},2,"center-space-evenly");

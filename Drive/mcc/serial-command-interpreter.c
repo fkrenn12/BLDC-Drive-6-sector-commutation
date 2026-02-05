@@ -20,8 +20,8 @@ void sendoutput(uint8_t state_correct, char* from_address){
     const char ack[]={"*ACK!"};
     const char nack[]={"*DCK!"};
     char buffer[50];
-    if      (state_correct) sprintf(buffer,"%s:%s:%s\n",from_address,MYADDRESS,ack);
-    else    sprintf(buffer,"%s:%s:%s\n",from_address,MYADDRESS,nack);
+    if      (state_correct) sprintf(buffer,"%s:%s:%s\n",from_address,g.myaddress,ack);
+    else    sprintf(buffer,"%s:%s:%s\n",from_address,g.myaddress,nack);
     #if defined(DEBUG) && defined(DEBUG_SERIAL_COMMAND_HANDLING)
         char debugBuffer[255];
         sprintf(debugBuffer,"%sout:%s%s\n\r",COL_YELLOW,buffer,COL_WHITE); // debug output
@@ -51,7 +51,7 @@ void behandlungsfunction(char * line){
         line[posSeparator]='\0';
         strcpy(from_address,line);
 
-        if(strcmp(myadress,MYADDRESS)!=0){          // reaction for incorrect address
+        if(strcmp(myadress,g.myaddress)!=0){          // reaction for incorrect address
             #if defined(DEBUG) && defined(DEBUG_SERIAL_COMMAND_HANDLING)
                 sprintf(debugBuffer, "%sNot addressed%s\r\n",COL_RED,COL_WHITE);  // rot
                 UART2_WriteNoneBlockingString(debugBuffer); 

@@ -2,7 +2,6 @@
 #include <errno.h>
 TGlobal g={
     .demo = 0,
-    .address = 0,
     .millis = 0,
     .mode_selector = MODE_MOTOR_FLOATING,
     .vlink = 0,
@@ -16,18 +15,20 @@ TGlobal g={
     .speed.sectors_counted = 0,
     .speed.ramp.out = 0,
     .speed.ramp.in = 0,
+    .speed.ref_ramped = 0,
     .input.speedRpm = 0,
     .input.gas = 0,
     .MIN_OUTPUT_SPEED = 0,
     .MAX_OUTPUT_SPEED = 0
 };
 
-
 void GLOBAL_Init(void){   
-    
-    
-    // read addess from switch
-    g.address = (PORTC & 0x3C00)>>10; // RC10 to RC13
+    // read address from switch
+    uint8_t address = (PORTC & 0x3C00)>>10; // RC10 to RC13
+    sprintf((char*)g.myaddress,"#%d",address);
+    #ifdef MYADDRESS
+        strcpy((char*)g.myaddress,MYADDRESS);
+    #endif
     INTCON1bits.NSTDIS = 0; // 0 = Interrupt nesting is enabled 
     IPC16bits.PWM1IP = 4; // PWM has highest priority
 }

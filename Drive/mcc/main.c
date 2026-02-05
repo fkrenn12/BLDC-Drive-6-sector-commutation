@@ -113,7 +113,7 @@ void iref_selector(void){
     }
 }
 
-// KI generated value clamped to range
+// KI generated value clamped to range - positive values only
 static inline uint16_t map_range_clamped(uint16_t in,
                                          uint16_t in_min, uint16_t in_max,
                                          uint16_t out_min, uint16_t out_max)
@@ -133,47 +133,33 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     // ***************************************
     // speed measurement and speed controller
     // ***************************************
-    volatile static int8_t state = 0;
     volatile static uint16_t speed_control_timer = 0;
     volatile static uint16_t timer_50ms = 0;
     volatile static uint16_t timer_100ms = 0;
-    volatile static uint16_t postdivider = 0;
-    volatile static uint64_t  previous_millis = 0;
-
+    volatile static uint16_t sequencer = 0;
+ 
     #define INTERVAL_BETWEEN_MEASUREMENTS_MS (uint16_t)(1000UL/SPEED_MEASUREMENTS_PER_SECOND)
-    
+    IFS0bits.T1IF = 0;
     // This section ist done every 250µs
-    postdivider++;
-    switch (postdivider){
+    switch (++sequencer){
         case 1:
             #ifndef FLETUINO_PI_CONTROLLER_SETTINGS
                 statemachine();
             #endif
-            break;
+            return;
         case 2:
             iref_selector();
-            break;
+            return;
         case 3:
-            break;
-        case 4:
-            postdivider = 0;
+            // ramp exccution
+            g.speed.ref_ramped = (USE_SPEED_RAMP_FUNCTION)?ramp_calculate(&g.speed.ramp):g.speed.ramp.in;
+            g.current.ref_ramped = (USE_CURRENT_RAMP_FUNCTION)?ramp_calculate(&g.current.ramp):g.current.ramp.in;
+            return;
+        default:
+            sequencer = 0;
             g.millis++;
             break;
-        default:
-            postdivider = 0;
-            break;
     }
-
-    if (previous_millis == g.millis) {
-        IFS0bits.T1IF = 0;
-        return;
-    }
-    
-    // here we are every ms
-    previous_millis = g.millis;
-
-    g.speed.ref = (USE_SPEED_RAMP_FUNCTION)?ramp_calculate(&g.speed.ramp):g.speed.ramp.in;
-    g.current.ref_ramped = (USE_CURRENT_RAMP_FUNCTION)?ramp_calculate(&g.current.ramp):g.current.ramp.in;
 
     if (++speed_control_timer == INTERVAL_BETWEEN_MEASUREMENTS_MS)
     {      
@@ -182,16 +168,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.speed.value = (int16_t)((int32_t)g.speed.sectors_counted * (60 * SPEED_MEASUREMENTS_PER_SECOND / HALL_PULSES_PER_ROTATION));   // rpm 10*60/PULSES_PER_ROTATION = 100
         g.speed.sectors_counted = 0;
         g.speed.value = (g.direction_of_rotation == CLOCKWISE)? g.speed.value: -g.speed.value; 
-        switch (state){
-            // delaying start of speedcontroller to wait for valid speed measurement values
-            case 0: state++; 
-                    break;
-            case 1:
-                if (g.mode_selector == MODE_SPEEDCONTROLLER) {
-                    g.speed.out  = (int16_t)PIController_Compute(&g.speed.controller, g.speed.ref, g.speed.value); 
-                }
-                break;
-        }
+        g.speed.out = (g.mode_selector == MODE_SPEEDCONTROLLER)?(int16_t)PIController_Compute(&g.speed.controller, g.speed.ref_ramped, g.speed.value):g.speed.out; 
     } 
     // every 50ms reading inputs
     if( ++timer_50ms == 50){
@@ -212,7 +189,6 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         timer_100ms = 0;
         ADC_SoftwareTriggerChannelSequencing(); // Sequencially start software triggered ADC channels
     }    
-    IFS0bits.T1IF = 0;  
 }
 
 

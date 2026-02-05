@@ -40,7 +40,7 @@ typedef struct _input{
 typedef struct _speed{
     volatile uint16_t sectors_counted;
     volatile int16_t max;
-    volatile int16_t ref;
+    volatile int16_t ref_ramped;
     volatile int16_t value;
     volatile int16_t out;
     TRamp ramp;
@@ -59,7 +59,7 @@ typedef struct _current{
 
 typedef struct _global{
     volatile uint8_t demo;
-    volatile uint8_t address;
+    volatile uint8_t myaddress[5];
     volatile uint64_t millis;    
     volatile uint8_t direction;
     volatile uint8_t direction_of_rotation;

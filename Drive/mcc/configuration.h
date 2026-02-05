@@ -9,11 +9,11 @@ Mostly used configuration defines are listet first
 #define VLINK_CUTOFF_VOLTAGE_HIGH 60                // * switching to error state reaching this value !   
 #define SPEED_AT_NOMINAL_VOLTAGE 5000               // rpm at nominal voltage
 #define SPEED_MEASUREMENTS_PER_SECOND 4             // number of measurements per second and calls of speed controller per second (1...1000)
-#define SPEED_THRESHOLD_FOR_DIRECTION_CHANGE 100    // rpm threshold for direction change, must be below this value to change direction
+#define SPEED_THRESHOLD_FOR_DIRECTION_CHANGE 100    // rpm threshold for direction change, must be below this value to change current direction
 
 
 #define USE_SPEED_RAMP_FUNCTION 1                   // 0: not used 1: used 
-#define USE_CURRENT_RAMP_FUNCTION 1                 // 0: not used 1: used 
+#define USE_CURRENT_RAMP_FUNCTION 0                 // 0: not used 1: used 
 /*
 ADC conversion factors
 */
