@@ -63,11 +63,11 @@ typedef struct _global{
     volatile uint64_t millis;    
     volatile uint8_t direction;
     volatile uint8_t direction_of_rotation;
-    volatile uint16_t mode_selector;
+    volatile uint8_t mode_selector;
     volatile uint8_t position_sector;
     volatile uint8_t energized_vector;
     volatile int32_t vlink;
-    volatile uint8_t state;
+    volatile uint8_t state;  // for debugging only
     TSpeed speed;
     TCurrent current; 
     TInput input;

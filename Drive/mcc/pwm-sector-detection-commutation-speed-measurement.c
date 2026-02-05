@@ -1,7 +1,5 @@
 #include "pwm-sector-detection-commutation-speed-measurement.h"
 
-#define COMMUTATING 
-
 // Sectorindex 0 and sector 7 are error state and lets CLAMP all PWM's
 uint8_t ENERGIZED_VECTOR_CLOCKWISE[7] = {0,2,4,3,6,1,5};
 uint8_t ENERGIZED_VECTOR_ANTICLOCKWISE[7] = {0,5,1,6,3,4,2};
@@ -45,9 +43,7 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _PWM1Interrupt ( void )
     g.energized_vector = (g.direction_of_rotation==((MOTOR_DIRECTION_INVERTED)? ANTICLOCKWISE: CLOCKWISE)) ? ENERGIZED_VECTOR_CLOCKWISE[g.position_sector]: ENERGIZED_VECTOR_ANTICLOCKWISE[g.position_sector];
     g.energized_vector = (g.mode_selector==MODE_MOTOR_FLOATING)? 7 : g.energized_vector;
     g.energized_vector = (g.mode_selector==MODE_MOTOR_BLOCKED)? 0 : g.energized_vector;
-    #ifdef COMMUTATING      
-        PWM_override(g.energized_vector);
-    #endif
+    if (COMMUTATE) PWM_override(g.energized_vector);
     // counting sectors for speed measurement
     g.speed.sectors_counted = (previous_position_sector != g.position_sector)? g.speed.sectors_counted+1 : g.speed.sectors_counted;
     previous_position_sector = (previous_position_sector != g.position_sector)? g.position_sector : previous_position_sector;
