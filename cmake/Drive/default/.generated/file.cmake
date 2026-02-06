@@ -27,6 +27,7 @@ set(Drive_default_default_XC16_FILE_TYPE_compile
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/fletuino/json/parser.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/global.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/gui-fletuino-application-demo.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/gui-fletuino-manual-control.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/gui-fletuino-pi-controller-settings.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/lib/fixed_point.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/lib/pi-controller.c"

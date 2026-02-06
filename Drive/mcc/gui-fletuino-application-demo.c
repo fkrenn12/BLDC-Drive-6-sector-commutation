@@ -30,6 +30,8 @@ static void on_momentum_changed(const char* event, const char* value){
 }
 
 static void on_emergency_off(const char* event, const char* value){
+    g.input.gas = 0;
+    fletuino_set_value_int(SLIDER_MOMENTUM, 0);
     Drive_Stop();  
 }
 
@@ -88,8 +90,8 @@ void gui_update(void){
     fletuino_set_value_int(NUMERIC_RPM, g.speed.value);
     fletuino_set_value_int(NUMERIC_CURRENT, g.current.value);
     fletuino_set_value_int(NUMERIC_VOLT, g.vlink); 
-    fletuino_set_value_int(NUMERIC_DEBUG1, g.state);
-    fletuino_set_value_int(NUMERIC_DEBUG2, g.current.momentum);
-    fletuino_set_value_int(NUMERIC_DEBUG3, g.input.speedRpm);
+    // fletuino_set_value_int(NUMERIC_DEBUG1, g.current.value);
+    // fletuino_set_value_int(NUMERIC_DEBUG2, g.current.momentum);
+    // fletuino_set_value_int(NUMERIC_DEBUG3, g.input.speedRpm);
 }
 #endif

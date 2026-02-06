@@ -19,6 +19,9 @@
 #ifdef FLETUINO_APPLICATION_DEMO
     #include "gui-fletuino-application-demo.h"
 #endif
+#ifdef FLETUINO_MANUAL_CONTROL
+    #include "gui-fletuino-manual-control.h"
+#endif
 
 extern TGlobal g;
 
@@ -141,7 +144,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     // This section ist done every 250µs
     switch (++sequencer){
         case 1:
-            #ifndef FLETUINO_PI_CONTROLLER_SETTINGS
+            #if (STATEMACHINE == 1)
                 statemachine();
             #endif
             return;
@@ -240,12 +243,12 @@ int main(void){
             if (eventTimer2 == 2000){ 
                 eventTimer2 = 0;
                 // g.direction_of_rotation = ANTICLOCKWISE; //CLOCKWISE; //  ANTICLOCKWISE; 
-                // MDC = 5000;
+                // MDC = 1000;
                 // PG1STATbits.UPDREQ = 1; 
                 //sprintf(buffer,"index %d - energized %d - actual %d\n\r", sector_index, sector, get_actual_sector());
                 //UART2_WriteNoneBlockingString(buffer);
-                // PWM_override(sector_index);
-                // PWM_override(7);
+                //PWM_override(sector_index);
+                // PWM_override(1);
                 // Drive_setSpeedRpm(200);              
                  
             }

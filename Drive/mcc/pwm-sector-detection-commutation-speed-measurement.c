@@ -43,7 +43,9 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _PWM1Interrupt ( void )
     g.energized_vector = (g.direction_of_rotation==((MOTOR_DIRECTION_INVERTED)? ANTICLOCKWISE: CLOCKWISE)) ? ENERGIZED_VECTOR_CLOCKWISE[g.position_sector]: ENERGIZED_VECTOR_ANTICLOCKWISE[g.position_sector];
     g.energized_vector = (g.mode_selector==MODE_MOTOR_FLOATING)? 7 : g.energized_vector;
     g.energized_vector = (g.mode_selector==MODE_MOTOR_BLOCKED)? 0 : g.energized_vector;
-    if (COMMUTATE) PWM_override(g.energized_vector);
+    #if (COMMUTATE == 1) 
+        PWM_override(g.energized_vector);
+    #endif
     // counting sectors for speed measurement
     g.speed.sectors_counted = (previous_position_sector != g.position_sector)? g.speed.sectors_counted+1 : g.speed.sectors_counted;
     previous_position_sector = (previous_position_sector != g.position_sector)? g.position_sector : previous_position_sector;

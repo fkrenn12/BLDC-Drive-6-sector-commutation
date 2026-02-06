@@ -12,6 +12,7 @@
 #include "lib/ringbuffer.h"
 #include "peripheral/uart1.h"
 #include "peripheral/uart2.h"
+#include <libpic30.h> 
 
 #define CLOCKWISE 1
 #define ANTICLOCKWISE 0

@@ -18,7 +18,7 @@ ADC conversion factors
 */
 #define ADC_FACTOR_VLINK 0.01622                    // factor - hardware dependend 3.3V * 20 / 4095 = 0.01622
 #ifdef SMART_POWERLAB_HARDWARE
-    #define ADC_FACTOR_CURRENT 0.0030525            // factor - SmartPowerLab Hardware
+    #define ADC_FACTOR_CURRENT 0.0030525            // factor - SmartPowerLab Hardware 3.3V / 4095 / 264mV/A = 0.0030525
 #else
     #define ADC_FACTOR_CURRENT 0.03021              // factor - Drive Hardware 3.3V / 4095 / 26.67mV/A = 0.03021
 #endif
