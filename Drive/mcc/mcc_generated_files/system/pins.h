@@ -96,54 +96,54 @@
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RB0 GPIO Pin which has a custom name of DIRECTION to High
+ * @brief    Sets the RB0 GPIO Pin which has a custom name of _F_R to High
  * @pre      The RB0 must be set as Output Pin             
  * @param    none
  * @return   none  
  */
-#define DIRECTION_SetHigh()          (_LATB0 = 1)
+#define _F_R_SetHigh()          (_LATB0 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RB0 GPIO Pin which has a custom name of DIRECTION to Low
+ * @brief    Sets the RB0 GPIO Pin which has a custom name of _F_R to Low
  * @pre      The RB0 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define DIRECTION_SetLow()           (_LATB0 = 0)
+#define _F_R_SetLow()           (_LATB0 = 0)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Toggles the RB0 GPIO Pin which has a custom name of DIRECTION
+ * @brief    Toggles the RB0 GPIO Pin which has a custom name of _F_R
  * @pre      The RB0 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define DIRECTION_Toggle()           (_LATB0 ^= 1)
+#define _F_R_Toggle()           (_LATB0 ^= 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Reads the value of the RB0 GPIO Pin which has a custom name of DIRECTION
+ * @brief    Reads the value of the RB0 GPIO Pin which has a custom name of _F_R
  * @param    none
  * @return   none  
  */
-#define DIRECTION_GetValue()         _RB0
+#define _F_R_GetValue()         _RB0
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RB0 GPIO Pin which has a custom name of DIRECTION as Input
+ * @brief    Configures the RB0 GPIO Pin which has a custom name of _F_R as Input
  * @param    none
  * @return   none  
  */
-#define DIRECTION_SetDigitalInput()  (_TRISB0 = 1)
+#define _F_R_SetDigitalInput()  (_TRISB0 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RB0 GPIO Pin which has a custom name of DIRECTION as Output
+ * @brief    Configures the RB0 GPIO Pin which has a custom name of _F_R as Output
  * @param    none
  * @return   none  
  */
-#define DIRECTION_SetDigitalOutput() (_TRISB0 = 0)
+#define _F_R_SetDigitalOutput() (_TRISB0 = 0)
 
 /**
  * @ingroup  pinsdriver
@@ -708,54 +708,54 @@
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RD10 GPIO Pin which has a custom name of IO_LED to High
+ * @brief    Sets the RD10 GPIO Pin which has a custom name of _A_M to High
  * @pre      The RD10 must be set as Output Pin             
  * @param    none
  * @return   none  
  */
-#define IO_LED_SetHigh()          (_LATD10 = 1)
+#define _A_M_SetHigh()          (_LATD10 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RD10 GPIO Pin which has a custom name of IO_LED to Low
+ * @brief    Sets the RD10 GPIO Pin which has a custom name of _A_M to Low
  * @pre      The RD10 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define IO_LED_SetLow()           (_LATD10 = 0)
+#define _A_M_SetLow()           (_LATD10 = 0)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Toggles the RD10 GPIO Pin which has a custom name of IO_LED
+ * @brief    Toggles the RD10 GPIO Pin which has a custom name of _A_M
  * @pre      The RD10 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define IO_LED_Toggle()           (_LATD10 ^= 1)
+#define _A_M_Toggle()           (_LATD10 ^= 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Reads the value of the RD10 GPIO Pin which has a custom name of IO_LED
+ * @brief    Reads the value of the RD10 GPIO Pin which has a custom name of _A_M
  * @param    none
  * @return   none  
  */
-#define IO_LED_GetValue()         _RD10
+#define _A_M_GetValue()         _RD10
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RD10 GPIO Pin which has a custom name of IO_LED as Input
+ * @brief    Configures the RD10 GPIO Pin which has a custom name of _A_M as Input
  * @param    none
  * @return   none  
  */
-#define IO_LED_SetDigitalInput()  (_TRISD10 = 1)
+#define _A_M_SetDigitalInput()  (_TRISD10 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RD10 GPIO Pin which has a custom name of IO_LED as Output
+ * @brief    Configures the RD10 GPIO Pin which has a custom name of _A_M as Output
  * @param    none
  * @return   none  
  */
-#define IO_LED_SetDigitalOutput() (_TRISD10 = 0)
+#define _A_M_SetDigitalOutput() (_TRISD10 = 0)
 
 /**
  * @ingroup  pinsdriver

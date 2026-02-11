@@ -76,9 +76,7 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     #endif
             g.current.value  = abs((PG2IOCONL == CLAMP)? ((int32_t)adcVal - 2048) : g.current.value);
             g.current.value = (g.direction_of_rotation == ANTICLOCKWISE)? -g.current.value : g.current.value;
-            #if (CURRENT_CONTROL == 1)
-                current_controller(); // channel I2 is the last channel to be read, so, the best place to call the current controller is here.
-            #endif
+            if (CURRENT_CONTROL == 1) current_controller(); // channel I2 is the last channel to be read, so, the best place to call the current controller is here.
             break;
         case _I3:
             g.current.value = abs((PG3IOCONL == CLAMP)? ((int32_t)adcVal - 2048) : g.current.value);

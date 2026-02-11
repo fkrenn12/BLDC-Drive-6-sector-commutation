@@ -137,7 +137,6 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     // ***************************************
     volatile static uint16_t speed_control_timer = 0;
     volatile static uint16_t timer_50ms = 0;
-    volatile static uint16_t timer_100ms = 0;
     volatile static uint16_t sequencer = 0;
  
     #define INTERVAL_BETWEEN_MEASUREMENTS_MS (uint16_t)(1000UL/SPEED_MEASUREMENTS_PER_SECOND)
@@ -145,9 +144,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     // This section ist done every 250µs
     switch (++sequencer){
         case 1:
-            #if (STATEMACHINE == 1)
-                statemachine();
-            #endif
+            if (STATEMACHINE == 1) statemachine();
             return;
         case 2:
             iref_selector();
@@ -174,6 +171,9 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     // every 50ms reading inputs
     if( ++timer_50ms == 50){
         timer_50ms = 0;
+        ADC_SoftwareTriggerChannelSequencing(); // Sequencially start software triggered ADC channels
+        // Measuring and calculate temperature
+        g.temperature = NTC_Temperature_FromADC(ADC_Result(_TEMPERATURE));
         g.vlink = ADC_Result(_VLINK);
         g.speed.max = (int16_t)((SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.vlink * ADC_FACTOR_VLINK);
         g.speed.ramp.in = (g.speed.ramp.in > g.speed.max)? g.speed.max : g.speed.ramp.in;
@@ -184,20 +184,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
             g.current.momentum = map_range_clamped(g.input.gas, 150, 4095, 0, 2047);
         #endif
     }
-
-    // every 100ms
-    if( ++timer_100ms == 100){
-        timer_100ms = 0;
-        ADC_SoftwareTriggerChannelSequencing(); // Sequencially start software triggered ADC channels
-        // Measuring and calculate temperature
-        g.temperature = NTC_Temperature_FromADC(ADC_Result(_TEMPERATURE));
-    }    
 }
-
-#include <stdint.h>
-#include <math.h>
-
-
 
 // ########################################################################
 //                  Main Function
@@ -248,15 +235,7 @@ int main(void){
             }
                                                                                
             if (eventTimer2 == 2000){ 
-                eventTimer2 = 0;
-                // g.direction_of_rotation = ANTICLOCKWISE; //CLOCKWISE; //  ANTICLOCKWISE; 
-                // MDC = 1000;
-                // PG1STATbits.UPDREQ = 1; 
-                //sprintf(buffer,"index %d - energized %d - actual %d\n\r", sector_index, sector, get_actual_sector());
-                //UART2_WriteNoneBlockingString(buffer);
-                //PWM_override(sector_index);
-                // PWM_override(1);
-                // Drive_setSpeedRpm(200);              
+                eventTimer2 = 0;          
                  
             }
             if (eventTimer3 == 50){  // every 50 milliseconds  
