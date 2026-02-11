@@ -38,8 +38,9 @@ uint16_t Drive_getState(void){
     return 0;
 }
 
-void Drive_SetCurrentLimit(int16_t currentLimitPercent){
-    g.current.limit = double_to_fixed32(currentLimitPercent * 0.01 * CURRENT_USAGE_OF_MAX_CURRENT);
+void Drive_SetCurrentLimit(uint16_t currentLimitmA){
+    currentLimitmA = (currentLimitmA>CURRENT_MAX_VALUE_MA)?CURRENT_MAX_VALUE_MA:currentLimitmA;
+    g.current.limit = double_to_fixed32((double)currentLimitmA/CURRENT_MAX_VALUE_MA);
 }
 
 void Drive_ResetCurrentLimit(void){

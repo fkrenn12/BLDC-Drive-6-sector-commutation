@@ -13,6 +13,7 @@
 #include "adc-current-measurement-and-control.h"
 #include "lib/ramp.h"
 #include "serial-command-interpreter.h"
+#include "temperatur-measurement.h"
 #ifdef FLETUINO_PI_CONTROLLER_SETTINGS
     #include "gui-fletuino-pi-controller-settings.h"
 #endif
@@ -188,8 +189,14 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     if( ++timer_100ms == 100){
         timer_100ms = 0;
         ADC_SoftwareTriggerChannelSequencing(); // Sequencially start software triggered ADC channels
+        // Measuring and calculate temperature
+        g.temperature = NTC_Temperature_FromADC(ADC_Result(_TEMPERATURE));
     }    
 }
+
+#include <stdint.h>
+#include <math.h>
+
 
 
 // ########################################################################

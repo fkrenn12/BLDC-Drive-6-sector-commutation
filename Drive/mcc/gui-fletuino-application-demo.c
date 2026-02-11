@@ -90,8 +90,8 @@ void gui_update(void){
     fletuino_set_value_int(NUMERIC_RPM, g.speed.value);
     fletuino_set_value_int(NUMERIC_CURRENT, g.current.value);
     fletuino_set_value_int(NUMERIC_VOLT, g.vlink); 
-    // fletuino_set_value_int(NUMERIC_DEBUG1, g.current.value);
-    // fletuino_set_value_int(NUMERIC_DEBUG2, g.current.momentum);
+    fletuino_set_value_int(NUMERIC_DEBUG1, g.temperature);
+    fletuino_set_value_int(NUMERIC_DEBUG2, ADC_Result(_TEMPERATURE)); 
     // fletuino_set_value_int(NUMERIC_DEBUG3, g.input.speedRpm);
 }
 #endif

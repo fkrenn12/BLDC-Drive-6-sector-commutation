@@ -33,6 +33,8 @@ Cotroller kp and ki factors
 #define CURRENT_CONTROLLER_KP 0.7
 #define CURRENT_CONTROLLER_KI 0.02
 #define CURRENT_USAGE_OF_MAX_CURRENT 0.95           // 1.0 FULL Scale usage - 0.5 HALF Scale usage
+#define CURRENT_MAX_VALUE_MA (uint16_t)(ADC_FACTOR_CURRENT*ADC_FACTOR_CURRENT*CURRENT_USAGE_OF_MAX_CURRENT*1000)
+
 
 #define PWM_PERIOD 8190                             // FPG1_clk/(PGxPER + 1)= 200Mhz/(8190+1) = 24.417kHz
 #define PWM_MAX_DUTY PWM_PERIOD+1                   // do not edit !

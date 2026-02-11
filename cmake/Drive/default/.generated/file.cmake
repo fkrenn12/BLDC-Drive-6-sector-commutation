@@ -48,7 +48,8 @@ set(Drive_default_default_XC16_FILE_TYPE_compile
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/peripheral/uart1.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/peripheral/uart2.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/pwm-sector-detection-commutation-speed-measurement.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/serial-command-interpreter.c")
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/serial-command-interpreter.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../Drive/mcc/temperatur-measurement.c")
 set_source_files_properties(${Drive_default_default_XC16_FILE_TYPE_compile} PROPERTIES LANGUAGE C)
 set(Drive_default_default_XC16_FILE_TYPE_link)
 set(Drive_default_default_XC16_FILE_TYPE_bin2hex)
