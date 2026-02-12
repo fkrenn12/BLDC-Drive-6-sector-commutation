@@ -2,7 +2,7 @@
 
 extern TGlobal g;
 
-void Drive_Init(void){
+void Drive_init(void){
     ramp_init(&g.speed.ramp, 0, 0, 20, 200, 100); // up 20rpm/100ms;down 200rpm/100ms
     PIController_Init(&g.current.controller,
         double_to_fixed32(CURRENT_CONTROLLER_KP),  // defined in configuration.h 
@@ -20,9 +20,14 @@ void Drive_Init(void){
     g.mode_selector = MODE_MOTOR_BLOCKED;
 }
 
-int16_t Drive_setSpeedRpm(int16_t rpm){
+void Drive_setDirection(uint8_t direction){
+    g.input.direction = (direction);
+}
+
+int16_t Drive_setSpeedRpm(uint16_t rpm){
     rpm = (rpm < 0)? 0 : rpm;  // speed can't be negative 
     g.input.speedRpm = (rpm > g.speed.max)? g.speed.max : rpm;
+    g.input.speedRpm_timestamp = g.millis;
     return g.input.speedRpm;
 }
 
@@ -30,7 +35,7 @@ int16_t Drive_getSpeedRpm(void){
     return (g.direction_of_rotation==CLOCKWISE)?g.speed.value: -g.speed.value;
 }   
 
-void Drive_Stop(void){
+void Drive_stop(void){
     g.mode_selector = MODE_MOTOR_BLOCKED;
 }
 
@@ -38,12 +43,12 @@ uint16_t Drive_getState(void){
     return 0;
 }
 
-void Drive_SetCurrentLimit(uint16_t currentLimitmA){
+void Drive_setCurrentLimit(uint16_t currentLimitmA){
     currentLimitmA = (currentLimitmA>CURRENT_MAX_VALUE_MA)?CURRENT_MAX_VALUE_MA:currentLimitmA;
     g.current.limit = double_to_fixed32((double)currentLimitmA/CURRENT_MAX_VALUE_MA);
 }
 
-void Drive_ResetCurrentLimit(void){
+void Drive_resetCurrentLimit(void){
     g.current.limit = double_to_fixed32(CURRENT_USAGE_OF_MAX_CURRENT);
 }
 

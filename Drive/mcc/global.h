@@ -34,6 +34,8 @@
 typedef struct _input{
     volatile int16_t gas;      // gas pedal
     volatile int16_t speedRpm; // speed
+    volatile uint64_t speedRpm_timestamp;
+    volatile uint8_t direction; // direction 
     volatile uint8_t f_r;       // forwars/backward pin
     volatile uint8_t a_m;       // automatic/momentum pin
 }TInput;
@@ -75,6 +77,7 @@ typedef struct _global{
     fixed32_point_t MAX_OUTPUT_SPEED;
 }TGlobal;
 
+extern char debugBuffer[];
 extern TGlobal g;
 void GLOBAL_Init(void);
 uint64_t millis(void);

@@ -41,9 +41,6 @@
 #include "../pins.h"
 
 // Section: File specific functions
-static void (*QEI3_InterruptHandler)(void) = NULL;
-static void (*QEI2_InterruptHandler)(void) = NULL;
-static void (*QEI1_InterruptHandler)(void) = NULL;
 
 // Section: Driver Interface Function Definitions
 void PINS_Initialize(void)
@@ -94,125 +91,6 @@ void PINS_Initialize(void)
     ANSELB = 0x0386U;
     ANSELC = 0x000FU;
     ANSELD = 0x0000U;
-    /*******************************************************************************
-    * Interrupt On Change: any
-    *******************************************************************************/
-    CNEN0Cbits.CNEN0C5 = 1; //Pin : RC5U; 
-    CNEN1Cbits.CNEN1C5 = 1; //Pin : RC5U; 
-    /*******************************************************************************
-    * Interrupt On Change: any
-    *******************************************************************************/
-    CNEN0Cbits.CNEN0C6 = 1; //Pin : RC6U; 
-    CNEN1Cbits.CNEN1C6 = 1; //Pin : RC6U; 
-    /*******************************************************************************
-    * Interrupt On Change: any
-    *******************************************************************************/
-    CNEN0Cbits.CNEN0C7 = 1; //Pin : RC7U; 
-    CNEN1Cbits.CNEN1C7 = 1; //Pin : RC7U; 
 
-    /****************************************************************************
-     * Interrupt On Change: flag
-     ***************************************************************************/
-    CNFCbits.CNFC5 = 0;    //Pin : QEI3
-    CNFCbits.CNFC6 = 0;    //Pin : QEI2
-    CNFCbits.CNFC7 = 0;    //Pin : QEI1
-
-    /****************************************************************************
-     * Interrupt On Change: config
-     ***************************************************************************/
-    CNCONCbits.CNSTYLE = 1; //Config for PORTC
-    CNCONCbits.ON = 1; //Config for PORTC
-
-    /* Initialize IOC Interrupt Handler*/
-    QEI3_SetInterruptHandler(&QEI3_CallBack);
-    QEI2_SetInterruptHandler(&QEI2_CallBack);
-    QEI1_SetInterruptHandler(&QEI1_CallBack);
-
-    /****************************************************************************
-     * Interrupt On Change: Interrupt Enable
-     ***************************************************************************/
-    IFS1bits.CNCIF = 0; //Clear CNCI interrupt flag
-    IEC1bits.CNCIE = 1; //Enable CNCI interrupt
-}
-
-void __attribute__ ((weak)) QEI3_CallBack(void)
-{
-
-}
-
-void __attribute__ ((weak)) QEI2_CallBack(void)
-{
-
-}
-
-void __attribute__ ((weak)) QEI1_CallBack(void)
-{
-
-}
-
-void QEI3_SetInterruptHandler(void (* InterruptHandler)(void))
-{ 
-    IEC1bits.CNCIE = 0; //Disable CNCI interrupt
-    QEI3_InterruptHandler = InterruptHandler; 
-    IEC1bits.CNCIE = 1; //Enable CNCI interrupt
-}
-
-void QEI2_SetInterruptHandler(void (* InterruptHandler)(void))
-{ 
-    IEC1bits.CNCIE = 0; //Disable CNCI interrupt
-    QEI2_InterruptHandler = InterruptHandler; 
-    IEC1bits.CNCIE = 1; //Enable CNCI interrupt
-}
-
-void QEI1_SetInterruptHandler(void (* InterruptHandler)(void))
-{ 
-    IEC1bits.CNCIE = 0; //Disable CNCI interrupt
-    QEI1_InterruptHandler = InterruptHandler; 
-    IEC1bits.CNCIE = 1; //Enable CNCI interrupt
-}
-
-/* Interrupt service function for the CNCI interrupt. */
-/* cppcheck-suppress misra-c2012-8.4
-*
-* (Rule 8.4) REQUIRED: A compatible declaration shall be visible when an object or 
-* function with external linkage is defined
-*
-* Reasoning: Interrupt declaration are provided by compiler and are available
-* outside the driver folder
-*/
-void __attribute__ (( interrupt, no_auto_psv )) _CNCInterrupt (void)
-{
-    if(CNFCbits.CNFC5 == 1)
-    {
-        if(QEI3_InterruptHandler != NULL) 
-        { 
-            QEI3_InterruptHandler(); 
-        }
-        
-        CNFCbits.CNFC5 = 0;  //Clear flag for Pin - QEI3
-    }
-    
-    if(CNFCbits.CNFC6 == 1)
-    {
-        if(QEI2_InterruptHandler != NULL) 
-        { 
-            QEI2_InterruptHandler(); 
-        }
-        
-        CNFCbits.CNFC6 = 0;  //Clear flag for Pin - QEI2
-    }
-    
-    if(CNFCbits.CNFC7 == 1)
-    {
-        if(QEI1_InterruptHandler != NULL) 
-        { 
-            QEI1_InterruptHandler(); 
-        }
-        
-        CNFCbits.CNFC7 = 0;  //Clear flag for Pin - QEI1
-    }
-    
-    // Clear the flag
-    IFS1bits.CNCIF = 0;
 }
 

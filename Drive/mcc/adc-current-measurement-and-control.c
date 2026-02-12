@@ -65,6 +65,14 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     // DEBUG_0_SetHigh();
     switch(channel){
         case _I1:
+           /* 
+           if (value > 10){
+                value = 10;
+            }
+            else value = value;
+                      beding    wahr   falsch       
+            value = (value>10)? 10 : value;
+            */
             g.current.value = abs((PG1IOCONL == CLAMP)? ((int32_t)adcVal - 2048) : g.current.value);
             g.current.value = (g.direction_of_rotation == ANTICLOCKWISE)? -g.current.value : g.current.value;
             break;

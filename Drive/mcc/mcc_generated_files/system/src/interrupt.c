@@ -63,10 +63,6 @@ void INTERRUPT_Initialize(void)
     // Priority: 1
     IPC11bits.DMTIP = 1;
     
-    // CNC: Change Notification C
-    // Priority: 1
-    IPC4bits.CNCIP = 1;
-    
 }
 
 void INTERRUPT_Deinitialize(void)
@@ -77,5 +73,4 @@ void INTERRUPT_Deinitialize(void)
     IPC23bits.ADCAN4IP = 4;
     IPC22bits.ADCAN0IP = 4;
     IPC11bits.DMTIP = 4;
-    IPC4bits.CNCIP = 4;
 }

@@ -1,5 +1,6 @@
 #include "global.h"
 #include <errno.h>
+char debugBuffer[256];
 TGlobal g={
     .demo = 0,
     .millis = 0,
@@ -17,6 +18,7 @@ TGlobal g={
     .speed.ref_ramped = 0,
     .input.speedRpm = 0,
     .input.gas = 0,
+    .input.direction = CLOCKWISE,
     .MIN_OUTPUT_SPEED = 0,
     .MAX_OUTPUT_SPEED = 0
 };

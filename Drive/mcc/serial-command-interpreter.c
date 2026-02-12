@@ -23,7 +23,6 @@ void sendoutput(uint8_t state_correct, char* from_address){
     if      (state_correct) sprintf(buffer,"%s:%s:%s\n",from_address,g.myaddress,ack);
     else    sprintf(buffer,"%s:%s:%s\n",from_address,g.myaddress,nack);
     #if defined(DEBUG) && defined(DEBUG_SERIAL_COMMAND_HANDLING)
-        char debugBuffer[255];
         sprintf(debugBuffer,"%sout:%s%s\n\r",COL_YELLOW,buffer,COL_WHITE); // debug output
         UART2_WriteNoneBlockingString(debugBuffer); 
     #endif
@@ -36,7 +35,6 @@ void behandlungsfunction(char * line){
     static char stringCommandvalue [255];
     char from_address[10];
     #if defined(DEBUG) && defined(DEBUG_SERIAL_COMMAND_HANDLING)
-        char debugBuffer[255];
         sprintf(debugBuffer,"\n\r%sin:%s%s\r\n",COL_YELLOW,line,COL_WHITE);
         UART2_WriteNoneBlockingString(debugBuffer); 
     #endif
@@ -93,6 +91,8 @@ void behandlungsfunction(char * line){
             sendoutput(1, from_address);  // 1 correct
         }
         else if (strcmp(command,"*GDD?")==0){   // Get Drive Direction, bool...
+            uint8_t direction = (intCommandValue==0)?CLOCKWISE:ANTICLOCKWISE;
+            Drive_setDirection(direction);
             sendoutput(1, from_address);  // 1 correct
         }
         else if (strcmp(command,"*GAM?")==0){   // Get Automatic Mode, bool...
@@ -102,10 +102,11 @@ void behandlungsfunction(char * line){
             sendoutput(1, from_address);  // 1 correct
         }
         else if (strcmp(command,"*SDC?")==0){   // Save Discharging Current
-            Drive_SetCurrentLimit(intCommandValue);
+            Drive_setCurrentLimit(intCommandValue);
             sendoutput(1, from_address);  // 1 correct
         }
         else if (strcmp(command,"*RPM?")==0){   // Groyßergleichmethode, get speed in rpm
+            Drive_setSpeedRpm(intCommandValue);
             sendoutput(1, from_address);  // 1 correct
         }
         else{
@@ -116,9 +117,6 @@ void behandlungsfunction(char * line){
 
 void SerialCommandRxService(void){
     char rxChar;
-    #if defined(DEBUG) && defined(DEBUG_SERIAL_COMMAND_HANDLING)
-        char debugBuffer[256];
-    #endif
     static char line[256];  
     static uint8_t pointer = 0;
     // printf(".");

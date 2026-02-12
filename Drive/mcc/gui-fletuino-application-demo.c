@@ -32,7 +32,7 @@ static void on_momentum_changed(const char* event, const char* value){
 static void on_emergency_off(const char* event, const char* value){
     g.input.gas = 0;
     fletuino_set_value_int(SLIDER_MOMENTUM, 0);
-    Drive_Stop();  
+    Drive_stop();  
 }
 
 bool on_any_event(const uint16_t id,const char* event, const char* value)

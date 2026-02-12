@@ -816,54 +816,6 @@
  */
 void PINS_Initialize(void);
 
-/**
- * @ingroup  pinsdriver
- * @brief    This function is callback for QEI3 Pin
- * @param    none
- * @return   none   
- */
-void QEI3_CallBack(void);
-
-/**
- * @ingroup  pinsdriver
- * @brief    This function is callback for QEI2 Pin
- * @param    none
- * @return   none   
- */
-void QEI2_CallBack(void);
-
-/**
- * @ingroup  pinsdriver
- * @brief    This function is callback for QEI1 Pin
- * @param    none
- * @return   none   
- */
-void QEI1_CallBack(void);
-
-
-/**
- * @ingroup    pinsdriver
- * @brief      This function assigns a function pointer with a callback address
- * @param[in]  InterruptHandler - Address of the callback function 
- * @return     none  
- */
-void QEI3_SetInterruptHandler(void (* InterruptHandler)(void));
-
-/**
- * @ingroup    pinsdriver
- * @brief      This function assigns a function pointer with a callback address
- * @param[in]  InterruptHandler - Address of the callback function 
- * @return     none  
- */
-void QEI2_SetInterruptHandler(void (* InterruptHandler)(void));
-
-/**
- * @ingroup    pinsdriver
- * @brief      This function assigns a function pointer with a callback address
- * @param[in]  InterruptHandler - Address of the callback function 
- * @return     none  
- */
-void QEI1_SetInterruptHandler(void (* InterruptHandler)(void));
 
 
 #endif
