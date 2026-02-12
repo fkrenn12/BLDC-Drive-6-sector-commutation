@@ -63,6 +63,7 @@ void statemachine(void){
                             state = START;
                             break;
                         }
+                        // direction changed
                         if (g.input.f_r != g.direction){ 
                             state = CHANGE_DIRECTION;
                             g.mode_selector = MODE_MOMENTUM_ZERO_CURRENT;
@@ -71,6 +72,7 @@ void statemachine(void){
                         break;
         case RUN_SPEEDCONTROLLER:    
                         g.speed.ramp.in = g.input.speedRpm;
+                        // no speed required or no automatic mode
                         if ((g.input.speedRpm == 0) || (!g.input.a_m)){
                             g.speed.ramp.in = 0;  // slow down
                             if (abs(g.speed.value) <100){
@@ -78,6 +80,7 @@ void statemachine(void){
                             }
                             break;
                         }
+                        // gas required
                         if (g.current.momentum != 0){
                             g.mode_selector = MODE_MOMENTUM;
                             state = RUN_MOMENTUM; 
