@@ -178,19 +178,13 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.speed.max = (int16_t)((SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.vlink * ADC_FACTOR_VLINK);
         g.speed.ramp.in = (g.speed.ramp.in > g.speed.max)? g.speed.max : g.speed.ramp.in;
         g.input.gas = (g.demo)? g.input.gas: ADC_Result(_MOMENTUM);
-        g.input.f_r = (g.demo)? g.input.f_r: (uint8_t)(PORTB & 0x01); //RB0
-        g.input.a_m = (g.demo)? g.input.a_m: (uint8_t)(PORTD & 0x400); //RD10
-        g.input.a_m = 1;
-        g.input.gas = 0;
+        g.input.f_r = (g.demo)? g.input.f_r: _F_R_GetValue(); 
+        g.input.a_m = (g.demo)? g.input.a_m: _A_M_GetValue(); 
         #ifndef FLETUINO_PI_CONTROLLER_SETTINGS
             g.current.momentum = map_range_clamped(g.input.gas, 150, 4095, 0, 2047);
         #endif
         // check activity of receiving data from the based station
         g.input.speedRpm = ((g.millis - g.input.speedRpm_timestamp) > 5000)? 0 : g.input.speedRpm;
-        #if defined(DEBUG)
-            sprintf(debugBuffer, "%d %d\r\n",g.state, g.input.speedRpm); 
-            UART2_WriteNoneBlockingString(debugBuffer); 
-        #endif
     }
 }
 
@@ -238,7 +232,11 @@ int main(void){
             eventTimer3++;
 
             if (eventTimer1 == 100){  // every 100 milliseconds 
-                eventTimer1 = 0;         
+                eventTimer1 = 0;    
+                #if defined(DEBUG)
+                    sprintf(debugBuffer, "%d %d\r\n",g.state, g.input.speedRpm); 
+                    UART2_WriteNoneBlockingString(debugBuffer); 
+                #endif     
                 // IO_LED_Toggle();
             }
                                                                                
