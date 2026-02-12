@@ -34,12 +34,13 @@ void statemachine(void){
         case START:     if (abs(g.speed.value) < 100)
                             g.mode_selector = MODE_MOTOR_BLOCKED;
 
+                        // direction changed
                         if (g.input.f_r != g.direction){ 
                             state = CHANGE_DIRECTION;
                             g.mode_selector = MODE_MOMENTUM_ZERO_CURRENT;
                             break;
                         }
-                        // wait until momentum required
+                        // momentum required
                         if (g.current.momentum != 0){
                             g.mode_selector = MODE_MOMENTUM;
                             state = RUN_MOMENTUM; 
@@ -164,7 +165,8 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.speed.value = (int16_t)((int32_t)g.speed.sectors_counted * (60 * SPEED_MEASUREMENTS_PER_SECOND / HALL_PULSES_PER_ROTATION));   // rpm 5*60/PULSES_PER_ROTATION = 50
         g.speed.sectors_counted = 0;
         g.speed.value = (g.direction_of_rotation == CLOCKWISE)? g.speed.value: -g.speed.value; 
-        g.speed.out = (g.mode_selector == MODE_SPEEDCONTROLLER)?(int16_t)PIController_Compute(&g.speed.controller, g.speed.ref_ramped, g.speed.value):g.speed.out; 
+        int16_t speedref = (g.input.direction == CLOCKWISE)? g.speed.ref_ramped : -g.speed.ref_ramped;
+        g.speed.out = (g.mode_selector == MODE_SPEEDCONTROLLER)?(int16_t)PIController_Compute(&g.speed.controller, speedref, g.speed.value):g.speed.out; 
     } 
     // every 50ms reading inputs
     if( ++timer_50ms == 50){
@@ -179,13 +181,14 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.input.f_r = (g.demo)? g.input.f_r: (uint8_t)(PORTB & 0x01); //RB0
         g.input.a_m = (g.demo)? g.input.a_m: (uint8_t)(PORTD & 0x400); //RD10
         g.input.a_m = 1;
+        g.input.gas = 0;
         #ifndef FLETUINO_PI_CONTROLLER_SETTINGS
             g.current.momentum = map_range_clamped(g.input.gas, 150, 4095, 0, 2047);
         #endif
         // check activity of receiving data from the based station
         g.input.speedRpm = ((g.millis - g.input.speedRpm_timestamp) > 5000)? 0 : g.input.speedRpm;
         #if defined(DEBUG)
-            sprintf(debugBuffer, "%d\r\n",g.input.speedRpm); 
+            sprintf(debugBuffer, "%d %d\r\n",g.state, g.input.speedRpm); 
             UART2_WriteNoneBlockingString(debugBuffer); 
         #endif
     }

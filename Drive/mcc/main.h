@@ -16,12 +16,12 @@
 #define STATEMACHINE 1              // 0 = no state machine, 1 = state machine
 
 
-#define DEBUG                // only one option (DEBUG or FLETUINO) is allowed
+#define DEBUG                       // only one option (DEBUG or FLETUINO) is allowed
 // #define DEBUG_SERIAL_COMMAND_HANDLING 
 // #define FLETUINO                // DEBUG or FLETUINO or nothing
 // #define FLETUINO_APPLICATION_DEMO
 // #define FLETUINO_PI_CONTROLLER_SETTINGS
-//#define FLETUINO_MANUAL_CONTROL
+// #define FLETUINO_MANUAL_CONTROL
 
 
 // NO NEED TO CHANGE ANYTHING BELOW THIS LINE

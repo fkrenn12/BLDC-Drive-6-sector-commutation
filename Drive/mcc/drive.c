@@ -21,22 +21,34 @@ void Drive_init(void){
 }
 
 void Drive_setDirection(uint8_t direction){
-    g.input.direction = (direction);
+    // g.input.direction = direction;
 }
 
-int16_t Drive_setSpeedRpm(uint16_t rpm){
-    rpm = (rpm < 0)? 0 : rpm;  // speed can't be negative 
-    g.input.speedRpm = (rpm > g.speed.max)? g.speed.max : rpm;
+int16_t Drive_setSpeedRpm(int16_t rpm){
+    uint8_t direction  = (rpm > 0)? CLOCKWISE : ANTICLOCKWISE;
+    rpm = abs(rpm);
+    rpm = (rpm > g.speed.max)? g.speed.max : rpm;
+
+    IEC0bits.T1IE = 0;
+    g.input.direction = direction;
+    g.input.speedRpm = rpm;
     g.input.speedRpm_timestamp = g.millis;
-    return g.input.speedRpm;
+    IEC0bits.T1IE = 1;
+    
+    return rpm;
 }
 
 int16_t Drive_getSpeedRpm(void){
-    return (g.direction_of_rotation==CLOCKWISE)?g.speed.value: -g.speed.value;
+    IEC0bits.T1IE = 0;
+    int16_t rpm  = (g.direction_of_rotation==CLOCKWISE)?g.speed.value: -g.speed.value;
+    IEC0bits.T1IE = 1;
+    return rpm;
 }   
 
 void Drive_stop(void){
+    IEC0bits.T1IE = 0;
     g.mode_selector = MODE_MOTOR_BLOCKED;
+    IEC0bits.T1IE = 1;
 }
 
 uint16_t Drive_getState(void){
@@ -45,11 +57,25 @@ uint16_t Drive_getState(void){
 
 void Drive_setCurrentLimit(uint16_t currentLimitmA){
     currentLimitmA = (currentLimitmA>CURRENT_MAX_VALUE_MA)?CURRENT_MAX_VALUE_MA:currentLimitmA;
-    g.current.limit = double_to_fixed32((double)currentLimitmA/CURRENT_MAX_VALUE_MA);
+    int32_t limit = double_to_fixed32((double)currentLimitmA/CURRENT_MAX_VALUE_MA);
+    IEC0bits.T1IE = 0;
+    IEC5bits.ADCAN4IE = 0;
+    IEC6bits.ADCAN11IE = 0;
+    g.current.limit = limit;
+    IEC5bits.ADCAN4IE = 1;
+    IEC6bits.ADCAN11IE = 1;
+    IEC0bits.T1IE = 1;
 }
 
 void Drive_resetCurrentLimit(void){
-    g.current.limit = double_to_fixed32(CURRENT_USAGE_OF_MAX_CURRENT);
+    int32_t limit = double_to_fixed32(CURRENT_USAGE_OF_MAX_CURRENT);
+    IEC0bits.T1IE = 0;
+    IEC5bits.ADCAN4IE = 0;
+    IEC6bits.ADCAN11IE = 0;
+    g.current.limit = limit;
+    IEC5bits.ADCAN4IE = 1;
+    IEC6bits.ADCAN11IE = 1;
+    IEC0bits.T1IE = 1;
 }
 
 
