@@ -249,6 +249,108 @@
 
 /**
  * @ingroup  pinsdriver
+ * @brief    Sets the RB7 GPIO Pin which has a custom name of DEBUG1 to High
+ * @pre      The RB7 must be set as Output Pin             
+ * @param    none
+ * @return   none  
+ */
+#define DEBUG1_SetHigh()          (_LATB7 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RB7 GPIO Pin which has a custom name of DEBUG1 to Low
+ * @pre      The RB7 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define DEBUG1_SetLow()           (_LATB7 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Toggles the RB7 GPIO Pin which has a custom name of DEBUG1
+ * @pre      The RB7 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define DEBUG1_Toggle()           (_LATB7 ^= 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Reads the value of the RB7 GPIO Pin which has a custom name of DEBUG1
+ * @param    none
+ * @return   none  
+ */
+#define DEBUG1_GetValue()         _RB7
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RB7 GPIO Pin which has a custom name of DEBUG1 as Input
+ * @param    none
+ * @return   none  
+ */
+#define DEBUG1_SetDigitalInput()  (_TRISB7 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RB7 GPIO Pin which has a custom name of DEBUG1 as Output
+ * @param    none
+ * @return   none  
+ */
+#define DEBUG1_SetDigitalOutput() (_TRISB7 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RB8 GPIO Pin which has a custom name of DEBUG2 to High
+ * @pre      The RB8 must be set as Output Pin             
+ * @param    none
+ * @return   none  
+ */
+#define DEBUG2_SetHigh()          (_LATB8 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RB8 GPIO Pin which has a custom name of DEBUG2 to Low
+ * @pre      The RB8 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define DEBUG2_SetLow()           (_LATB8 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Toggles the RB8 GPIO Pin which has a custom name of DEBUG2
+ * @pre      The RB8 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define DEBUG2_Toggle()           (_LATB8 ^= 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Reads the value of the RB8 GPIO Pin which has a custom name of DEBUG2
+ * @param    none
+ * @return   none  
+ */
+#define DEBUG2_GetValue()         _RB8
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RB8 GPIO Pin which has a custom name of DEBUG2 as Input
+ * @param    none
+ * @return   none  
+ */
+#define DEBUG2_SetDigitalInput()  (_TRISB8 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RB8 GPIO Pin which has a custom name of DEBUG2 as Output
+ * @param    none
+ * @return   none  
+ */
+#define DEBUG2_SetDigitalOutput() (_TRISB8 = 0)
+
+/**
+ * @ingroup  pinsdriver
  * @brief    Sets the RC4 GPIO Pin which has a custom name of QEI4 to High
  * @pre      The RC4 must be set as Output Pin             
  * @param    none

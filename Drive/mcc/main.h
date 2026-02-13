@@ -7,7 +7,7 @@
 #include <stdbool.h>
 
 #define FCY 100000000UL  //100Mhz
-#define MYADDRESS "#4"              // define the address hardcoded - uncomment if using the hardware with SW400
+//#define MYADDRESS "#4"              // define the address hardcoded - uncomment if using the hardware with SW400
 
 #define SMART_POWERLAB_HARDWARE     // comment if using the real hardware drive
 
@@ -16,21 +16,27 @@
 #define STATEMACHINE 1              // 0 = no state machine, 1 = state machine
 
 
-// #define DEBUG                       // only one option (DEBUG or FLETUINO) is allowed
+// #define DEBUG                       // only one option (DEBUG or any FLETUINO) is allowed
 // #define DEBUG_SERIAL_COMMAND_HANDLING 
-// #define FLETUINO                // DEBUG or FLETUINO or nothing
-// #define FLETUINO_APPLICATION_DEMO
+
+#define FLETUINO_APPLICATION_DEMO
 // #define FLETUINO_PI_CONTROLLER_SETTINGS
 // #define FLETUINO_MANUAL_CONTROL
 
 
 // NO NEED TO CHANGE ANYTHING BELOW THIS LINE
+#if defined(FLETUINO_APPLICATION_DEMO)
+    #define FLETUINO               
+#endif
+
 #if defined(FLETUINO_PI_CONTROLLER_SETTINGS)
+    #define FLETUINO  
     #undef STATEMACHINE
     #define STATEMACHINE 0
 #endif
 
 #if defined(FLETUINO_MANUAL_CONTROL)
+    #define FLETUINO  
     #undef STATEMACHINE
     #define STATEMACHINE 0
     #undef CURRENT_CONTROL

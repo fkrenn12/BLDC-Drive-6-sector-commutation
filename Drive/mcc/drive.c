@@ -27,9 +27,9 @@ void Drive_setDirection(uint8_t direction){
 int16_t Drive_setSpeedRpm(int16_t rpm){
     uint8_t direction  = (rpm > 0)? CLOCKWISE : ANTICLOCKWISE;
     rpm = abs(rpm);
-    rpm = (rpm > g.speed.max)? g.speed.max : rpm;
-
+    
     IEC0bits.T1IE = 0;
+    rpm = (rpm > g.speed.max)? g.speed.max : rpm;
     g.input.direction = direction;
     g.input.speedRpm = rpm;
     g.input.speedRpm_timestamp = g.millis;

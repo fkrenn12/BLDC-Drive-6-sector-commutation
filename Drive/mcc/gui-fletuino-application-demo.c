@@ -80,7 +80,7 @@ void start_page(){
     DIRECTION_SELECTOR = fletuino_switch("Forward/Reverse (F/R)", 30, 0, on_direction_switch);
     fletuino_bar((CONTROLS){MODE_SELECTOR,DIRECTION_SELECTOR},2,"center-space-evenly");
     fletuino_divider(3);
-    SLIDER_SPEED_REF = fletuino_slider("Speed RPM",(int16_t)g.speed.ref_ramped, 0, 5000, 30, on_speed_changed);
+    SLIDER_SPEED_REF = fletuino_slider("Speed RPM",(int16_t)g.speed.ref_ramped, -5000, 5000, 30, on_speed_changed);
     fletuino_set_property_int(SLIDER_SPEED_REF, "width", 600);
     fletuino_bar((CONTROLS){SLIDER_SPEED_REF},1,"center-space-evenly");
     fletuino_add_any_event_callback(on_any_event);
@@ -90,8 +90,8 @@ void gui_update(void){
     fletuino_set_value_int(NUMERIC_RPM, g.speed.value);
     fletuino_set_value_int(NUMERIC_CURRENT, g.current.value);
     fletuino_set_value_int(NUMERIC_VOLT, g.vlink); 
-    fletuino_set_value_int(NUMERIC_DEBUG1, g.temperature);
-    fletuino_set_value_int(NUMERIC_DEBUG2, ADC_Result(_TEMPERATURE)); 
-    // fletuino_set_value_int(NUMERIC_DEBUG3, g.input.speedRpm);
+    fletuino_set_value_int(NUMERIC_DEBUG1, g.input.gas);
+    fletuino_set_value_int(NUMERIC_DEBUG2, g.state); 
+    fletuino_set_value_int(NUMERIC_DEBUG3, g.input.speedRpm);
 }
 #endif

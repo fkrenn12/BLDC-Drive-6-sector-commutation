@@ -37,7 +37,6 @@ void ADC_SoftwareTriggerChannelSequencing(void)
 void current_controller(void){
     volatile static uint32_t count=0;
     if (++count % 10 == 0){  // every 10th calling
-        // DEBUG_1_SetHigh();
         count = 0;
         // current limiter 
         g.current.ref = (g.current.ref > g.current.limit)? g.current.limit : g.current.ref;
@@ -50,7 +49,6 @@ void current_controller(void){
         PG1TRIGA = (MDC > 8000)? MDC-100 : MDC+100;
         PG1TRIGB = PG1TRIGA;
         PG1STATbits.UPDREQ = 1; 
-        // DEBUG_1_SetLow();
     }
 }
 
@@ -62,7 +60,7 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     // DIG 4095     +A          ┌────┐     
     // DIG 2048      0     ┌────┘    └────┐   
     // DIG 0        -A ────┘              └───
-    // DEBUG_0_SetHigh();
+    
     switch(channel){
         case _I1:
            /* 
@@ -93,5 +91,5 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
         default:
             break;
     }   
-    // DEBUG_0_SetLow();
+    
 }

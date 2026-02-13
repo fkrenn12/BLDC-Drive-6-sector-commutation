@@ -30,8 +30,8 @@ void GLOBAL_Init(void){
     #ifdef MYADDRESS
         strcpy((char*)g.myaddress,MYADDRESS);
     #endif
-    // INTCON1bits.NSTDIS = 0; // 0 = Interrupt nesting is enabled 
-    // IPC16bits.PWM1IP = 4; // PWM has highest priority
+    INTCON1bits.NSTDIS = 0; // 0 = Interrupt nesting is enabled 
+    IPC16bits.PWM1IP = 4; // PWM has highest priority
 }
 
 uint64_t millis(void)

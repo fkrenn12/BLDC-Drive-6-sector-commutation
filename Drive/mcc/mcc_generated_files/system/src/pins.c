@@ -57,7 +57,7 @@ void PINS_Initialize(void)
      * Setting the GPIO Direction SFR(s)
      ***************************************************************************/
     TRISA = 0x001DU;
-    TRISB = 0xFFEFU;
+    TRISB = 0xFE6FU;
     TRISC = 0x3EFFU;
     TRISD = 0x0502U;
 
@@ -70,7 +70,7 @@ void PINS_Initialize(void)
     CNPUC = 0x00F0U;
     CNPUD = 0x0400U;
     CNPDA = 0x0000U;
-    CNPDB = 0x0000U;
+    CNPDB = 0x0180U;
     CNPDC = 0x3C00U;
     CNPDD = 0x0000U;
 
@@ -88,7 +88,7 @@ void PINS_Initialize(void)
      * Setting the Analog/Digital Configuration SFR(s)
      ***************************************************************************/
     ANSELA = 0x001DU;
-    ANSELB = 0x0386U;
+    ANSELB = 0x0206U;
     ANSELC = 0x000FU;
     ANSELD = 0x0000U;
 

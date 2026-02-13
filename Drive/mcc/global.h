@@ -5,6 +5,7 @@
 #include <inttypes.h>
 #include "main.h"
 #include "mcc_generated_files/system/system.h"
+#include "mcc_generated_files/system/pins.h"
 #include "lib/fixed_point.h"
 #include "configuration.h"
 #include "lib/pi-controller.h"

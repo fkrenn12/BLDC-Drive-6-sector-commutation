@@ -27,8 +27,11 @@
 extern TGlobal g;
 
 void statemachine(void){
-    enum {START, RUN_MOMENTUM, RUN_SPEEDCONTROLLER ,CHANGE_DIRECTION };
+    enum {START, RUN_MOMENTUM, RUN_SPEEDCONTROLLER ,CHANGE_DIRECTION, WAIT };
+    static uint16_t  counter = 0;
     static uint8_t  state = START;
+    static uint8_t state_previouse = START;
+    DEBUG1_SetHigh();
     g.state = state;  // zum debuggen 
     switch (state){
         case START:     if (abs(g.speed.value) < 100)
@@ -36,6 +39,7 @@ void statemachine(void){
 
                         // direction changed
                         if (g.input.f_r != g.direction){ 
+                            state_previouse = state;
                             state = CHANGE_DIRECTION;
                             g.mode_selector = MODE_MOMENTUM_ZERO_CURRENT;
                             break;
@@ -47,24 +51,28 @@ void statemachine(void){
                             break;
                         }
                         // check speedcontrol
+                        
                         if ((g.input.a_m) && (g.input.speedRpm)){
-                            g.mode_selector = MODE_SPEEDCONTROLLER;
                             g.speed.ramp.in = 0;
                             ramp_reset(&g.speed.ramp);
                             g.direction = g.input.direction;
                             state = RUN_SPEEDCONTROLLER; 
                             break;
                         }
+                        
                         break;
         case RUN_MOMENTUM: 
+                        g.mode_selector = MODE_MOMENTUM;
+                        // halted?
                         if (g.current.ref == 0 && abs(g.speed.value) < 200){ 
-                            // halted
+                            
                             g.mode_selector = MODE_MOTOR_BLOCKED; 
                             state = START;
                             break;
                         }
-                        // direction changed
+                        // direction changed?
                         if (g.input.f_r != g.direction){ 
+                            state_previouse = state;
                             state = CHANGE_DIRECTION;
                             g.mode_selector = MODE_MOMENTUM_ZERO_CURRENT;
                             break;
@@ -72,32 +80,68 @@ void statemachine(void){
                         break;
         case RUN_SPEEDCONTROLLER:    
                         g.speed.ramp.in = g.input.speedRpm;
+                        g.mode_selector = MODE_SPEEDCONTROLLER;
                         // no speed required or no automatic mode
                         if ((g.input.speedRpm == 0) || (!g.input.a_m)){
                             g.speed.ramp.in = 0;  // slow down
-                            if (abs(g.speed.value) <100){
+                            if (abs(g.speed.value) < 100){
                                 state = START;
                             }
                             break;
                         }
-                        // gas required
+                        // direction changed?
+                        if (g.input.direction != g.direction){ 
+                            state_previouse = state;
+                            state = CHANGE_DIRECTION;
+                            g.speed.ramp.in = 0;
+                            // g.mode_selector = MODE_MOMENTUM_ZERO_CURRENT;
+                            break;
+                        }
+                        
+                        // momentum requested (gas pedal )
                         if (g.current.momentum != 0){
                             g.mode_selector = MODE_MOMENTUM;
                             state = RUN_MOMENTUM; 
                             break;
                         }
+                            
                         break;
         case CHANGE_DIRECTION:
                         // wait until speed goes below threshold
                         if (abs(g.speed.value) < 100){
-                            g.direction = g.input.f_r;
-                            state = START;
+                            if (state_previouse == RUN_SPEEDCONTROLLER){
+                                g.speed.ramp.in = 0;
+                                // ramp_reset(&g.speed.ramp);
+                                // PIController_ResetIntegrator(&g.speed.controller);
+                                // PIController_ResetIntegrator(&g.current.controller);
+                                // g.current.ref = 0;
+                                
+                                // g.mode_selector = MODE_MOTOR_BLOCKED;
+                                state = WAIT;
+                                counter = 0;
+                            }
+                            else{
+                                g.direction = g.input.f_r;
+                                state = state_previouse;
+                            }
+                           
+                            
+                            // g.mode_selector = MODE_MOTOR_BLOCKED;
                         }
                         break;
+
+        case WAIT:      if (++counter > 2000){
+                            state = RUN_SPEEDCONTROLLER;
+                            g.direction = g.input.direction;
+                        } 
+                        
+                        break;
+
         default:        state = START;
                         break;
 
     }
+    DEBUG1_SetLow();
 }
 
 // select g.current.ref depending on mode_selector
@@ -174,7 +218,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     // every 50ms reading inputs
     if( ++timer_50ms == 50){
         timer_50ms = 0;
-        ADC_SoftwareTriggerChannelSequencing(); // Sequencially start software triggered ADC channels
+        // ADC_SoftwareTriggerChannelSequencing(); // Sequencially start software triggered ADC channels
         // Measuring and calculate temperature
         g.temperature = NTC_Temperature_FromADC(ADC_Result(_TEMPERATURE));
         g.vlink = ADC_Result(_VLINK);
@@ -183,11 +227,15 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.input.gas = (g.demo)? g.input.gas: ADC_Result(_MOMENTUM);
         g.input.f_r = (g.demo)? g.input.f_r: _F_R_GetValue(); 
         g.input.a_m = (g.demo)? g.input.a_m: _A_M_GetValue(); 
+        // g.input.a_m = 1;
+        // g.input.speedRpm = 1550;
         #ifndef FLETUINO_PI_CONTROLLER_SETTINGS
             g.current.momentum = map_range_clamped(g.input.gas, 150, 4095, 0, 2047);
         #endif
         // check activity of receiving data from the based station
-        g.input.speedRpm = ((g.millis - g.input.speedRpm_timestamp) > 5000)? 0 : g.input.speedRpm;
+        #ifndef FLETUINO_APPLICATION_DEMO
+            g.input.speedRpm = ((g.millis - g.input.speedRpm_timestamp) > 5000)? 0 : g.input.speedRpm;
+        #endif
     }
 }
 
@@ -237,7 +285,7 @@ int main(void){
             if (eventTimer1 == 100){  // every 100 milliseconds 
                 eventTimer1 = 0;    
                 #if defined(DEBUG)
-                    sprintf(debugBuffer, "%d %d\r\n",g.state, g.input.speedRpm); 
+                    sprintf(debugBuffer, "%d %d %d  %d %d\r\n",g.state, g.input.speedRpm,g.speed.value, ADC_Result(_MOMENTUM),g.current.momentum); 
                     UART2_WriteNoneBlockingString(debugBuffer); 
                 #endif     
                 // IO_LED_Toggle();
