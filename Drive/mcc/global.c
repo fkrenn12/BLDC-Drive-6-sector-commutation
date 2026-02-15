@@ -25,7 +25,9 @@ TGlobal g={
 
 void GLOBAL_Init(void){   
     // read address from switch
-    uint8_t address = (PORTC & 0x3C00)>>10; // RC10 to RC13
+
+    // uint8_t address = (PORTC & 0x3C00)>>10; // RC10 to RC13
+    uint8_t address = ((uint8_t)SwitchD3_GetValue()<<3) + ((uint8_t)SwitchD2_GetValue()<<2) + ((uint8_t)SwitchD1_GetValue()<<1) + (uint8_t)SwitchD0_GetValue();
     sprintf((char*)g.myaddress,"#%d",address);
     #ifdef MYADDRESS
         strcpy((char*)g.myaddress,MYADDRESS);

@@ -212,8 +212,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.speed.value = (int16_t)((int32_t)g.speed.sectors_counted * (60 * SPEED_MEASUREMENTS_PER_SECOND / HALL_PULSES_PER_ROTATION));   // rpm 5*60/PULSES_PER_ROTATION = 50
         g.speed.sectors_counted = 0;
         g.speed.value = (g.direction_of_rotation == CLOCKWISE)? g.speed.value: -g.speed.value; 
-        int16_t speedref = (g.input.direction == CLOCKWISE)? g.speed.ref_ramped : -g.speed.ref_ramped;
-        g.speed.out = (g.mode_selector == MODE_SPEEDCONTROLLER)?(int16_t)PIController_Compute(&g.speed.controller, speedref, g.speed.value):g.speed.out; 
+        g.speed.out = (g.mode_selector == MODE_SPEEDCONTROLLER)?(int16_t)PIController_Compute(&g.speed.controller, g.speed.ref_ramped, g.speed.value):g.speed.out; 
     } 
     // every 50ms reading inputs
     if( ++timer_50ms == 50){
@@ -225,8 +224,8 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.speed.max = (int16_t)((SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.vlink * ADC_FACTOR_VLINK);
         g.speed.ramp.in = (g.speed.ramp.in > g.speed.max)? g.speed.max : g.speed.ramp.in;
         g.input.gas = (g.demo)? g.input.gas: ADC_Result(_MOMENTUM);
-        g.input.f_r = (g.demo)? g.input.f_r: _F_R_GetValue(); 
-        g.input.a_m = (g.demo)? g.input.a_m: _A_M_GetValue(); 
+        g.input.f_r = (g.demo)? g.input.f_r: ForwardReverse_GetValue(); 
+        g.input.a_m = (g.demo)? g.input.a_m: AutomaticManual_GetValue(); 
         // g.input.a_m = 1;
         // g.input.speedRpm = 1550;
         #ifndef FLETUINO_PI_CONTROLLER_SETTINGS
@@ -285,7 +284,10 @@ int main(void){
             if (eventTimer1 == 100){  // every 100 milliseconds 
                 eventTimer1 = 0;    
                 #if defined(DEBUG)
-                    sprintf(debugBuffer, "%d %d %d  %d %d\r\n",g.state, g.input.speedRpm,g.speed.value, ADC_Result(_MOMENTUM),g.current.momentum); 
+                    // sprintf(debugBuffer, "%s\r\n",g.myaddress); 
+                    // sprintf(debugBuffer,"TEst\n\r");
+                    // UART2_WriteNoneBlockingString(debugBuffer); 
+                    sprintf(debugBuffer, "%d %d %d %d  %d %d\r\n",g.state,g.input.speedRpm, g.speed.ramp.in, g.speed.ramp.out, g.speed.out, g.speed.value); 
                     UART2_WriteNoneBlockingString(debugBuffer); 
                 #endif     
                 // IO_LED_Toggle();

@@ -24,13 +24,10 @@ void Drive_setDirection(uint8_t direction){
     // g.input.direction = direction;
 }
 
-int16_t Drive_setSpeedRpm(int16_t rpm){
-    uint8_t direction  = (rpm > 0)? CLOCKWISE : ANTICLOCKWISE;
-    rpm = abs(rpm);
-    
+int16_t Drive_setSpeedRpm(int16_t rpm){   
     IEC0bits.T1IE = 0;
     rpm = (rpm > g.speed.max)? g.speed.max : rpm;
-    g.input.direction = direction;
+    rpm = (rpm < -g.speed.max)? -g.speed.max : rpm;
     g.input.speedRpm = rpm;
     g.input.speedRpm_timestamp = g.millis;
     IEC0bits.T1IE = 1;
