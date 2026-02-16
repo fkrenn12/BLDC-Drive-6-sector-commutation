@@ -30,7 +30,7 @@ void statemachine(void){
     enum {START, RUN_MOMENTUM, RUN_SPEEDCONTROLLER ,CHANGE_DIRECTION };
     static uint8_t  state = START;
     static uint8_t state_previouse = START;
-    DEBUG1_SetHigh();
+    // DEBUG1_SetHigh();
     g.state = state;  // zum debuggen 
     switch (state){
         case START:     if (abs(g.speed.value) < 100)
@@ -50,7 +50,6 @@ void statemachine(void){
                             break;
                         }
                         // check speedcontrol
-                        
                         if ((g.input.a_m) && (g.input.speedRpm)){
                             g.speed.ramp.in = 0;
                             ramp_reset(&g.speed.ramp);
@@ -80,7 +79,7 @@ void statemachine(void){
         case RUN_SPEEDCONTROLLER:    
                         g.speed.ramp.in = g.input.speedRpm;
                         g.mode_selector = MODE_SPEEDCONTROLLER;
-                        // no speed required or no automatic mode
+                        // no speed required or not in automatic mode
                         if ((g.input.speedRpm == 0) || (!g.input.a_m)){
                             g.speed.ramp.in = 0;  // slow down
                             if (abs(g.speed.value) < 100){
@@ -108,7 +107,7 @@ void statemachine(void){
                         break;
 
     }
-    DEBUG1_SetLow();
+    // DEBUG1_SetLow();
 }
 
 // select g.current.ref depending on mode_selector
@@ -122,8 +121,7 @@ void iref_selector(void){
                                     break; 
         case MODE_SPEEDCONTROLLER:  g.current.ref = g.speed.out;
                                     break;
-        case MODE_MOMENTUM:         g.current.ref = g.current.momentum;
-                                    g.current.ref = (g.direction == CLOCKWISE)? g.current.ref : -g.current.ref;
+        case MODE_MOMENTUM:         g.current.ref = (g.direction == CLOCKWISE)? g.current.momentum : -g.current.momentum;
                                     break;
     }
 }
@@ -193,8 +191,6 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.input.gas = (g.demo)? g.input.gas: ADC_Result(_MOMENTUM);
         g.input.f_r = (g.demo)? g.input.f_r: ForwardReverse_GetValue(); 
         g.input.a_m = (g.demo)? g.input.a_m: AutomaticManual_GetValue(); 
-        // g.input.a_m = 1;
-        // g.input.speedRpm = 1550;
         #ifndef FLETUINO_PI_CONTROLLER_SETTINGS
             g.current.momentum = map_range_clamped(g.input.gas, 150, 4095, 0, 2047);
         #endif
@@ -230,7 +226,7 @@ int main(void){
         uint64_t actual_millis = millis();
         /*
           Service calls - preferably in the main loop
-          because using printf (sprintf) is not a good advise in interrupts
+          because using printf (sprintf) is not a good advise using in interrupts
         */
         SerialCommandRxService(); 
         SerialCommandTxService();
@@ -262,9 +258,7 @@ int main(void){
                                                                                
             if (eventTimer2 == 2000){ 
                 eventTimer2 = 0;  
-                LED2_Toggle();
-
-                 
+                LED2_Toggle();     
             }
             if (eventTimer3 == 50){  // every 50 milliseconds  
                 eventTimer3 = 0;                
