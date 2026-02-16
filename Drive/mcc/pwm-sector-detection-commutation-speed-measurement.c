@@ -25,8 +25,13 @@ void PWM_override(uint8_t vector){
 // sector detection, commutation and counting for speed measurement
 // ********************************************************************
 void commutation_and_sector_counting(void){
-    static const uint8_t ENERGIZED_VECTOR_CLOCKWISE[7] = {0,2,4,3,6,1,5};
-    static const uint8_t ENERGIZED_VECTOR_ANTICLOCKWISE[7] = {0,5,1,6,3,4,2};
+    #ifdef SMART_POWERLAB_HARDWARE
+        static const uint8_t ENERGIZED_VECTOR_CLOCKWISE[7] = {0,2,4,3,6,1,5};
+        static const uint8_t ENERGIZED_VECTOR_ANTICLOCKWISE[7] = {0,5,1,6,3,4,2};
+    #else
+        static const uint8_t ENERGIZED_VECTOR_CLOCKWISE[7] = {0,2,4,3,6,1,5}; // nicht korrekt
+        static const uint8_t ENERGIZED_VECTOR_ANTICLOCKWISE[7] = {0,5,1,6,3,4,2}; // nicht korrekt
+    #endif
     volatile static uint8_t previous_position_sector = 0;
     static const uint8_t SWAP_B0_B3[8] = {0,0b100,0b010,0b110,0b001,0b101,0b011,0};  
 

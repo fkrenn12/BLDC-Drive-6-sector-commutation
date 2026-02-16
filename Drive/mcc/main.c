@@ -27,8 +27,7 @@
 extern TGlobal g;
 
 void statemachine(void){
-    enum {START, RUN_MOMENTUM, RUN_SPEEDCONTROLLER ,CHANGE_DIRECTION, WAIT };
-    static uint16_t  counter = 0;
+    enum {START, RUN_MOMENTUM, RUN_SPEEDCONTROLLER ,CHANGE_DIRECTION };
     static uint8_t  state = START;
     static uint8_t state_previouse = START;
     DEBUG1_SetHigh();
@@ -89,15 +88,6 @@ void statemachine(void){
                             }
                             break;
                         }
-                        // direction changed?
-                        if (g.input.direction != g.direction){ 
-                            state_previouse = state;
-                            state = CHANGE_DIRECTION;
-                            g.speed.ramp.in = 0;
-                            // g.mode_selector = MODE_MOMENTUM_ZERO_CURRENT;
-                            break;
-                        }
-                        
                         // momentum requested (gas pedal )
                         if (g.current.momentum != 0){
                             g.mode_selector = MODE_MOMENTUM;
@@ -109,32 +99,9 @@ void statemachine(void){
         case CHANGE_DIRECTION:
                         // wait until speed goes below threshold
                         if (abs(g.speed.value) < 100){
-                            if (state_previouse == RUN_SPEEDCONTROLLER){
-                                g.speed.ramp.in = 0;
-                                // ramp_reset(&g.speed.ramp);
-                                // PIController_ResetIntegrator(&g.speed.controller);
-                                // PIController_ResetIntegrator(&g.current.controller);
-                                // g.current.ref = 0;
-                                
-                                // g.mode_selector = MODE_MOTOR_BLOCKED;
-                                state = WAIT;
-                                counter = 0;
-                            }
-                            else{
                                 g.direction = g.input.f_r;
                                 state = state_previouse;
                             }
-                           
-                            
-                            // g.mode_selector = MODE_MOTOR_BLOCKED;
-                        }
-                        break;
-
-        case WAIT:      if (++counter > 2000){
-                            state = RUN_SPEEDCONTROLLER;
-                            g.direction = g.input.direction;
-                        } 
-                        
                         break;
 
         default:        state = START;
@@ -290,11 +257,13 @@ int main(void){
                     sprintf(debugBuffer, "%d %d %d %d  %d %d\r\n",g.state,g.input.speedRpm, g.speed.ramp.in, g.speed.ramp.out, g.speed.out, g.speed.value); 
                     UART2_WriteNoneBlockingString(debugBuffer); 
                 #endif     
-                // IO_LED_Toggle();
+                LED1_Toggle();
             }
                                                                                
             if (eventTimer2 == 2000){ 
-                eventTimer2 = 0;          
+                eventTimer2 = 0;  
+                LED2_Toggle();
+
                  
             }
             if (eventTimer3 == 50){  // every 50 milliseconds  

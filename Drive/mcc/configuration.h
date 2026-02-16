@@ -40,7 +40,11 @@ Cotroller kp and ki factors
 #define PWM_MAX_DUTY PWM_PERIOD+1                   // do not edit !
 
 // #define ADC_RESOLUTION 4095
-#define MOTOR_NUMBER_OF_POLPAIRS 1                  // *
+#ifdef SMART_POWERLAB_HARDWARE
+    #define MOTOR_NUMBER_OF_POLPAIRS 1              // 
+#else
+    #define MOTOR_NUMBER_OF_POLPAIRS 4              // 
+#endif
 #define MOTOR_MAX_CURRENT_AMPERE_PEAK 0.99          // *
 #define MOTOR_MAX_CURRENT_AMPERE_PEAK_TIME_MS 1000  // *
 #define MOTOR_MAX_SPEED_RPM 5500                    // *
@@ -48,4 +52,5 @@ Cotroller kp and ki factors
 #define MOTOR_DIRECTION_CLOCKWISE_PERMITTED 1       // *
 #define MOTOR_DIRECTION_ANTICLOCKWISE_PERMITTED 1   // *
 
-#define HALL_PULSES_PER_ROTATION 6
+
+#define HALL_PULSES_PER_ROTATION (MOTOR_NUMBER_OF_POLPAIRS*6)
