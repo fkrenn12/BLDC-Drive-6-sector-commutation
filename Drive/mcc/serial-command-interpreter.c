@@ -1,7 +1,5 @@
 #include "serial-command-interpreter.h"
 
-char Senderadress[10];
-
 extern TGlobal g;
 
 int getBlankposition(const char *s)
