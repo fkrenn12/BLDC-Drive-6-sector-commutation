@@ -9,3 +9,4 @@
 #define CLAMP 0x3400    // Override PWM_H with 0 and PWM_L with 1
 
 void PWM_override(uint8_t energized_vector);
+void commutation_and_sector_counting(void);

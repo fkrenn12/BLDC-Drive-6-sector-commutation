@@ -122,8 +122,8 @@ void ADC1_Initialize (void)
     ADMOD0H = 0x0U;
     // SIGN16 disabled; DIFF16 disabled; SIGN17 disabled; DIFF17 disabled; 
     ADMOD1L = 0x0U;
-    // IE0 enabled; IE1 disabled; IE2 disabled; IE3 enabled; IE4 enabled; IE5 disabled; IE6 disabled; IE7 disabled; IE8 disabled; IE9 disabled; IE10 disabled; IE11 enabled; IE12 disabled; IE13 disabled; IE14 disabled; IE15 disabled; 
-    ADIEL = 0x819U;
+    // IE0 disabled; IE1 disabled; IE2 disabled; IE3 disabled; IE4 enabled; IE5 disabled; IE6 disabled; IE7 disabled; IE8 disabled; IE9 disabled; IE10 disabled; IE11 enabled; IE12 disabled; IE13 disabled; IE14 disabled; IE15 disabled; 
+    ADIEL = 0x810U;
     // IE16 disabled; IE17 disabled; 
     ADIEH = 0x0U;
     // 
@@ -241,14 +241,6 @@ void ADC1_Initialize (void)
     ADC1_ChannelCallbackRegister(&ADC1_ChannelCallback);
     ADC1_ComparatorCallbackRegister(&ADC1_ComparatorCallback);
     
-    // Clearing _I1 interrupt flag.
-    IFS5bits.ADCAN0IF = 0;
-    // Enabling _I1 interrupt.
-    IEC5bits.ADCAN0IE = 1;
-    // Clearing _I3 interrupt flag.
-    IFS5bits.ADCAN3IF = 0;
-    // Enabling _I3 interrupt.
-    IEC5bits.ADCAN3IE = 1;
     // Clearing _I2 interrupt flag.
     IFS5bits.ADCAN4IF = 0;
     // Enabling _I2 interrupt.
@@ -265,20 +257,20 @@ void ADC1_Initialize (void)
     // Enabling Power for the Shared Core
     ADC1_SharedCorePowerEnable();
 
-    //TRGSRC0 PWM1 Trigger1; TRGSRC1 PWM1 Trigger1; 
-    ADTRIG0L = 0x404U;
+    //TRGSRC0 PWM1 Trigger1; TRGSRC1 PWM1 Trigger2; 
+    ADTRIG0L = 0x504U;
     //TRGSRC2 None; TRGSRC3 PWM1 Trigger1; 
     ADTRIG0H = 0x400U;
     //TRGSRC4 PWM1 Trigger1; TRGSRC5 None; 
     ADTRIG1L = 0x4U;
-    //TRGSRC6 PWM1 Trigger1; TRGSRC7 None; 
-    ADTRIG1H = 0x4U;
+    //TRGSRC6 PWM1 Trigger2; TRGSRC7 None; 
+    ADTRIG1H = 0x5U;
     //TRGSRC8 None; TRGSRC9 None; 
     ADTRIG2L = 0x0U;
     //TRGSRC10 None; TRGSRC11 PWM1 Trigger1; 
     ADTRIG2H = 0x400U;
-    //TRGSRC12 PWM1 Trigger1; TRGSRC13 None; 
-    ADTRIG3L = 0x4U;
+    //TRGSRC12 PWM1 Trigger2; TRGSRC13 None; 
+    ADTRIG3L = 0x5U;
     //TRGSRC14 None; TRGSRC15 None; 
     ADTRIG3H = 0x0U;
     //TRGSRC16 None; TRGSRC17 None; 
@@ -288,14 +280,6 @@ void ADC1_Initialize (void)
 void ADC1_Deinitialize (void)
 {
     ADCON1Lbits.ADON = 0;
-    
-    (void) ADCBUF0;
-    IFS5bits.ADCAN0IF = 0;
-    IEC5bits.ADCAN0IE = 0;
-    
-    (void) ADCBUF3;
-    IFS5bits.ADCAN3IF = 0;
-    IEC5bits.ADCAN3IE = 0;
     
     (void) ADCBUF4;
     IFS5bits.ADCAN4IF = 0;

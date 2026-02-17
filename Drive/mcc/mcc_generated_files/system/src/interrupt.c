@@ -47,17 +47,9 @@ void INTERRUPT_Initialize(void)
     // Priority: 1
     IPC25bits.ADCAN11IP = 1;
     
-    // ADCAN3: ADC AN3 Convert Done
-    // Priority: 1
-    IPC23bits.ADCAN3IP = 1;
-    
     // ADCAN4: ADC AN4 Convert Done
     // Priority: 1
     IPC23bits.ADCAN4IP = 1;
-    
-    // ADCAN0: ADC AN0 Convert Done
-    // Priority: 1
-    IPC22bits.ADCAN0IP = 1;
     
     // DMT: Dead Man Timer
     // Priority: 1
@@ -69,8 +61,6 @@ void INTERRUPT_Deinitialize(void)
 {
     //POR default value of priority
     IPC25bits.ADCAN11IP = 4;
-    IPC23bits.ADCAN3IP = 4;
     IPC23bits.ADCAN4IP = 4;
-    IPC22bits.ADCAN0IP = 4;
     IPC11bits.DMTIP = 4;
 }
