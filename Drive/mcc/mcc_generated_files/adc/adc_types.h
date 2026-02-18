@@ -54,15 +54,14 @@
 */
 enum ADC_CHANNEL
 {
-    _I1,    /**<Channel Name:AN0   Assigned to:Shared Channel*/
     _TEMPERATURE,    /**<Channel Name:AN1   Assigned to:Shared Channel*/
     _I3,    /**<Channel Name:AN3   Assigned to:Shared Channel*/
     _I2,    /**<Channel Name:AN4   Assigned to:Shared Channel*/
     _MOMENTUM,    /**<Channel Name:AN6   Assigned to:Shared Channel*/
     _I2_PowerLab,    /**<Channel Name:AN11   Assigned to:Shared Channel*/
     _VLINK,    /**<Channel Name:AN12   Assigned to:Shared Channel*/
-    MAX_CHANNELS = 7,    /**< MAX_CHANNELS will be removed in future MCC releases. Use ADC_MAX_CHANNELS instead */
-    ADC_MAX_CHANNELS = 7    /**< Maximum number of channels configured by user in MCC Melody User Interface */
+    MAX_CHANNELS = 6,    /**< MAX_CHANNELS will be removed in future MCC releases. Use ADC_MAX_CHANNELS instead */
+    ADC_MAX_CHANNELS = 6    /**< Maximum number of channels configured by user in MCC Melody User Interface */
 };
 
 

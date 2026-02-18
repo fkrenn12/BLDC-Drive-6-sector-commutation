@@ -46,9 +46,8 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     #else
         if (channel != _I2) {/*DEBUG1_SetLow();*/return;}
     #endif
-    g.current.value  = abs((PG2IOCONL == PWM)? ((int32_t)adcVal - 2048) : g.current.value);
-    g.current.value  = abs((PG1IOCONL == PWM)? ((int32_t)ADC_Result(_I1) - 2048) : g.current.value);
-    g.current.value  = abs((PG3IOCONL == PWM)? ((int32_t)ADC_Result(_I3) - 2048) : g.current.value);
+    g.current.value  = abs(((PG2IOCONL == PWM) || (PG2IOCONL == CLAMP)) ? ((int32_t)adcVal - 2048) : g.current.value);
+    g.current.value  = abs(((PG3IOCONL == PWM) || (PG3IOCONL == CLAMP))? ((int32_t)ADC_Result(_I3) - 2048) : g.current.value);
     g.current.value = (g.direction_of_rotation == ANTICLOCKWISE)? -g.current.value : g.current.value;
     if (CURRENT_CONTROL == 1) current_controller(); 
     // DEBUG1_SetLow();

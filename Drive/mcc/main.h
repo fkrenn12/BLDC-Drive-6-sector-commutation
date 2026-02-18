@@ -9,7 +9,7 @@
 #define FCY 100000000UL             //100Mhz
 #define MYADDRESS "#3"              // define the address hardcoded - uncomment if using the hardware with SW400
 
-// #define SMART_POWERLAB_HARDWARE  // comment if using the real hardware drive
+#define SMART_POWERLAB_HARDWARE  // comment if using the real hardware drive
 
 #define CURRENT_CONTROL 1           // 0 = manual control, 1 = automatic control
 #define COMMUTATE 1                 // 0 = no commutation, 1 = commutation

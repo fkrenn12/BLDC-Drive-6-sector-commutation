@@ -28,8 +28,8 @@ ADC conversion factors
 /*
 Cotroller kp and ki factors
 */
-#define SPEED_CONTROLLER_KP 0.2
-#define SPEED_CONTROLLER_KI 0.02
+#define SPEED_CONTROLLER_KP 0.08
+#define SPEED_CONTROLLER_KI 0.008
 #define CURRENT_CONTROLLER_KP 0.7
 #define CURRENT_CONTROLLER_KI 0.02
 #define CURRENT_USAGE_OF_MAX_CURRENT 0.95           // 1.0 FULL Scale usage - 0.5 HALF Scale usage

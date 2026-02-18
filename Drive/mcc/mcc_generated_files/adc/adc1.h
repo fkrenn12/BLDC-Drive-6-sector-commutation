@@ -181,9 +181,6 @@ inline static uint16_t ADC1_ConversionResultGet( enum ADC_CHANNEL channel )
 
     switch(channel)
     {
-        case _I1:
-                result = ADCBUF0;
-                break;
         case _TEMPERATURE:
                 result = ADCBUF1;
                 break;
@@ -226,9 +223,6 @@ inline static bool ADC1_IsConversionComplete(enum ADC_CHANNEL channel)
 
     switch(channel)
     {
-        case _I1:
-                status = ADSTATLbits.AN0RDY;
-                break;
         case _TEMPERATURE:
                 status = ADSTATLbits.AN1RDY;
                 break;
@@ -352,10 +346,6 @@ inline static void ADC1_IndividualChannelInterruptEnable(enum ADC_CHANNEL channe
 {
     switch(channel)
     {
-        case _I1:
-                IEC5bits.ADCAN0IE = 1;
-                ADIELbits.IE0 = 1;
-                break;
         case _TEMPERATURE:
                 IEC5bits.ADCAN1IE = 1;
                 ADIELbits.IE1 = 1;
@@ -395,10 +385,6 @@ inline static void ADC1_IndividualChannelInterruptDisable(enum ADC_CHANNEL chann
 {
     switch(channel)
     {
-        case _I1:
-                IEC5bits.ADCAN0IE = 0;
-                ADIELbits.IE0 = 0;
-                break;
         case _TEMPERATURE:
                 IEC5bits.ADCAN1IE = 0;
                 ADIELbits.IE1 = 0;
@@ -438,9 +424,6 @@ inline static void ADC1_IndividualChannelInterruptFlagClear(enum ADC_CHANNEL cha
 {
     switch(channel)
     {
-        case _I1:
-                IFS5bits.ADCAN0IF = 0;
-                break;
         case _TEMPERATURE:
                 IFS5bits.ADCAN1IF = 0;
                 break;
@@ -475,9 +458,6 @@ inline static void ADC1_IndividualChannelInterruptPrioritySet(enum ADC_CHANNEL c
 {
 	switch(channel)
 	{
-		case _I1:
-				IPC22bits.ADCAN0IP = priorityValue;
-				break;
 		case _TEMPERATURE:
 				IPC23bits.ADCAN1IP = priorityValue;
 				break;

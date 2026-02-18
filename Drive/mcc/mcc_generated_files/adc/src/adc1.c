@@ -257,8 +257,8 @@ void ADC1_Initialize (void)
     // Enabling Power for the Shared Core
     ADC1_SharedCorePowerEnable();
 
-    //TRGSRC0 PWM1 Trigger1; TRGSRC1 PWM1 Trigger2; 
-    ADTRIG0L = 0x504U;
+    //TRGSRC0 None; TRGSRC1 PWM1 Trigger2; 
+    ADTRIG0L = 0x500U;
     //TRGSRC2 None; TRGSRC3 PWM1 Trigger1; 
     ADTRIG0H = 0x400U;
     //TRGSRC4 PWM1 Trigger1; TRGSRC5 None; 
@@ -446,9 +446,6 @@ void ADC1_PWMTriggerSourceSet(enum ADC_CHANNEL channel, enum ADC_PWM_INSTANCE pw
     adcTriggerValue= ADC1_TriggerSourceValueGet(pwmInstance, triggerNumber);
     switch(channel)
     {
-        case _I1:
-                ADTRIG0Lbits.TRGSRC0 = adcTriggerValue;
-                break;
         case _TEMPERATURE:
                 ADTRIG0Lbits.TRGSRC1 = adcTriggerValue;
                 break;
@@ -502,16 +499,6 @@ void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCInterrupt ( void )
         (*ADC1_CommonHandler)();
     }
     
-    if(IFS5bits.ADCAN0IF == 1)
-    {
-        //Read the ADC value from the ADCBUF before clearing interrupt
-        adcVal = ADCBUF0;
-        if(NULL != ADC1_ChannelHandler)
-        {
-            (*ADC1_ChannelHandler)(_I1, adcVal);
-        }
-        IFS5bits.ADCAN0IF = 0;
-    }
     if(IFS5bits.ADCAN1IF == 1)
     {
         //Read the ADC value from the ADCBUF before clearing interrupt
@@ -605,29 +592,6 @@ void __attribute__ ((weak)) ADC1_ChannelCallback (enum ADC_CHANNEL channel, uint
     (void)adcVal;
 } 
 
-
-/* cppcheck-suppress misra-c2012-8.4
-*
-* (Rule 8.4) REQUIRED: A compatible declaration shall be visible when an object or 
-* function with external linkage is defined
-*
-* Reasoning: Interrupt declaration are provided by compiler and are available
-* outside the driver folder
-*/
-void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCAN0Interrupt ( void )
-{
-    uint16_t val_I1;
-    //Read the ADC value from the ADCBUF
-    val_I1 = ADCBUF0;
-
-    if(NULL != ADC1_ChannelHandler)
-    {
-        (*ADC1_ChannelHandler)(_I1, val_I1);
-    }
-
-    //clear the _I1 interrupt flag
-    IFS5bits.ADCAN0IF = 0;
-}
 
 /* cppcheck-suppress misra-c2012-8.4
 *
@@ -775,18 +739,6 @@ void __attribute__ ((weak)) ADC1_ChannelTasks (enum ADC_CHANNEL channel)
     
     switch(channel)
     {   
-        case _I1:
-            if((bool)ADSTATLbits.AN0RDY == 1)
-            {
-                //Read the ADC value from the ADCBUF
-                adcVal = ADCBUF0;
-
-                if(NULL != ADC1_ChannelHandler)
-                {
-                    (*ADC1_ChannelHandler)(channel, adcVal);
-                }
-            }
-            break;
         case _TEMPERATURE:
             if((bool)ADSTATLbits.AN1RDY == 1)
             {
