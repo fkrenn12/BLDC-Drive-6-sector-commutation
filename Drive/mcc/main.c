@@ -77,7 +77,7 @@ void statemachine(void){
                         }
                         break;
         case RUN_SPEEDCONTROLLER:    
-                        g.speed.ramp.in = g.input.speedRpm;
+                        g.speed.ramp.in = (g.input.direction == CLOCKWISE)?g.input.speedRpm:-g.input.speedRpm;
                         g.mode_selector = MODE_SPEEDCONTROLLER;
                         // no speed required or not in automatic mode
                         if ((g.input.speedRpm == 0) || (!g.input.a_m)){
