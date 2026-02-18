@@ -37,18 +37,18 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     // DIG 2048      0     ┌────┘    └────┐   
     // DIG 0        -A ────┘              └───
 
-    // DEBUG1_SetHigh();
+    DEBUG1_SetHigh();
     // requirement: channel I2 must be the last channel to be readed 
     // results of _I1 and _I3 are already measured 
     
     #ifdef SMART_POWERLAB_HARDWARE
-        if (channel !=_I2_PowerLab) {/*DEBUG1_SetLow();*/return;}
+        if (channel !=_I2_PowerLab) {DEBUG1_SetLow();return;}
     #else
-        if (channel != _I2) {/*DEBUG1_SetLow();*/return;}
+        if (channel != _I2) {DEBUG1_SetLow();return;}
     #endif
-    g.current.value  = abs(((PG2IOCONL == PWM) || (PG2IOCONL == CLAMP)) ? ((int32_t)adcVal - 2048) : g.current.value);
+    g.current.value  = abs(((PG2IOCONL == PWM) || (PG2IOCONL == CLAMP))? ((int32_t)adcVal - 2048) : g.current.value);
     g.current.value  = abs(((PG3IOCONL == PWM) || (PG3IOCONL == CLAMP))? ((int32_t)ADC_Result(_I3) - 2048) : g.current.value);
     g.current.value = (g.direction_of_rotation == ANTICLOCKWISE)? -g.current.value : g.current.value;
     if (CURRENT_CONTROL == 1) current_controller(); 
-    // DEBUG1_SetLow();
+    DEBUG1_SetLow();
 }
