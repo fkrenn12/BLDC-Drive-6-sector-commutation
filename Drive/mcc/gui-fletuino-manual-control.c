@@ -14,7 +14,6 @@ bool on_any_event(const uint16_t id,const char* event, const char* value)
 
 static void on_floating(const char* event, const char* value){
     PWM_override(7);
-    
 }
 
 static void on_clamped(const char* event, const char* value){

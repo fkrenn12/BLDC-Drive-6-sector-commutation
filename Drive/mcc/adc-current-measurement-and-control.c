@@ -11,9 +11,9 @@ uint16_t ADC_Result(enum ADC_CHANNEL channel)
 }
 
 void current_controller(void){
-    volatile static uint32_t count=0;
-    if (++count % 10 == 0){  // every 10th calling
-        count = 0;
+    // volatile static uint32_t count=0;
+    // if (++count % 10 == 0){  // every 10th calling
+    //    count = 0;
         // current limiter 
         g.current.ref = (g.current.ref > g.current.limit)? g.current.limit : g.current.ref;
         g.current.ref = (g.current.ref < -g.current.limit)? -g.current.limit : g.current.ref;
@@ -25,7 +25,7 @@ void current_controller(void){
         PG1TRIGA = (MDC > 8000)? MDC-100 : MDC+100; //PWM_Generator1_ADC_Trigger1
         PG1TRIGB = (MDC > 8000)? 0 : 8000; //PWM_Generator1_ADC_Trigger2
         PG1STATbits.UPDREQ = 1; 
-    }
+    //}
 }
 
 void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
@@ -46,9 +46,19 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     #else
         if (channel != _I2) {DEBUG1_SetLow();return;}
     #endif
+    
+    /*
+    g.current.value  = abs(((PG1IOCONL == PWM) || (PG1IOCONL == CLAMP))? ((int32_t)ADC_Result(_I1) - 2048) : g.current.value);
     g.current.value  = abs(((PG2IOCONL == PWM) || (PG2IOCONL == CLAMP))? ((int32_t)adcVal - 2048) : g.current.value);
     g.current.value  = abs(((PG3IOCONL == PWM) || (PG3IOCONL == CLAMP))? ((int32_t)ADC_Result(_I3) - 2048) : g.current.value);
     g.current.value = (g.direction_of_rotation == ANTICLOCKWISE)? -g.current.value : g.current.value;
+    */
+   
+    g.current.value  = (PG1IOCONL == PWM)? ((int32_t)ADC_Result(_I1) - 2048) : g.current.value;
+    g.current.value  = (PG2IOCONL == PWM)? ((int32_t)adcVal - 2048) : g.current.value;
+    g.current.value  = (PG3IOCONL == PWM)? ((int32_t)ADC_Result(_I3) - 2048) : g.current.value;
+    g.current.value = (g.direction_of_rotation == CLOCKWISE)? -g.current.value : g.current.value;
+    
     if (CURRENT_CONTROL == 1) current_controller(); 
     DEBUG1_SetLow();
 }

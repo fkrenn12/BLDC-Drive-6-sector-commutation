@@ -27,10 +27,12 @@
 extern TGlobal g;
 
 void statemachine(void){
-    enum {START, RUN_MOMENTUM, RUN_SPEEDCONTROLLER ,CHANGE_DIRECTION };
+    enum {START, RUN_MOMENTUM, RUN_SPEEDCONTROLLER ,CHANGE_DIRECTION, OVERCURRENT};
     static uint8_t  state = START;
     static uint8_t state_previouse = START;
+    
     // DEBUG1_SetHigh();
+    if (abs(g.current.value) > abs(g.current.cutoff)) state = OVERCURRENT;
     g.state = state;  // zum debuggen 
     switch (state){
         case START:     if (abs(g.speed.value) < 100)
@@ -103,6 +105,11 @@ void statemachine(void){
                             }
                         break;
 
+        case OVERCURRENT:
+                        // requires repowering - never exits this state
+                        g.mode_selector = MODE_MOTOR_FLOATING;
+                        break;
+
         default:        state = START;
                         break;
 
@@ -126,7 +133,7 @@ void iref_selector(void){
     }
 }
 
-// KI generated value clamped to range - positive values only
+// KI generated code - value clamped to range - positive values only
 static inline uint16_t map_range_clamped(uint16_t in,
                                          uint16_t in_min, uint16_t in_max,
                                          uint16_t out_min, uint16_t out_max)
@@ -156,6 +163,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     switch (++sequencer){
         case 1:
             if (STATEMACHINE == 1) statemachine();
+            else if (abs(g.current.value) > abs(g.current.cutoff)) g.mode_selector = MODE_MOTOR_FLOATING;
             return;
         case 2:
             iref_selector();

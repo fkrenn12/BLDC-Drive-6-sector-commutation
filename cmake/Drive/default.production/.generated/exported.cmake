@@ -11,4 +11,3 @@ add_custom_target(
     dependent_produced_source_artifactDrive_default_YqUtQ9dd 
     DEPENDS ${DEPENDENT_TARGET_DIRDrive_default_YqUtQ9dd}/${sourceFileNameDrive_default_YqUtQ9dd}.s
     )
-set(loadable_varDrive_default_YqUtQ9dd "${CMAKE_CURRENT_LIST_DIR}/../../../../out/Drive/production/default-production.hex")

@@ -17,6 +17,7 @@ void Drive_init(void){
         double_to_fixed32(0.99951171875 * CURRENT_USAGE_OF_MAX_CURRENT));  // 2047 max pos current (CLOCKWISE)
 
     g.current.limit = double_to_fixed32(CURRENT_USAGE_OF_MAX_CURRENT);
+    g.current.cutoff = double_to_fixed32(CURRENT_CUTOFF_VALUE);
     g.mode_selector = MODE_MOTOR_BLOCKED;
 }
 
@@ -54,7 +55,7 @@ uint16_t Drive_getState(void){
 
 void Drive_setCurrentLimit(uint16_t currentLimitmA){
     currentLimitmA = (currentLimitmA>CURRENT_MAX_VALUE_MA)?CURRENT_MAX_VALUE_MA:currentLimitmA;
-    int32_t limit = double_to_fixed32((double)currentLimitmA/CURRENT_MAX_VALUE_MA);
+    int32_t limit = ((int32_t)currentLimitmA*ADC_FACTOR_CURRENT_REZIPROK)/1000;
     IEC0bits.T1IE = 0;
     IEC5bits.ADCAN4IE = 0;
     IEC6bits.ADCAN11IE = 0;

@@ -2,7 +2,7 @@
 #include "../configuration.h"
 #include <xc.h>
 
-#define DEAD_TIME 400   // 400*1/200Mhz = 2µs 
+#define DEAD_TIME 100  //100*1/200Mhz = 500ns 
 
 #define SOC 0b000
 #define CLIENT_SOC 0b010 

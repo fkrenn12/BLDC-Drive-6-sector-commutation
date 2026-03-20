@@ -16,11 +16,13 @@ Mostly used configuration defines are listet first
 /*
 ADC conversion factors
 */
-#define ADC_FACTOR_VLINK 0.01622                    // factor - hardware dependend 3.3V * 20 / 4095 = 0.01622
+#define ADC_FACTOR_VLINK 0.01622                    // factor - hardware dependend 3.3V * 20 / 4095 = 0.01622 V/DIG
 #ifdef SMART_POWERLAB_HARDWARE
-    #define ADC_FACTOR_CURRENT 0.0030525            // factor - SmartPowerLab Hardware 3.3V / 4095 / 264mV/A = 0.0030525
+    #define ADC_FACTOR_CURRENT 0.0030525            // factor - SmartPowerLab Hardware 3.3V / 4095 / 264mV/A = 0.0030525 A/DIG
+    #define ADC_FACTOR_CURRENT_REZIPROK 327         // 1/ADC_FACTOR_CURRENT = 327.6 DIG/A
 #else
-    #define ADC_FACTOR_CURRENT 0.03021              // factor - Drive Hardware 3.3V / 4095 / 26.67mV/A = 0.03021
+    #define ADC_FACTOR_CURRENT 0.03021              // factor - Drive Hardware 3.3V / 4095 / 26.67mV/A = 0.03021 A/DIG
+    #define ADC_FACTOR_CURRENT_REZIPROK 33          // 1/ADC_FACTOR_CURRENT = 33.1 DIG/A
 #endif
 
 #define ADC_FACTOR_TEMPERATURE -0.001               // * factor - hardware dependend - not yet determined  
@@ -32,9 +34,10 @@ Cotroller kp and ki factors
 #define SPEED_CONTROLLER_KI 0.008
 #define CURRENT_CONTROLLER_KP 0.7
 #define CURRENT_CONTROLLER_KI 0.02
-#define CURRENT_USAGE_OF_MAX_CURRENT 0.95           // 1.0 FULL Scale usage - 0.5 HALF Scale usage
-#define CURRENT_MAX_VALUE_MA (uint16_t)(ADC_FACTOR_CURRENT*ADC_FACTOR_CURRENT*CURRENT_USAGE_OF_MAX_CURRENT*1000)
-
+#define CURRENT_USAGE_OF_MAX_CURRENT 0.80           // 1.0 FULL Scale usage - 0.5 HALF Scale usage
+#define CURRENT_MAX_VALUE_MA (uint16_t)(ADC_FACTOR_CURRENT*2048*CURRENT_USAGE_OF_MAX_CURRENT*1000)
+#define CURRENT_CUTOFF_VALUE 0.90                   // 
+#define CURRENT_CUTOFF_TIME_MS 10                   // *
 
 #define PWM_PERIOD 8190                             // FPG1_clk/(PGxPER + 1)= 200Mhz/(8190+1) = 24.417kHz
 #define PWM_MAX_DUTY PWM_PERIOD+1                   // do not edit !
@@ -45,8 +48,7 @@ Cotroller kp and ki factors
 #else
     #define MOTOR_NUMBER_OF_POLPAIRS 4              // 
 #endif
-#define MOTOR_MAX_CURRENT_AMPERE_PEAK 0.99          // *
-#define MOTOR_MAX_CURRENT_AMPERE_PEAK_TIME_MS 1000  // *
+
 #define MOTOR_MAX_SPEED_RPM 5500                    // *
 #define MOTOR_DIRECTION_INVERTED 0                  // 0: normal 1: inverted
 #define MOTOR_DIRECTION_CLOCKWISE_PERMITTED 1       // *

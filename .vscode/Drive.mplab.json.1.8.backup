@@ -1,5 +1,26 @@
 {
-    "version": "1.9",
+    "version": "1.8",
+    "configurations": [
+        {
+            "name": "default",
+            "id": "",
+            "device": "dsPIC33CK64MC105",
+            "imageType": "application",
+            "imagePath": "./out/Drive/default.elf",
+            "toolProperties": "default-tool-base",
+            "tool": "PKOB nano",
+            "packs": [
+                {
+                    "name": "dsPIC33CK-MC_DFP",
+                    "vendor": "Microchip",
+                    "version": "1.8.299"
+                }
+            ],
+            "fileSet": "default",
+            "toolchain": "default-XC16",
+            "userVariables": "default-uservariables"
+        }
+    ],
     "propertyGroups": [
         {
             "name": "default-uservariables",
@@ -99,28 +120,6 @@
                 "Drive/mcc/mcc_generated_files/system/src/dmt.c",
                 "Drive/mcc/mcc_generated_files/system/dmt.h"
             ]
-        }
-    ],
-    "configurations": [
-        {
-            "name": "default",
-            "id": "",
-            "device": "dsPIC33CK64MC105",
-            "imageType": "application",
-            "imagePath": "./out/Drive/default.elf",
-            "toolProperties": "default-tool-base",
-            "tool": "PKOB nano",
-            "packs": [
-                {
-                    "name": "dsPIC33CK-MC_DFP",
-                    "vendor": "Microchip",
-                    "version": "1.8.299"
-                }
-            ],
-            "fileSet": "default",
-            "toolchain": "default-XC16",
-            "userVariables": "default-uservariables",
-            "includeLegacyMacros": true
         }
     ]
 }
