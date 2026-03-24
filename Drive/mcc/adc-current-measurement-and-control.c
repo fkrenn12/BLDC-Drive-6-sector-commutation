@@ -57,8 +57,11 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     g.current.value  = (PG1IOCONL == PWM)? ((int32_t)ADC_Result(_I1) - 2048) : g.current.value;
     g.current.value  = (PG2IOCONL == PWM)? ((int32_t)adcVal - 2048) : g.current.value;
     g.current.value  = (PG3IOCONL == PWM)? ((int32_t)ADC_Result(_I3) - 2048) : g.current.value;
-    g.current.value = (g.direction_of_rotation == CLOCKWISE)? -g.current.value : g.current.value;
-    
+    #ifdef SMART_POWERLAB_HARDWARE
+        g.current.value = (g.direction_of_rotation == CLOCKWISE)? -g.current.value : g.current.value;
+    #else
+        g.current.value = (g.direction_of_rotation == CLOCKWISE)? g.current.value : -g.current.value;
+    #endif
     if (CURRENT_CONTROL == 1) current_controller(); 
     DEBUG1_SetLow();
 }
