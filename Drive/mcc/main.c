@@ -32,7 +32,10 @@ void statemachine(void){
     static uint8_t state_previouse = START;
     
     // DEBUG1_SetHigh();
-    if (abs(g.current.value) > abs(g.current.cutoff)) state = OVERCURRENT;
+    if (g.current.overcurrent_detected){ 
+        state = OVERCURRENT;
+        LED2_SetHigh(); 
+    }
     g.state = state;  // zum debuggen 
     switch (state){
         case START:     if (abs(g.speed.value) < 100)
@@ -163,7 +166,10 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     switch (++sequencer){
         case 1:
             if (STATEMACHINE == 1) statemachine();
-            else if (abs(g.current.value) > abs(g.current.cutoff)) g.mode_selector = MODE_MOTOR_FLOATING;
+            else if (g.current.overcurrent_detected) {
+                g.mode_selector = MODE_MOTOR_FLOATING;
+                LED2_SetHigh();
+            } else LED2_SetLow();
             return;
         case 2:
             iref_selector();
@@ -266,7 +272,7 @@ int main(void){
                                                                                
             if (eventTimer2 == 2000){ 
                 eventTimer2 = 0;  
-                LED2_Toggle();     
+                // LED2_Toggle();     
             }
             if (eventTimer3 == 50){  // every 50 milliseconds  
                 eventTimer3 = 0;                

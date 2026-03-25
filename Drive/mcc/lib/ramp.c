@@ -36,7 +36,6 @@ int16_t ramp_calculate(TRamp* ramp){
                 ramp->out -= ramp->upstep;
                 ramp->out = (ramp->out < ramp->in)? ramp->in : ramp->out; // lower border
             }
-
         }
     }
     return ramp->out;

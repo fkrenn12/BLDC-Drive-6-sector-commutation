@@ -57,6 +57,7 @@ typedef struct _current{
     volatile int32_t limit;
     volatile int16_t momentum;
     volatile int32_t cutoff;
+    volatile uint8_t overcurrent_detected;
     PIController controller;
 }TCurrent;
 

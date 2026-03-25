@@ -16,11 +16,12 @@ Mostly used configuration defines are listet first
 /*
 ADC conversion factors
 */
-#define ADC_FACTOR_VLINK 0.01622                    // factor - hardware dependend 3.3V * 20 / 4095 = 0.01622 V/DIG
 #ifdef SMART_POWERLAB_HARDWARE
+    #define ADC_FACTOR_VLINK 0.01622                // factor - hardware dependend 3.3V * 20 / 4095 = 0.01622 V/DIG
     #define ADC_FACTOR_CURRENT 0.0030525            // factor - SmartPowerLab Hardware 3.3V / 4095 / 264mV/A = 0.0030525 A/DIG
     #define ADC_FACTOR_CURRENT_REZIPROK 327         // 1/ADC_FACTOR_CURRENT = 327.6 DIG/A
 #else
+    #define ADC_FACTOR_VLINK 0.01934                // factor - hardware dependend 3.3V * 24 / 4095 = 0.01934 V/DIG
     #define ADC_FACTOR_CURRENT 0.03021              // factor - Drive Hardware 3.3V / 4095 / 26.67mV/A = 0.03021 A/DIG
     #define ADC_FACTOR_CURRENT_REZIPROK 33          // 1/ADC_FACTOR_CURRENT = 33.1 DIG/A
 #endif

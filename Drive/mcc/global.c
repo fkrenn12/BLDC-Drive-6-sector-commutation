@@ -10,6 +10,7 @@ TGlobal g={
     .position_sector = 0,
     .energized_vector = 0,
     .current.value = 0,
+    .current.overcurrent_detected = 0,
     .current.ref = 0,
     .speed.value = 0,
     .speed.sectors_counted = 0,

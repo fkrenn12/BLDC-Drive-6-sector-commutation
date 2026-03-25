@@ -55,6 +55,8 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     #else
         g.current.value = (g.direction_of_rotation == CLOCKWISE)? g.current.value : -g.current.value;
     #endif
-    if (CURRENT_CONTROL == 1) current_controller(); 
+    if (abs(g.current.value) > abs(g.current.cutoff)) g.current.overcurrent_detected = 1;
+    if (g.current.overcurrent_detected) g.mode_selector = MODE_MOTOR_FLOATING;
+    if ((!g.current.overcurrent_detected) && (CURRENT_CONTROL == 1)) current_controller(); 
     DEBUG1_SetLow();
 }
