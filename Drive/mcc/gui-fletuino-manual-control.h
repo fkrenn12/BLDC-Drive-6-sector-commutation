@@ -7,7 +7,6 @@
 #include <inttypes.h>
 #include "lib/pi-controller.h"
 #include "drive.h"
-#include "pwm-sector-detection-commutation-speed-measurement.h"
 
 extern TGlobal g;
 void start_page(void);

@@ -2,7 +2,6 @@
 #include "mcc_generated_files/system/system.h"
 #include "mcc_generated_files/system/pins.h"
 #include "mcc_generated_files/adc/adc1.h"
-#include "pwm-sector-detection-commutation-speed-measurement.h"
 #include "peripheral/uart1.h"
 #include "peripheral/uart2.h"
 #include "peripheral/timer1.h"
@@ -30,8 +29,9 @@ void statemachine(void){
     enum {START, RUN_MOMENTUM, RUN_SPEEDCONTROLLER ,CHANGE_DIRECTION, OVERCURRENT};
     static uint8_t  state = START;
     static uint8_t state_previouse = START;
-    
     // DEBUG1_SetHigh();
+    
+
     if (g.current.overcurrent_detected){ 
         state = OVERCURRENT;
         LED2_SetHigh(); 
@@ -39,7 +39,7 @@ void statemachine(void){
     g.state = state;  // zum debuggen 
     switch (state){
         case START:     if (abs(g.speed.value) < 100)
-                            g.mode_selector = MODE_MOTOR_BLOCKED;
+                            g.mode_selector = MODE_MOTOR_BLOCKED;                          
 
                         // direction changed
                         if (g.input.f_r != g.direction){ 
@@ -67,8 +67,7 @@ void statemachine(void){
         case RUN_MOMENTUM: 
                         g.mode_selector = MODE_MOMENTUM;
                         // halted?
-                        if (g.current.ref == 0 && abs(g.speed.value) < 200){ 
-                            
+                        if (g.current.momentum == 0 && abs(g.speed.value) < 200){ 
                             g.mode_selector = MODE_MOTOR_BLOCKED; 
                             state = START;
                             break;
@@ -87,7 +86,7 @@ void statemachine(void){
                         // no speed required or not in automatic mode
                         if ((g.input.speedRpm == 0) || (!g.input.a_m)){
                             g.speed.ramp.in = 0;  // slow down
-                            if (abs(g.speed.value) < 100){
+                            if (abs(g.speed.value) < 200){
                                 state = START;
                             }
                             break;
@@ -102,7 +101,7 @@ void statemachine(void){
                         break;
         case CHANGE_DIRECTION:
                         // wait until speed goes below threshold
-                        if (abs(g.speed.value) < 100){
+                        if (abs(g.speed.value) < 200){
                                 g.direction = g.input.f_r;
                                 state = state_previouse;
                             }
@@ -148,6 +147,8 @@ static inline uint16_t map_range_clamped(uint16_t in,
     return (uint16_t)(out_min + (num + (den >> 1)) / den);
 }
 
+
+
 // ########################################################################
 //              Timer1 Interrupt Service Routine ( 250µs Callback ) 
 // ########################################################################
@@ -165,6 +166,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
     // This section ist done every 250µs
     switch (++sequencer){
         case 1:
+            iref_selector();
             if (STATEMACHINE == 1) statemachine();
             else if (g.current.overcurrent_detected) {
                 g.mode_selector = MODE_MOTOR_FLOATING;
@@ -172,7 +174,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
             } else LED2_SetLow();
             return;
         case 2:
-            iref_selector();
+            // spared slot
             return;
         case 3:
             // ramp exccution
@@ -226,7 +228,11 @@ int main(void){
     PWM_Initialize();
     GLOBAL_Init();
     Drive_init();
-
+    
+    QEI3_SetInterruptHandler(&commutation);
+    QEI2_SetInterruptHandler(&commutation);
+    QEI1_SetInterruptHandler(&commutation);
+    
     #ifdef FLETUINO 
         fletuino_init(UART2_RxBufferedAvailable, UART2_RxBufferedReadByte, UART2_WriteBlockingByte, start_page); 
     #endif
@@ -238,6 +244,7 @@ int main(void){
         static uint16_t eventTimer3 = 0;
         static uint64_t previous_millis = 0;
         uint64_t actual_millis = millis();
+        
         /*
           Service calls - preferably in the main loop
           because using printf (sprintf) is not a good advise using in interrupts

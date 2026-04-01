@@ -45,7 +45,7 @@ int16_t Drive_getSpeedRpm(void){
 
 void Drive_stop(void){
     IEC0bits.T1IE = 0;
-    g.mode_selector = MODE_MOTOR_BLOCKED;
+    g.mode_selector = MODE_MOTOR_FLOATING;
     IEC0bits.T1IE = 1;
 }
 

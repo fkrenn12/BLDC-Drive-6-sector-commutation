@@ -92,6 +92,7 @@ void on_dc_changed(const char* event, const char* value) {
 }
 void start_page(){ 
     g.demo = 1;
+    g.direction_of_rotation = 1;
     MDC = 0;
     PG1STATbits.UPDREQ = 1; 
     fletunio_page("BLDC Drive - ET@HTL-Hollabrunn", "default", "dark");
