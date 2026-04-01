@@ -113,8 +113,8 @@
             "packs": [
                 {
                     "name": "dsPIC33CK-MC_DFP",
-                    "vendor": "Microchip",
-                    "version": "1.8.299"
+                    "version": "1.10.386",
+                    "vendor": "Microchip"
                 }
             ],
             "fileSet": "default",
