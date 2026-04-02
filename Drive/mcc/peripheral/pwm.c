@@ -322,7 +322,7 @@ void PWM_Initialize(void){
     
     //PWM Generator 1 Interrupt
     IFS4bits.PWM1IF = 0;
-    IEC4bits.PWM1IE = 0;  // 1 if enabled
+    IEC4bits.PWM1IE = 1;  // 1 if enabled
     
     //PWM Generator 2 Interrupt
     IFS4bits.PWM2IF = 0;

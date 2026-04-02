@@ -43,7 +43,12 @@ void commutation(void){
     // commutating  1110 0000  -> 10100000 -> 5 mal rechts schieben -> 000000101
     g.energized_vector = (g.direction_of_rotation==((MOTOR_DIRECTION_INVERTED)? ANTICLOCKWISE: CLOCKWISE)) ? ENERGIZED_VECTOR_CLOCKWISE[g.position_sector]: ENERGIZED_VECTOR_ANTICLOCKWISE[g.position_sector];
     g.energized_vector = (g.mode_selector==MODE_MOTOR_FLOATING)? 7 : g.energized_vector;
-    g.energized_vector = (g.mode_selector==MODE_MOTOR_BLOCKED)? 0 : g.energized_vector;
+    // g.energized_vector = (g.mode_selector==MODE_MOTOR_BLOCKED)? 0 : g.energized_vector;
+    g.energized_vector = (g.mode_selector==MODE_MOTOR_BLOCKED)? 7 : g.energized_vector;
+    // if ((g.energized_vector==1) || (g.energized_vector == 2)) DEBUG2_SetHigh();
+    // else DEBUG2_SetLow();
+    if ((g.energized_vector<1) || (g.energized_vector > 6)) DEBUG2_SetHigh();
+    else DEBUG2_SetLow();
     // Resetting the integral part doesnt work - but it is here fore future use and documentation
     // if (previous_position_sector != g.position_sector)  PIController_ResetIntegrator(&g.current.controller);
     if (COMMUTATE == 1) PWM_override(g.energized_vector); 
@@ -74,20 +79,24 @@ void current_controller(void){
         duty_cycle = PIController_Compute(&g.current.controller, g.current.ref, 0);
     else 
         duty_cycle = PIController_Compute(&g.current.controller, g.current.ref, g.current.value);
-    // duty_cycle = 8180;
-    // int16_t duty_cycle = (g.current.ref - g.current.value);
-    // duty_cycle_compare_value = (g.direction_of_rotation==CLOCKWISE)?
+    
     g.direction_of_rotation = (duty_cycle >= 0)? CLOCKWISE : ANTICLOCKWISE;
-    if (g.direction_of_rotation == ANTICLOCKWISE) DEBUG2_SetHigh();
-    if (g.direction_of_rotation == CLOCKWISE) DEBUG2_SetLow();
+
+    // fixed duty for testing and debugging
+    // duty_cycle = 4080;  // fixed duty
     // g.direction_of_rotation = 1;
+
+    // for testing and debugging
+    // if (g.direction_of_rotation == ANTICLOCKWISE) DEBUG2_SetHigh();
+    // if (g.direction_of_rotation == CLOCKWISE) DEBUG2_SetLow();
+    
     // duty_cycle = ((duty_cycle < 300) && (duty_cycle > -300))?0:duty_cycle;
     duty_cycle = abs(duty_cycle);
     MDC = (duty_cycle > PWM_MAX_DUTY)?PWM_MAX_DUTY :duty_cycle; // limit duty cycle to 100%
     MDC = ((g.mode_selector==MODE_MOTOR_FLOATING) || (g.mode_selector==MODE_MOTOR_BLOCKED))?0:MDC;
     // adjust adc interrupt trigger time
-    PG1TRIGA = (MDC > 8000)? MDC-100 : MDC+100; //PWM_Generator1_ADC_Trigger1
-    PG1TRIGB = (MDC > 8000)? 0 : 8000; //PWM_Generator1_ADC_Trigger2
+    PG1TRIGA = MDC >> 1; // PWM_Generator1_ADC_Trigger1 at half of the duty cycle
+    PG1TRIGB = (MDC > 1000)?0:7000; // switching PWM_Generator1_ADC_Trigger2 to unused periode of duty 
     PG1STATbits.UPDREQ = 1; 
 }
 
@@ -129,4 +138,13 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     if (CURRENT_CONTROL == 1) current_controller(); 
     sector_counting();
     DEBUG1_SetLow();
+}
+// ########################################################################
+//                  PWM1 EOC Interrupt Service Routine 
+// ########################################################################
+void __attribute__ ( ( interrupt, no_auto_psv ) ) _PWM1Interrupt ( void )
+{
+    // DEBUG2_SetHigh();
+    IFS4bits.PWM1IF = 0;
+    // DEBUG2_SetLow();
 }
