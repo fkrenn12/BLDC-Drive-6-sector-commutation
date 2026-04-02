@@ -96,7 +96,7 @@ void current_controller(void){
     MDC = ((g.mode_selector==MODE_MOTOR_FLOATING) || (g.mode_selector==MODE_MOTOR_BLOCKED))?0:MDC;
     // adjust adc interrupt trigger time
     PG1TRIGA = MDC >> 1; // PWM_Generator1_ADC_Trigger1 at half of the duty cycle
-    PG1TRIGB = (MDC > 1000)?0:7000; // switching PWM_Generator1_ADC_Trigger2 to unused periode of duty 
+    PG1TRIGB = (MDC > 1000)?0:(PWM_MAX_DUTY-1000); // switching PWM_Generator1_ADC_Trigger2 to unused periode of duty 
     PG1STATbits.UPDREQ = 1; 
 }
 
@@ -144,6 +144,7 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
 // ########################################################################
 void __attribute__ ( ( interrupt, no_auto_psv ) ) _PWM1Interrupt ( void )
 {
+    // only used to generate a proper trigger signal for ozilloskope measurements
     // DEBUG2_SetHigh();
     IFS4bits.PWM1IF = 0;
     // DEBUG2_SetLow();
