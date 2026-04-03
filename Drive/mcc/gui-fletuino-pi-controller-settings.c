@@ -139,6 +139,6 @@ void start_page(){
 void gui_update(void){
     fletuino_set_value_int(NUMERIC_RPM, g.speed.value);
     fletuino_set_value_int(NUMERIC_CURRENT, g.current.value);
-    fletuino_set_value_int(NUMERIC_VOLT, g.vlink);
+    fletuino_set_value_int(NUMERIC_VOLT, g.voltage.link);
 }
 #endif

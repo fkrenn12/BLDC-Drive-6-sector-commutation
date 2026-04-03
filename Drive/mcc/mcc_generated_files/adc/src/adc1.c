@@ -110,8 +110,8 @@ void ADC1_Initialize (void)
     ADCON1H = 0x60U;
     // SHRADCS 2; SHREISEL Early interrupt is generated 1 TADCORE clock prior to data being ready; PTGEN disabled; EIEN disabled; REFERCIE disabled; REFCIE disabled; 
     ADCON2L = 0x0U;
-    // SHRSAMC 23; 
-    ADCON2H = 0x17U;
+    // SHRSAMC 48; 
+    ADCON2H = 0x30U;
     // CNVCHSEL AN0; SWCTRG disabled; SWLCTRG disabled; SHRSAMP disabled; SUSPCIE disabled; SUSPEND disabled; REFSEL disabled; 
     ADCON3L = 0x0U;
     // SHREN enabled; CLKDIV 1; CLKSEL FOSC/2; 

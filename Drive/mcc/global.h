@@ -57,9 +57,15 @@ typedef struct _current{
     volatile int32_t limit;
     volatile int16_t momentum;
     volatile int32_t cutoff;
-    volatile uint8_t overcurrent_detected;
+    volatile uint8_t overflow;
     PIController controller;
 }TCurrent;
+
+typedef struct _voltage{
+    volatile int32_t link;
+    volatile int32_t cutoff;
+    volatile uint8_t overflow;
+}TVoltage;
 
 typedef struct _global{
     volatile uint8_t demo;
@@ -76,6 +82,7 @@ typedef struct _global{
     TSpeed speed;
     TCurrent current; 
     TInput input;
+    TVoltage voltage;
     fixed32_point_t MIN_OUTPUT_SPEED;
     fixed32_point_t MAX_OUTPUT_SPEED;
 }TGlobal;

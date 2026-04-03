@@ -5,6 +5,9 @@ extern TGlobal g;
 #define PWM 0x0000      // NO override, PWM is on Pins
 #define FLOAT 0x3000    // Override both (PWML and PWM_H) with 0 
 #define CLAMP 0x3400    // Override PWM_H with 0 and PWM_L with 1
+
+#define VECTOR CLAMP 0
+#define VECTOR_FLOAT 7
 /*
 Vector   U       V       W   
 ------------------------------
@@ -133,8 +136,13 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     #endif
 
     commutation();
-    if (abs(g.current.value) > abs(g.current.cutoff)) g.current.overcurrent_detected = 1;
-    if (g.current.overcurrent_detected) g.mode_selector = MODE_MOTOR_FLOATING;
+    if (abs(g.current.value) > abs(g.current.cutoff)) g.current.overflow = 1;
+    if ((int32_t)ADC_Result(_VLINK) > g.voltage.cutoff) g.voltage.overflow = 1;
+
+    if (g.current.overflow || g.voltage.overflow) {
+        PWM_override(VECTOR_FLOAT);  // immediately off
+        g.mode_selector = MODE_MOTOR_FLOATING;
+    }
     if (CURRENT_CONTROL == 1) current_controller(); 
     sector_counting();
     DEBUG1_SetLow();

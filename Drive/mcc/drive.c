@@ -18,6 +18,7 @@ void Drive_init(void){
 
     g.current.limit = double_to_fixed32(CURRENT_USAGE_OF_MAX_CURRENT);
     g.current.cutoff = double_to_fixed32(CURRENT_CUTOFF_VALUE);
+    g.voltage.cutoff = VLINK_CUTOFF_VOLTAGE_HIGH * ADC_FACTOR_VLINK_REZIPROK;
     g.mode_selector = MODE_MOTOR_BLOCKED;
 }
 

@@ -26,15 +26,17 @@
 extern TGlobal g;
 
 void statemachine(void){
-    enum {START, RUN_MOMENTUM, RUN_SPEEDCONTROLLER ,CHANGE_DIRECTION, OVERCURRENT};
+    enum {START, RUN_MOMENTUM, RUN_SPEEDCONTROLLER ,CHANGE_DIRECTION, OVERCURRENT, OVERVOLTAGE};
     static uint8_t  state = START;
     static uint8_t state_previouse = START;
     // DEBUG1_SetHigh();
     
 
-    if (g.current.overcurrent_detected){ 
+    if (g.current.overflow){ 
         state = OVERCURRENT;
-        LED2_SetHigh(); 
+    }
+    if (g.voltage.overflow){ 
+        state = OVERVOLTAGE;
     }
     g.state = state;  // zum debuggen 
     switch (state){
@@ -112,6 +114,10 @@ void statemachine(void){
                         g.mode_selector = MODE_MOTOR_FLOATING;
                         break;
 
+        case OVERVOLTAGE:
+                        g.mode_selector = MODE_MOTOR_FLOATING;
+                        break;
+
         default:        state = START;
                         break;
 
@@ -168,10 +174,9 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         case 1:
             iref_selector();
             if (STATEMACHINE == 1) statemachine();
-            else if (g.current.overcurrent_detected) {
+            else if (g.current.overflow || g.voltage.overflow) {
                 g.mode_selector = MODE_MOTOR_FLOATING;
-                LED2_SetHigh();
-            } else LED2_SetLow();
+            } 
             return;
         case 2:
             // spared slot
@@ -201,8 +206,8 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         // ADC_SoftwareTriggerChannelSequencing(); // Sequencially start software triggered ADC channels
         // Measuring and calculate temperature
         g.temperature = NTC_Temperature_FromADC(ADC_Result(_TEMPERATURE));
-        g.vlink = ADC_Result(_VLINK);
-        g.speed.max = (int16_t)((SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.vlink * ADC_FACTOR_VLINK);
+        g.voltage.link = ADC_Result(_VLINK);
+        g.speed.max = (int16_t)((SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.voltage.link * ADC_FACTOR_VLINK);
         g.speed.ramp.in = (g.speed.ramp.in > g.speed.max)? g.speed.max : g.speed.ramp.in;
         g.input.gas = (g.demo)? g.input.gas: ADC_Result(_MOMENTUM);
         g.input.f_r = (g.demo)? g.input.f_r: ForwardReverse_GetValue(); 
@@ -233,6 +238,8 @@ int main(void){
     QEI2_SetInterruptHandler(&commutation);
     QEI1_SetInterruptHandler(&commutation);
     
+    LED1_SetHigh();
+    LED2_SetLow();
     #ifdef FLETUINO 
         fletuino_init(UART2_RxBufferedAvailable, UART2_RxBufferedReadByte, UART2_WriteBlockingByte, start_page); 
     #endif
@@ -274,12 +281,21 @@ int main(void){
                     sprintf(debugBuffer, "%d %d %d %d  %d %d\r\n",g.state,g.input.speedRpm, g.speed.ramp.in, g.speed.ramp.out, g.speed.out, g.speed.value); 
                     UART2_WriteNoneBlockingString(debugBuffer); 
                 #endif     
-                LED1_Toggle();
+                if (!g.voltage.overflow && !g.current.overflow)
+                {
+                    LED1_Toggle();
+                    LED2_Toggle();
+                }
+                else{
+                    if (g.voltage.overflow) LED1_SetHigh();
+                    else LED1_SetLow();
+                    if (g.current.overflow) LED2_SetHigh();
+                    else LED2_SetLow();
+                }
             }
                                                                                
             if (eventTimer2 == 2000){ 
                 eventTimer2 = 0;  
-                // LED2_Toggle();     
             }
             if (eventTimer3 == 50){  // every 50 milliseconds  
                 eventTimer3 = 0;                

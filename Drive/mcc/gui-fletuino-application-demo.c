@@ -89,12 +89,15 @@ void start_page(){
 void gui_update(void){
     fletuino_set_value_int(NUMERIC_RPM, g.speed.value);
     fletuino_set_value_int(NUMERIC_CURRENT, g.current.value);
-    fletuino_set_value_int(NUMERIC_VOLT, g.vlink); 
+    fletuino_set_value_int(NUMERIC_VOLT, g.voltage.link); 
     // fletuino_set_value_int(NUMERIC_DEBUG1, g.input.gas);
     // fletuino_set_value_int(NUMERIC_DEBUG2, g.state); 
     // fletuino_set_value_int(NUMERIC_DEBUG3, g.input.speedRpm);
-    fletuino_set_value_int(NUMERIC_DEBUG1, g.current.value);
-    fletuino_set_value_int(NUMERIC_DEBUG2, g.current.ref); 
+    // fletuino_set_value_int(NUMERIC_DEBUG1, g.current.value);
+    // fletuino_set_value_int(NUMERIC_DEBUG2, g.current.ref); 
+    // fletuino_set_value_int(NUMERIC_DEBUG3, MDC);
+    fletuino_set_value_int(NUMERIC_DEBUG1, g.voltage.link);
+    fletuino_set_value_int(NUMERIC_DEBUG2, g.voltage.cutoff); 
     fletuino_set_value_int(NUMERIC_DEBUG3, MDC);
 }
 #endif
