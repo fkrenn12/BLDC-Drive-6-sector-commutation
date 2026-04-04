@@ -62,6 +62,10 @@ void sector_counting(void){
    previous_position_sector = (previous_position_sector != g.position_sector)? g.position_sector : previous_position_sector; 
 }
 
+void ReadMomentumInput(void){
+
+}
+
 uint16_t ADC_Result(enum ADC_CHANNEL channel)
 {
     ADC1_IndividualChannelInterruptDisable(channel);        //temporarely disable the interrupt from the channel
@@ -109,6 +113,8 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     // DIG 2048      0     ┌────┘    └────┐   
     // DIG 0        -A ────┘              └───
     DEBUG1_SetHigh();
+    if (channel == _I1) ReadMomentumInput();
+
     #ifdef SMART_POWERLAB_HARDWARE
         if (channel !=_I2_PowerLab) {DEBUG1_SetLow();return;}
     #else
