@@ -63,7 +63,11 @@ void sector_counting(void){
 }
 
 void ReadMomentumInput(void){
-
+    static uint16_t previous_input_state = 0;
+    uint16_t input_state = (PORTC & 0b00000001);
+    if (input_state != previous_input_state){
+       // code tbd
+    }
 }
 
 uint16_t ADC_Result(enum ADC_CHANNEL channel)
