@@ -1,4 +1,5 @@
 #include "adc-current-measurement-and-control.h"
+#include <stdint.h>
 
 extern TGlobal g;
 
@@ -62,13 +63,77 @@ void sector_counting(void){
    previous_position_sector = (previous_position_sector != g.position_sector)? g.position_sector : previous_position_sector; 
 }
 
-void ReadMomentumInput(void){
-    static uint16_t previous_input_state = 0;
-    uint16_t input_state = (PORTC & 0b00000001);
-    if (input_state != previous_input_state){
-       // code tbd
+#define PWM_INPUT_READ()   ((PORTC & (1u << 0)) != 0)  // Beispiel: RC0
+#define NO_EDGE_TIMEOUT_TICKS  (uint16_t)(50000u / TICK_US) // 50 ms Timeout
+#define TICK_US            20u     // ISR-Periode in µs
+#define DUTY_INVALID       0xFFFFu // Marker für ungültig
+
+void MomentumInputSampler(void)
+{
+    static uint16_t s_period_ticks = 0;
+    static uint16_t s_high_ticks   = 0;
+    static uint16_t s_last_period  = 0;
+    static uint16_t s_last_high    = 0;
+    static uint16_t s_duty_permille = DUTY_INVALID;
+
+    static uint8_t  s_prev = 0;
+    static uint16_t s_tick_in_period = 0;
+    static uint16_t s_high_in_period = 0;
+    static uint16_t s_no_edge_counter = 0;
+
+    uint8_t level = PWM_INPUT_READ();
+
+    // Zähle Perioden-Zeit
+    s_tick_in_period++;
+
+    // Zähle High-Zeit in dieser Periode
+    if (level) {
+        s_high_in_period++;
     }
+
+    // Flankenerkennung (steigende Flanke als Periodenende)
+    if (!s_prev && level) {
+        // Neue Periode erkannt: sichere die letzte Messung
+        if (s_tick_in_period > 0) {
+            s_last_period = s_tick_in_period;
+            s_last_high   = s_high_in_period;
+
+            // Duty berechnen in ‰ (0..1000), Schutz vor Division durch 0
+            if (s_last_period > 0) {
+                // Rundung: *1000 + period/2
+                uint32_t num = (uint32_t)s_last_high * 1000u + (s_last_period / 2u);
+                s_duty_permille = (uint16_t)(num / s_last_period);
+                if (s_duty_permille > 1000u) s_duty_permille = 1000u; // Sättigung
+            } else {
+                s_duty_permille = DUTY_INVALID;
+            }
+        }
+
+        // Neue Periode starten
+        s_tick_in_period = 0;
+        s_high_in_period = 0;
+        s_no_edge_counter = 0;
+    } else {
+        // Kein steigender Flankenwechsel: Timeout fortschreiben
+        if (s_no_edge_counter < 0xFFFFu) s_no_edge_counter++;
+        if (s_no_edge_counter >= NO_EDGE_TIMEOUT_TICKS) {
+            // Kein Signal oder DC: invalidieren
+            s_duty_permille = DUTY_INVALID;
+            // Optional: Wenn konstant HIGH erkannt, kannst du duty=1000 setzen;
+            // wenn konstant LOW, duty=0. Das braucht allerdings zusätzliche Logik.
+        }
+    }
+
+    s_prev = level;
 }
+/*
+uint16_t pwm_get_duty_permille(void) { return s_duty_permille; }
+uint32_t pwm_get_period_us(void)     { return (uint32_t)s_last_period * TICK_US; }
+uint32_t pwm_get_freq_hz(void) {
+    uint16_t p = s_last_period;
+    return (p == 0) ? 0u : (uint32_t)(1000000u / (p * TICK_US));
+}
+*/
 
 uint16_t ADC_Result(enum ADC_CHANNEL channel)
 {
@@ -117,8 +182,8 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     // DIG 2048      0     ┌────┘    └────┐   
     // DIG 0        -A ────┘              └───
     DEBUG1_SetHigh();
-    if (channel == _I1) ReadMomentumInput();
-
+    if (channel == _I1) MomentumInputSampler();
+    if (channel == _I3) sector_counting();
     #ifdef SMART_POWERLAB_HARDWARE
         if (channel !=_I2_PowerLab) {DEBUG1_SetLow();return;}
     #else
@@ -151,7 +216,7 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
         g.mode_selector = MODE_MOTOR_FLOATING;
     }
     if (CURRENT_CONTROL == 1) current_controller(); 
-    sector_counting();
+    
     DEBUG1_SetLow();
 }
 // ########################################################################
