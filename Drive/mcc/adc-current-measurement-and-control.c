@@ -3,10 +3,10 @@
 extern TGlobal g;
 
 #define PWM 0x0000      // NO override, PWM is on Pins
-#define FLOAT 0x3000    // Override both (PWML and PWM_H) with 0 
+#define FLOAT 0x3000    // Override both (PWM_L and PWM_H) with 0 
 #define CLAMP 0x3400    // Override PWM_H with 0 and PWM_L with 1
 
-#define VECTOR CLAMP 0
+#define VECTOR_CLAMP 0
 #define VECTOR_FLOAT 7
 /*
 Vector   U       V       W   
@@ -43,17 +43,14 @@ void commutation(void){
     static const uint8_t SWAP_B0_B3[8] = {0,0b100,0b010,0b110,0b001,0b101,0b011,0};  
     // DEBUG2_SetHigh();
     g.position_sector =  SWAP_B0_B3[((PORTC & 0b11100000) >> 5)]; // we need to correct wiring of sensor signal to get correct sector
-    // commutating  1110 0000  -> 10100000 -> 5 mal rechts schieben -> 000000101
     g.energized_vector = (g.direction_of_rotation==((MOTOR_DIRECTION_INVERTED)? ANTICLOCKWISE: CLOCKWISE)) ? ENERGIZED_VECTOR_CLOCKWISE[g.position_sector]: ENERGIZED_VECTOR_ANTICLOCKWISE[g.position_sector];
     g.energized_vector = (g.mode_selector==MODE_MOTOR_FLOATING)? 7 : g.energized_vector;
     // g.energized_vector = (g.mode_selector==MODE_MOTOR_BLOCKED)? 0 : g.energized_vector;
     g.energized_vector = (g.mode_selector==MODE_MOTOR_BLOCKED)? 7 : g.energized_vector;
     // if ((g.energized_vector==1) || (g.energized_vector == 2)) DEBUG2_SetHigh();
     // else DEBUG2_SetLow();
-    if ((g.energized_vector<1) || (g.energized_vector > 6)) DEBUG2_SetHigh();
-    else DEBUG2_SetLow();
-    // Resetting the integral part doesnt work - but it is here fore future use and documentation
-    // if (previous_position_sector != g.position_sector)  PIController_ResetIntegrator(&g.current.controller);
+    // if ((g.energized_vector<1) || (g.energized_vector > 6)) DEBUG2_SetHigh();
+    // else DEBUG2_SetLow();
     if (COMMUTATE == 1) PWM_override(g.energized_vector); 
     // DEBUG2_SetLow();
 }
