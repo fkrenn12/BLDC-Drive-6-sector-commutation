@@ -39,6 +39,10 @@ typedef struct _input{
     volatile uint8_t direction; // direction 
     volatile uint8_t f_r;       // forwars/backward pin
     volatile uint8_t a_m;       // automatic/momentum pin
+    volatile uint16_t pwm_input_periode;
+    volatile uint16_t pwm_input_value;
+    volatile uint16_t pwm_input_gas;
+
 }TInput;
 
 typedef struct _speed{

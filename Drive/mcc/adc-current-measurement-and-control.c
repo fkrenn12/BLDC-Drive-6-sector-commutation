@@ -63,74 +63,73 @@ void sector_counting(void){
    previous_position_sector = (previous_position_sector != g.position_sector)? g.position_sector : previous_position_sector; 
 }
 
-#define PWM_INPUT_READ()   ((PORTC & (1u << 0)) != 0)  // Beispiel: RC0
-#define NO_EDGE_TIMEOUT_TICKS  (uint16_t)(50000u / TICK_US) // 50 ms Timeout
-#define TICK_US            20u     // ISR-Periode in µs
+#define PWM_INPUT_READ()   ((PORTA & (4u << 0)) != 0)  // PWM_IN_GetValue(); //((PORTA & (4u << 0)) != 0)  // Beispiel: RC0
+#define NO_EDGE_TIMEOUT_TICKS  (uint16_t)(20000u / TICK_US) // 20 ms Timeout
+#define TICK_US            40u     // ISR-Periode in µs
 #define DUTY_INVALID       0xFFFFu // Marker für ungültig
 
 void MomentumInputSampler(void)
 {
-    static uint16_t s_period_ticks = 0;
-    static uint16_t s_high_ticks   = 0;
-    static uint16_t s_last_period  = 0;
-    static uint16_t s_last_high    = 0;
-    static uint16_t s_duty_permille = DUTY_INVALID;
-
-    static uint8_t  s_prev = 0;
-    static uint16_t s_tick_in_period = 0;
-    static uint16_t s_high_in_period = 0;
-    static uint16_t s_no_edge_counter = 0;
+    static uint8_t   prev_level = 0;
+    static uint16_t  tick_in_period = 0;
+    static uint16_t  high_in_period = 0;
+    static uint16_t  no_edge_counter = 0;
 
     uint8_t level = PWM_INPUT_READ();
+    // if (PWM_IN_GetValue()==1)
+
+    //if (level)
+    //    DEBUG2_SetHigh();
+    //else
+    //    DEBUG2_SetLow();
+    // DEBUG2_SetLow();
 
     // Zähle Perioden-Zeit
-    s_tick_in_period++;
-
+    tick_in_period++;  
+     
     // Zähle High-Zeit in dieser Periode
     if (level) {
-        s_high_in_period++;
+         high_in_period++;
     }
 
-    // Flankenerkennung (steigende Flanke als Periodenende)
-    if (!s_prev && level) {
+    // rising edge
+    if ((prev_level==0) && (level==1)) {
+        g.input.pwm_input_periode = 12;
         // Neue Periode erkannt: sichere die letzte Messung
-        if (s_tick_in_period > 0) {
-            s_last_period = s_tick_in_period;
-            s_last_high   = s_high_in_period;
-
-            // Duty berechnen in ‰ (0..1000), Schutz vor Division durch 0
-            if (s_last_period > 0) {
-                // Rundung: *1000 + period/2
-                uint32_t num = (uint32_t)s_last_high * 1000u + (s_last_period / 2u);
-                s_duty_permille = (uint16_t)(num / s_last_period);
-                if (s_duty_permille > 1000u) s_duty_permille = 1000u; // Sättigung
-            } else {
-                s_duty_permille = DUTY_INVALID;
+        if ( tick_in_period > 0) {
+            
+            g.input.pwm_input_periode =  tick_in_period;
+            g.input.pwm_input_value  =  high_in_period;
+            if (g.input.pwm_input_periode > 0){
+                DEBUG2_SetHigh();
+                uint16_t temp = (2048 << 4) / g.input.pwm_input_periode;
+                g.input.pwm_input_gas = (temp * g.input.pwm_input_value) >> 4;
+                DEBUG2_SetLow();
             }
+            else g.input.pwm_input_gas = 0;
         }
-
         // Neue Periode starten
-        s_tick_in_period = 0;
-        s_high_in_period = 0;
-        s_no_edge_counter = 0;
+         tick_in_period = 0;
+         high_in_period = 0;
+         no_edge_counter = 0;
+
     } else {
         // Kein steigender Flankenwechsel: Timeout fortschreiben
-        if (s_no_edge_counter < 0xFFFFu) s_no_edge_counter++;
-        if (s_no_edge_counter >= NO_EDGE_TIMEOUT_TICKS) {
+        if ( no_edge_counter < 0xFFFFu)  no_edge_counter++;
+        if ( no_edge_counter >= NO_EDGE_TIMEOUT_TICKS) {
             // Kein Signal oder DC: invalidieren
-            s_duty_permille = DUTY_INVALID;
-            // Optional: Wenn konstant HIGH erkannt, kannst du duty=1000 setzen;
-            // wenn konstant LOW, duty=0. Das braucht allerdings zusätzliche Logik.
+             g.input.pwm_input_gas = 0;
+             g.input.pwm_input_periode =  0;
+             g.input.pwm_input_value  =  0;
         }
     }
-
-    s_prev = level;
+    prev_level = level;
 }
 /*
-uint16_t pwm_get_duty_permille(void) { return s_duty_permille; }
-uint32_t pwm_get_period_us(void)     { return (uint32_t)s_last_period * TICK_US; }
+uint16_t pwm_get_duty_permille(void) { return  duty_permille; }
+uint32_t pwm_get_period_us(void)     { return (uint32_t) last_period * TICK_US; }
 uint32_t pwm_get_freq_hz(void) {
-    uint16_t p = s_last_period;
+    uint16_t p =  last_period;
     return (p == 0) ? 0u : (uint32_t)(1000000u / (p * TICK_US));
 }
 */

@@ -96,6 +96,57 @@
 
 /**
  * @ingroup  pinsdriver
+ * @brief    Sets the RA2 GPIO Pin which has a custom name of PWM_IN to High
+ * @pre      The RA2 must be set as Output Pin             
+ * @param    none
+ * @return   none  
+ */
+#define PWM_IN_SetHigh()          (_LATA2 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RA2 GPIO Pin which has a custom name of PWM_IN to Low
+ * @pre      The RA2 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define PWM_IN_SetLow()           (_LATA2 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Toggles the RA2 GPIO Pin which has a custom name of PWM_IN
+ * @pre      The RA2 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define PWM_IN_Toggle()           (_LATA2 ^= 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Reads the value of the RA2 GPIO Pin which has a custom name of PWM_IN
+ * @param    none
+ * @return   none  
+ */
+#define PWM_IN_GetValue()         _RA2
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RA2 GPIO Pin which has a custom name of PWM_IN as Input
+ * @param    none
+ * @return   none  
+ */
+#define PWM_IN_SetDigitalInput()  (_TRISA2 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RA2 GPIO Pin which has a custom name of PWM_IN as Output
+ * @param    none
+ * @return   none  
+ */
+#define PWM_IN_SetDigitalOutput() (_TRISA2 = 0)
+
+/**
+ * @ingroup  pinsdriver
  * @brief    Sets the RB0 GPIO Pin which has a custom name of ForwardReverse to High
  * @pre      The RB0 must be set as Output Pin             
  * @param    none

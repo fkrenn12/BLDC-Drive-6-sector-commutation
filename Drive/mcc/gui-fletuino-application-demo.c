@@ -96,8 +96,13 @@ void gui_update(void){
     // fletuino_set_value_int(NUMERIC_DEBUG1, g.current.value);
     // fletuino_set_value_int(NUMERIC_DEBUG2, g.current.ref); 
     // fletuino_set_value_int(NUMERIC_DEBUG3, MDC);
-    fletuino_set_value_int(NUMERIC_DEBUG1, g.voltage.link);
-    fletuino_set_value_int(NUMERIC_DEBUG2, g.voltage.cutoff); 
-    fletuino_set_value_int(NUMERIC_DEBUG3, MDC);
+
+    // fletuino_set_value_int(NUMERIC_DEBUG1, g.voltage.link);
+    // fletuino_set_value_int(NUMERIC_DEBUG2, g.voltage.cutoff); 
+    // fletuino_set_value_int(NUMERIC_DEBUG3, MDC);
+
+    fletuino_set_value_int(NUMERIC_DEBUG1, g.input.pwm_input_periode);
+    fletuino_set_value_int(NUMERIC_DEBUG2, g.input.pwm_input_value); 
+    fletuino_set_value_int(NUMERIC_DEBUG3, g.input.pwm_input_gas);
 }
 #endif

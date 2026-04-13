@@ -15,7 +15,7 @@
 */
 
 /*
-ï¿½ [2026] Microchip Technology Inc. and its subsidiaries.
+© [2026] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -72,7 +72,7 @@ void PINS_Initialize(void)
     CNPUB = 0x0009U;
     CNPUC = 0x00F0U;
     CNPUD = 0x0400U;
-    CNPDA = 0x0000U;
+    CNPDA = 0x0004U;
     CNPDB = 0x0180U;
     CNPDC = 0x3C00U;
     CNPDD = 0x0000U;
@@ -90,7 +90,7 @@ void PINS_Initialize(void)
     /****************************************************************************
      * Setting the Analog/Digital Configuration SFR(s)
      ***************************************************************************/
-    ANSELA = 0x001DU;
+    ANSELA = 0x0019U;
     ANSELB = 0x0206U;
     ANSELC = 0x000FU;
     ANSELD = 0x0000U;
