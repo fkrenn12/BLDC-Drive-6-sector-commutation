@@ -210,7 +210,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.speed.max = (int16_t)((SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.voltage.link * ADC_FACTOR_VLINK);
         g.speed.ramp.in = (g.speed.ramp.in > g.speed.max)? g.speed.max : g.speed.ramp.in;
         g.input.gas = (g.demo)? g.input.gas: ADC_Result(_MOMENTUM);
-        g.input.gas = g.input.pwm_input_gas;
+        // g.input.gas = g.input.pwm_input_gas;
         g.input.f_r = (g.demo)? g.input.f_r: ForwardReverse_GetValue(); 
         g.input.a_m = (g.demo)? g.input.a_m: AutomaticManual_GetValue(); 
         #ifndef FLETUINO_PI_CONTROLLER_SETTINGS

@@ -46,7 +46,7 @@ static void on_iref_changed(const char* event, const char* value){
 }
 
 static void on_kp_current_changed(const char* event, const char* value){
-    double kp = (double)atof(value)*0.0001;
+    double kp = (double)atof(value)*0.001;
     PIController_Synthetise_kp(&g.current.controller, double_to_fixed32(kp));
     char t[50];
     sprintf(t, "KP Current %.8f", kp);
@@ -122,7 +122,7 @@ void start_page(){
     fletuino_set_property_int(SLIDER_IREF, "width", 600);
     IREF_RESET = fletuino_button("Reset momentum", "tag1", 30, on_zero_moment);
     fletuino_bar((CONTROLS){SLIDER_IREF,IREF_RESET},2,"center-space-evenly");
-    SLIDER_CURRENT_KP=fletuino_slider("KP Current", fixed32_to_double(g.current.controller.kp)*10000, 0, 30000, 30, on_kp_current_changed);
+    SLIDER_CURRENT_KP=fletuino_slider("KP Current", fixed32_to_double(g.current.controller.kp)*1000, 0, 20000, 30, on_kp_current_changed);
     SLIDER_CURRENT_KI=fletuino_slider("KI Current", fixed32_to_double(g.current.controller.ki)*10000, 0, 1000, 30, on_ki_current_changed);
     fletuino_divider(3);
     CONTROLLER_SELECTOR = fletuino_switch("Speed Controller (cruiser) ON/OFF ", 30, 0, on_switch);

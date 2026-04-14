@@ -6,7 +6,7 @@ Mostly used configuration defines are listet first
 
 #define VLINK_NOMINAL_VOLTAGE 50
 #define VLINK_CUTOFF_VOLTAGE_LOW 10                 // * switching to error state reaching this low limit
-#define VLINK_CUTOFF_VOLTAGE_HIGH 20                // switching to error state reaching this high limit
+#define VLINK_CUTOFF_VOLTAGE_HIGH 60                // switching to error state reaching this high limit
 #define SPEED_AT_NOMINAL_VOLTAGE 5000               // rpm at nominal voltage
 #define SPEED_MEASUREMENTS_PER_SECOND 4             // number of measurements per second and calls of speed controller per second (1...1000)
 #define SPEED_THRESHOLD_FOR_DIRECTION_CHANGE 100    // rpm threshold for direction change, must be below this value to change current direction
@@ -35,8 +35,13 @@ Cotroller kp and ki factors
 */
 #define SPEED_CONTROLLER_KP 0.08
 #define SPEED_CONTROLLER_KI 0.008
-#define CURRENT_CONTROLLER_KP 0.300
-#define CURRENT_CONTROLLER_KI 0.02
+#ifdef SMART_POWERLAB_HARDWARE
+    #define CURRENT_CONTROLLER_KP 0.30
+    #define CURRENT_CONTROLLER_KI 0.023
+#else
+    #define CURRENT_CONTROLLER_KP 12.00
+    #define CURRENT_CONTROLLER_KI 0.023
+#endif
 #define CURRENT_USAGE_OF_MAX_CURRENT 0.80           // 1.0 FULL Scale usage - 0.5 HALF Scale usage
 #define CURRENT_MAX_VALUE_MA (uint16_t)(ADC_FACTOR_CURRENT*2048*CURRENT_USAGE_OF_MAX_CURRENT*1000)
 #define CURRENT_CUTOFF_VALUE 0.98                   // 
