@@ -64,9 +64,9 @@ void start_page(){
     fletuino_divider(3);
     BUTTON_EMERGENCY_OFF = fletuino_button("Emergency OFF", "tag3", 40, on_emergency_off); 
     //fletuino_numeric(const char* value, const char* scale, const char* offset, int decimals, const char* unit, uint16_t size);
-    NUMERIC_DEBUG1 = fletuino_numeric(0, 1, 0, 0 ,"",30);
-    NUMERIC_DEBUG2 = fletuino_numeric(0, 1, 0, 0 ,"",30);
-    NUMERIC_DEBUG3= fletuino_numeric(0, 1, 0, 0 ,"",30);
+    NUMERIC_DEBUG1 = fletuino_numeric(0, ADC_FACTOR_VLINK, 0, 1 ,"V",30);
+    NUMERIC_DEBUG2 = fletuino_numeric(0, ADC_FACTOR_CURRENT, 0, 3 ,"A",30);
+    NUMERIC_DEBUG3= fletuino_numeric(0, 1, 0, 0 ,"DIG",30);
     fletuino_bar((CONTROLS){NUMERIC_DEBUG1, NUMERIC_DEBUG2,NUMERIC_DEBUG3},3,"center-space-evenly");
     NUMERIC_RPM = fletuino_numeric(/*value*/0,/*scale*/1.0,/*offset*/0,/*decimals*/0,/*unit*/"rpm",/*size*/30);
     NUMERIC_CURRENT = fletuino_numeric(0, ADC_FACTOR_CURRENT, 0, 3 ," A",30);
@@ -97,12 +97,12 @@ void gui_update(void){
     // fletuino_set_value_int(NUMERIC_DEBUG2, g.current.ref); 
     // fletuino_set_value_int(NUMERIC_DEBUG3, MDC);
 
-    // fletuino_set_value_int(NUMERIC_DEBUG1, g.voltage.link);
-    // fletuino_set_value_int(NUMERIC_DEBUG2, g.voltage.cutoff); 
-    // fletuino_set_value_int(NUMERIC_DEBUG3, MDC);
+    fletuino_set_value_int(NUMERIC_DEBUG1, g.voltage.value_peak);
+    fletuino_set_value_int(NUMERIC_DEBUG2, g.current.value_peak); 
+    fletuino_set_value_int(NUMERIC_DEBUG3, MDC);
 
-    fletuino_set_value_int(NUMERIC_DEBUG1, g.input.pwm_input_periode);
-    fletuino_set_value_int(NUMERIC_DEBUG2, g.input.pwm_input_value); 
-    fletuino_set_value_int(NUMERIC_DEBUG3, g.input.pwm_input_gas);
+    // fletuino_set_value_int(NUMERIC_DEBUG1, g.input.pwm_input_periode);
+    // fletuino_set_value_int(NUMERIC_DEBUG2, g.input.pwm_input_value); 
+    // fletuino_set_value_int(NUMERIC_DEBUG3, g.input.pwm_input_gas);
 }
 #endif

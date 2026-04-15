@@ -6,7 +6,7 @@ Mostly used configuration defines are listet first
 
 #define VLINK_NOMINAL_VOLTAGE 50
 #define VLINK_CUTOFF_VOLTAGE_LOW 10                 // * switching to error state reaching this low limit
-#define VLINK_CUTOFF_VOLTAGE_HIGH 60                // switching to error state reaching this high limit
+#define VLINK_CUTOFF_VOLTAGE_HIGH 50                // switching to error state reaching this high limit
 #define SPEED_AT_NOMINAL_VOLTAGE 5000               // rpm at nominal voltage
 #define SPEED_MEASUREMENTS_PER_SECOND 4             // number of measurements per second and calls of speed controller per second (1...1000)
 #define SPEED_THRESHOLD_FOR_DIRECTION_CHANGE 100    // rpm threshold for direction change, must be below this value to change current direction

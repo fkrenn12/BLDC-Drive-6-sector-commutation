@@ -263,14 +263,14 @@ void ADC1_Initialize (void)
     ADTRIG0H = 0x400U;
     //TRGSRC4 PWM1 Trigger1; TRGSRC5 None; 
     ADTRIG1L = 0x4U;
-    //TRGSRC6 PWM1 Trigger2; TRGSRC7 None; 
-    ADTRIG1H = 0x5U;
+    //TRGSRC6 None; TRGSRC7 None; 
+    ADTRIG1H = 0x0U;
     //TRGSRC8 None; TRGSRC9 None; 
     ADTRIG2L = 0x0U;
     //TRGSRC10 None; TRGSRC11 PWM1 Trigger1; 
     ADTRIG2H = 0x400U;
-    //TRGSRC12 PWM1 Trigger2; TRGSRC13 None; 
-    ADTRIG3L = 0x5U;
+    //TRGSRC12 PWM1 Trigger1; TRGSRC13 None; 
+    ADTRIG3L = 0x4U;
     //TRGSRC14 None; TRGSRC15 None; 
     ADTRIG3H = 0x0U;
     //TRGSRC16 None; TRGSRC17 None; 
@@ -458,9 +458,6 @@ void ADC1_PWMTriggerSourceSet(enum ADC_CHANNEL channel, enum ADC_PWM_INSTANCE pw
         case _I2:
                 ADTRIG1Lbits.TRGSRC4 = adcTriggerValue;
                 break;
-        case _MOMENTUM:
-                ADTRIG1Hbits.TRGSRC6 = adcTriggerValue;
-                break;
         case _I2_PowerLab:
                 ADTRIG2Hbits.TRGSRC11 = adcTriggerValue;
                 break;
@@ -541,16 +538,6 @@ void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCInterrupt ( void )
             (*ADC1_ChannelHandler)(_I2, adcVal);
         }
         IFS5bits.ADCAN4IF = 0;
-    }
-    if(IFS6bits.ADCAN6IF == 1)
-    {
-        //Read the ADC value from the ADCBUF before clearing interrupt
-        adcVal = ADCBUF6;
-        if(NULL != ADC1_ChannelHandler)
-        {
-            (*ADC1_ChannelHandler)(_MOMENTUM, adcVal);
-        }
-        IFS6bits.ADCAN6IF = 0;
     }
     if(IFS6bits.ADCAN11IF == 1)
     {
@@ -706,29 +693,6 @@ void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCAN4Interrupt ( voi
 * Reasoning: Interrupt declaration are provided by compiler and are available
 * outside the driver folder
 */
-void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCAN6Interrupt ( void )
-{
-    uint16_t val_MOMENTUM;
-    //Read the ADC value from the ADCBUF
-    val_MOMENTUM = ADCBUF6;
-
-    if(NULL != ADC1_ChannelHandler)
-    {
-        (*ADC1_ChannelHandler)(_MOMENTUM, val_MOMENTUM);
-    }
-
-    //clear the _MOMENTUM interrupt flag
-    IFS6bits.ADCAN6IF = 0;
-}
-
-/* cppcheck-suppress misra-c2012-8.4
-*
-* (Rule 8.4) REQUIRED: A compatible declaration shall be visible when an object or 
-* function with external linkage is defined
-*
-* Reasoning: Interrupt declaration are provided by compiler and are available
-* outside the driver folder
-*/
 void __attribute__ ( ( __interrupt__ , auto_psv, weak ) ) _ADCAN11Interrupt ( void )
 {
     uint16_t val_I2_PowerLab;
@@ -816,18 +780,6 @@ void __attribute__ ((weak)) ADC1_ChannelTasks (enum ADC_CHANNEL channel)
             {
                 //Read the ADC value from the ADCBUF
                 adcVal = ADCBUF4;
-
-                if(NULL != ADC1_ChannelHandler)
-                {
-                    (*ADC1_ChannelHandler)(channel, adcVal);
-                }
-            }
-            break;
-        case _MOMENTUM:
-            if((bool)ADSTATLbits.AN6RDY == 1)
-            {
-                //Read the ADC value from the ADCBUF
-                adcVal = ADCBUF6;
 
                 if(NULL != ADC1_ChannelHandler)
                 {

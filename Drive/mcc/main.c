@@ -25,6 +25,7 @@
 
 extern TGlobal g;
 
+// called interval 250µs
 void statemachine(void){
     enum {START, RUN_MOMENTUM, RUN_SPEEDCONTROLLER ,CHANGE_DIRECTION, OVERCURRENT, OVERVOLTAGE};
     static uint8_t  state = START;
@@ -209,7 +210,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.voltage.link = ADC_Result(_VLINK);
         g.speed.max = (int16_t)((SPEED_AT_NOMINAL_VOLTAGE / VLINK_NOMINAL_VOLTAGE) * g.voltage.link * ADC_FACTOR_VLINK);
         g.speed.ramp.in = (g.speed.ramp.in > g.speed.max)? g.speed.max : g.speed.ramp.in;
-        g.input.gas = (g.demo)? g.input.gas: ADC_Result(_MOMENTUM);
+        g.input.gas = (g.demo)? g.input.gas: g.input.pwm_input_gas; // ADC_Result(_MOMENTUM);
         // g.input.gas = g.input.pwm_input_gas;
         g.input.f_r = (g.demo)? g.input.f_r: ForwardReverse_GetValue(); 
         g.input.a_m = (g.demo)? g.input.a_m: AutomaticManual_GetValue(); 
@@ -239,7 +240,7 @@ int main(void){
     QEI2_SetInterruptHandler(&commutation);
     QEI1_SetInterruptHandler(&commutation);
     
-    LED1_SetHigh();
+    LED1_SetLow();
     LED2_SetLow();
     #ifdef FLETUINO 
         fletuino_init(UART2_RxBufferedAvailable, UART2_RxBufferedReadByte, UART2_WriteBlockingByte, start_page); 
@@ -284,14 +285,15 @@ int main(void){
                 #endif     
                 if (!g.voltage.overflow && !g.current.overflow)
                 {
-                    LED1_Toggle();
-                    LED2_Toggle();
+                    LED3_Toggle();
+                    // LED1_SetLow();
                 }
                 else{
-                    if (g.voltage.overflow) LED1_SetHigh();
-                    else LED1_SetLow();
-                    if (g.current.overflow) LED2_SetHigh();
-                    else LED2_SetLow();
+                    LED3_SetLow();
+                    if (g.voltage.overflow) LED1_Toggle(); //  LED1_SetHigh();
+                    // else LED1_SetLow();
+                    if (g.current.overflow) LED2_Toggle(); // LED2_SetHigh();
+                    // else LED2_SetLow();
                 }
             }
                                                                                
@@ -299,7 +301,8 @@ int main(void){
                 eventTimer2 = 0;  
             }
             if (eventTimer3 == 50){  // every 50 milliseconds  
-                eventTimer3 = 0;                
+                eventTimer3 = 0;   
+                
                 #ifdef FLETUINO
                     gui_update();
                 #endif

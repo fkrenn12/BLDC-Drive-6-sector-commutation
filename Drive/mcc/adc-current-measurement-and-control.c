@@ -63,7 +63,7 @@ void sector_counting(void){
    previous_position_sector = (previous_position_sector != g.position_sector)? g.position_sector : previous_position_sector; 
 }
 
-#define PWM_INPUT_READ()   ((PORTA & (4u << 0)) != 0)  // PWM_IN_GetValue(); //((PORTA & (4u << 0)) != 0)  // Beispiel: RC0
+#define PWM_INPUT_READ()   PWM_Momentum_GetValue(); //((PORTB & (2u << 0)) != 0)  // PWM_IN_GetValue(); //((PORTA & (4u << 0)) != 0)  // Beispiel: RC0
 #define NO_EDGE_TIMEOUT_TICKS  (uint16_t)(20000u / TICK_US) // 20 ms Timeout
 #define TICK_US            40u     // ISR-Periode in µs
 #define DUTY_INVALID       0xFFFFu // Marker für ungültig
@@ -207,9 +207,10 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     #endif
 
     commutation();
+    g.current.value_peak = (g.current.value_peak > abs(g.current.value))? g.current.value_peak : abs(g.current.value);
+    g.voltage.value_peak = (g.voltage.value_peak > (int32_t)ADC_Result(_VLINK))? g.voltage.value_peak : (int32_t)ADC_Result(_VLINK);
     if (abs(g.current.value) > abs(g.current.cutoff)) g.current.overflow = 1;
     if ((int32_t)ADC_Result(_VLINK) > g.voltage.cutoff) g.voltage.overflow = 1;
-
     if (g.current.overflow || g.voltage.overflow) {
         PWM_override(VECTOR_FLOAT);  // immediately off
         g.mode_selector = MODE_MOTOR_FLOATING;

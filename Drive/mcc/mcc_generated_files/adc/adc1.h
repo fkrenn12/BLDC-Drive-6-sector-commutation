@@ -193,9 +193,6 @@ inline static uint16_t ADC1_ConversionResultGet( enum ADC_CHANNEL channel )
         case _I2:
                 result = ADCBUF4;
                 break;
-        case _MOMENTUM:
-                result = ADCBUF6;
-                break;
         case _I2_PowerLab:
                 result = ADCBUF11;
                 break;
@@ -237,9 +234,6 @@ inline static bool ADC1_IsConversionComplete(enum ADC_CHANNEL channel)
                 break;
         case _I2:
                 status = ADSTATLbits.AN4RDY;
-                break;
-        case _MOMENTUM:
-                status = ADSTATLbits.AN6RDY;
                 break;
         case _I2_PowerLab:
                 status = ADSTATLbits.AN11RDY;
@@ -368,10 +362,6 @@ inline static void ADC1_IndividualChannelInterruptEnable(enum ADC_CHANNEL channe
                 IEC5bits.ADCAN4IE = 1;
                 ADIELbits.IE4 = 1;
                 break;
-        case _MOMENTUM:
-                IEC6bits.ADCAN6IE = 1;
-                ADIELbits.IE6 = 1;
-                break;
         case _I2_PowerLab:
                 IEC6bits.ADCAN11IE = 1;
                 ADIELbits.IE11 = 1;
@@ -411,10 +401,6 @@ inline static void ADC1_IndividualChannelInterruptDisable(enum ADC_CHANNEL chann
                 IEC5bits.ADCAN4IE = 0;
                 ADIELbits.IE4 = 0;
                 break;
-        case _MOMENTUM:
-                IEC6bits.ADCAN6IE = 0;
-                ADIELbits.IE6 = 0;
-                break;
         case _I2_PowerLab:
                 IEC6bits.ADCAN11IE = 0;
                 ADIELbits.IE11 = 0;
@@ -450,9 +436,6 @@ inline static void ADC1_IndividualChannelInterruptFlagClear(enum ADC_CHANNEL cha
         case _I2:
                 IFS5bits.ADCAN4IF = 0;
                 break;
-        case _MOMENTUM:
-                IFS6bits.ADCAN6IF = 0;
-                break;
         case _I2_PowerLab:
                 IFS6bits.ADCAN11IF = 0;
                 break;
@@ -486,9 +469,6 @@ inline static void ADC1_IndividualChannelInterruptPrioritySet(enum ADC_CHANNEL c
 				break;
 		case _I2:
 				IPC23bits.ADCAN4IP = priorityValue;
-				break;
-		case _MOMENTUM:
-				IPC24bits.ADCAN6IP = priorityValue;
 				break;
 		case _I2_PowerLab:
 				IPC25bits.ADCAN11IP = priorityValue;

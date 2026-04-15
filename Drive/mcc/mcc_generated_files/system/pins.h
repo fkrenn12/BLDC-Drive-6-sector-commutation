@@ -96,54 +96,54 @@
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RA2 GPIO Pin which has a custom name of PWM_IN to High
+ * @brief    Sets the RA2 GPIO Pin which has a custom name of LED3 to High
  * @pre      The RA2 must be set as Output Pin             
  * @param    none
  * @return   none  
  */
-#define PWM_IN_SetHigh()          (_LATA2 = 1)
+#define LED3_SetHigh()          (_LATA2 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RA2 GPIO Pin which has a custom name of PWM_IN to Low
+ * @brief    Sets the RA2 GPIO Pin which has a custom name of LED3 to Low
  * @pre      The RA2 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define PWM_IN_SetLow()           (_LATA2 = 0)
+#define LED3_SetLow()           (_LATA2 = 0)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Toggles the RA2 GPIO Pin which has a custom name of PWM_IN
+ * @brief    Toggles the RA2 GPIO Pin which has a custom name of LED3
  * @pre      The RA2 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define PWM_IN_Toggle()           (_LATA2 ^= 1)
+#define LED3_Toggle()           (_LATA2 ^= 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Reads the value of the RA2 GPIO Pin which has a custom name of PWM_IN
+ * @brief    Reads the value of the RA2 GPIO Pin which has a custom name of LED3
  * @param    none
  * @return   none  
  */
-#define PWM_IN_GetValue()         _RA2
+#define LED3_GetValue()         _RA2
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RA2 GPIO Pin which has a custom name of PWM_IN as Input
+ * @brief    Configures the RA2 GPIO Pin which has a custom name of LED3 as Input
  * @param    none
  * @return   none  
  */
-#define PWM_IN_SetDigitalInput()  (_TRISA2 = 1)
+#define LED3_SetDigitalInput()  (_TRISA2 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RA2 GPIO Pin which has a custom name of PWM_IN as Output
+ * @brief    Configures the RA2 GPIO Pin which has a custom name of LED3 as Output
  * @param    none
  * @return   none  
  */
-#define PWM_IN_SetDigitalOutput() (_TRISA2 = 0)
+#define LED3_SetDigitalOutput() (_TRISA2 = 0)
 
 /**
  * @ingroup  pinsdriver
@@ -195,6 +195,57 @@
  * @return   none  
  */
 #define ForwardReverse_SetDigitalOutput() (_TRISB0 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RB1 GPIO Pin which has a custom name of PWM_Momentum to High
+ * @pre      The RB1 must be set as Output Pin             
+ * @param    none
+ * @return   none  
+ */
+#define PWM_Momentum_SetHigh()          (_LATB1 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RB1 GPIO Pin which has a custom name of PWM_Momentum to Low
+ * @pre      The RB1 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define PWM_Momentum_SetLow()           (_LATB1 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Toggles the RB1 GPIO Pin which has a custom name of PWM_Momentum
+ * @pre      The RB1 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define PWM_Momentum_Toggle()           (_LATB1 ^= 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Reads the value of the RB1 GPIO Pin which has a custom name of PWM_Momentum
+ * @param    none
+ * @return   none  
+ */
+#define PWM_Momentum_GetValue()         _RB1
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RB1 GPIO Pin which has a custom name of PWM_Momentum as Input
+ * @param    none
+ * @return   none  
+ */
+#define PWM_Momentum_SetDigitalInput()  (_TRISB1 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RB1 GPIO Pin which has a custom name of PWM_Momentum as Output
+ * @param    none
+ * @return   none  
+ */
+#define PWM_Momentum_SetDigitalOutput() (_TRISB1 = 0)
 
 /**
  * @ingroup  pinsdriver

@@ -58,6 +58,7 @@ typedef struct _speed{
 typedef struct _current{
     volatile int16_t ref;
     volatile int32_t value;
+    volatile int32_t value_peak;
     volatile int32_t limit;
     volatile int16_t momentum;
     volatile int32_t cutoff;
@@ -67,6 +68,7 @@ typedef struct _current{
 
 typedef struct _voltage{
     volatile int32_t link;
+    volatile int32_t value_peak;
     volatile int32_t cutoff;
     volatile uint8_t overflow;
 }TVoltage;
