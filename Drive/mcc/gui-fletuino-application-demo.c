@@ -72,7 +72,7 @@ void start_page(){
     NUMERIC_CURRENT = fletuino_numeric(0, ADC_FACTOR_CURRENT, 0, 3 ," A",30);
     NUMERIC_VOLT = fletuino_numeric(0, ADC_FACTOR_VLINK, 0, 1 ," V",30);
     fletuino_bar((CONTROLS){NUMERIC_VOLT, NUMERIC_RPM, NUMERIC_CURRENT},3,"center-space-evenly");
-    SLIDER_MOMENTUM = fletuino_slider("Momentum-GAS", /*init*/0, /*min*/0, /*max*/4095 ,/*size*/30, /*event*/on_momentum_changed);
+    SLIDER_MOMENTUM = fletuino_slider("Momentum-GAS", /*init*/0, /*min*/0, /*max*/2047 ,/*size*/30, /*event*/on_momentum_changed);
     fletuino_set_property_int(SLIDER_MOMENTUM, "width", 600);
     fletuino_bar((CONTROLS){SLIDER_MOMENTUM},1,"center-space-evenly");
     fletuino_divider(3);

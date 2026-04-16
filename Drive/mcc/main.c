@@ -213,7 +213,8 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.input.f_r = (g.demo)? g.input.f_r: ForwardReverse_GetValue(); 
         g.input.a_m = (g.demo)? g.input.a_m: AutomaticManual_GetValue(); 
         #ifndef FLETUINO_PI_CONTROLLER_SETTINGS
-            g.current.momentum = map_range_clamped((MOMENTUM_RAMP_USED)?g.input.momentum_ramp.out:g.input.momentum_ramp.in, 150, 4095, 0, 2047);
+            // g.current.momentum = map_range_clamped((MOMENTUM_RAMP_USED)?g.input.momentum_ramp.out:g.input.momentum_ramp.in, 150, 4095, 0, 2047);
+            g.current.momentum = map_range_clamped((MOMENTUM_RAMP_USED)?g.input.momentum_ramp.out:g.input.momentum_ramp.in, 100, 2047, 0, 2047);
         #endif
         #ifndef FLETUINO_APPLICATION_DEMO
             g.input.speedRpm = ((g.millis - g.input.speedRpm_timestamp) > 5000)? 0 : g.input.speedRpm;
