@@ -3,7 +3,8 @@
 extern TGlobal g;
 
 void Drive_init(void){
-    ramp_init(&g.speed.ramp, 0, 0, 20, 200, 100); // up 20rpm/100ms;down 200rpm/100ms
+    ramp_init(&g.speed.ramp, 0, 0, SPEED_RAMP_UPSTEP, SPEED_RAMP_DOWNSTEP, SPEED_RAMP_INTERVAL_MS); 
+    ramp_init(&g.input.momentum_ramp, 0, 0, MOMENTUM_RAMP_UPSTEP, MOMENTUM_RAMP_DOWNSTEP, MOMENTUM_RAMP_INTERVAL_MS);
     PIController_Init(&g.current.controller,
         double_to_fixed32(CURRENT_CONTROLLER_KP),  // defined in configuration.h 
         double_to_fixed32(CURRENT_CONTROLLER_KI),  // defined in configuration.h

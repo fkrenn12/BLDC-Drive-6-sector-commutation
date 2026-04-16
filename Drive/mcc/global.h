@@ -33,16 +33,16 @@
 #define COL_WHITE "\033[0m"
 
 typedef struct _input{
-    volatile int16_t gas;      // gas pedal
+    
     volatile int16_t speedRpm; // speed
     volatile uint64_t speedRpm_timestamp;
     volatile uint8_t direction; // direction 
     volatile uint8_t f_r;       // forwars/backward pin
     volatile uint8_t a_m;       // automatic/momentum pin
-    volatile uint16_t pwm_input_periode;
-    volatile uint16_t pwm_input_value;
-    volatile uint16_t pwm_input_gas;
-
+    volatile uint16_t momentum; // gas pedal
+    volatile int16_t momentum_demo;  
+    volatile int16_t momentum_ramped;  
+    TRamp momentum_ramp;    
 }TInput;
 
 typedef struct _speed{

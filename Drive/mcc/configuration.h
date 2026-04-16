@@ -12,7 +12,15 @@ Mostly used configuration defines are listet first
 #define SPEED_THRESHOLD_FOR_DIRECTION_CHANGE 100    // rpm threshold for direction change, must be below this value to change current direction
 
 
-#define USE_SPEED_RAMP_FUNCTION 1                   // 0: not used 1: used 
+#define SPEED_RAMP_USED 1                           // 0: not used 1: used 
+#define SPEED_RAMP_UPSTEP 20                        // 20 rpm digits up per step
+#define SPEED_RAMP_DOWNSTEP 200                     // 200 rpm digits down per step
+#define SPEED_RAMP_INTERVAL_MS 20                   // calculation interval in ms
+
+#define MOMENTUM_RAMP_USED 1                        // 0: not used 1: used
+#define MOMENTUM_RAMP_UPSTEP 20                     // 20 momentum digits up per step
+#define MOMENTUM_RAMP_DOWNSTEP 500                  // 500 momentum digits down per step
+#define MOMENTUM_RAMP_INTERVAL_MS 20                // calculation interval in ms
 /*
 ADC conversion factors
 */
@@ -39,7 +47,7 @@ Cotroller kp and ki factors
     #define CURRENT_CONTROLLER_KP 0.30
     #define CURRENT_CONTROLLER_KI 0.023
 #else
-    #define CURRENT_CONTROLLER_KP 12.00
+    #define CURRENT_CONTROLLER_KP 3.00
     #define CURRENT_CONTROLLER_KI 0.023
 #endif
 #define CURRENT_USAGE_OF_MAX_CURRENT 0.80           // 1.0 FULL Scale usage - 0.5 HALF Scale usage
@@ -49,6 +57,7 @@ Cotroller kp and ki factors
 
 #define PWM_PERIOD 8190                             // FPG1_clk/(PGxPER + 1)= 200Mhz/(8190+1) = 24.417kHz
 #define PWM_MAX_DUTY PWM_PERIOD-1                   // do not edit !
+#define PWM_PERIODE_MICROSECOND 41                  // do not edit ! 1000/24.417kHz = 41us
 
 // #define ADC_RESOLUTION 4095
 #ifdef SMART_POWERLAB_HARDWARE

@@ -26,11 +26,11 @@ void on_speed_changed(const char* event, const char* value) {
 static void on_momentum_changed(const char* event, const char* value){
         momentum = (int16_t)(atoi(value));
         momentum = (momentum > 4095)? 4095 : momentum; 
-        g.input.gas = momentum;
+        g.input.momentum_demo = momentum;
 }
 
 static void on_emergency_off(const char* event, const char* value){
-    g.input.gas = 0;
+    g.input.momentum_demo = 0;
     fletuino_set_value_int(SLIDER_MOMENTUM, 0);
     Drive_stop();  
 }
@@ -54,7 +54,7 @@ static void on_switch(const char* event, const char* value)
 
 void start_page(){ 
     g.demo = 1;
-    g.input.gas = momentum;
+    g.input.momentum_demo = momentum;
     g.input.f_r = direction;
     g.input.a_m = speed_control_activated;
     g.input.speedRpm = rpm;
@@ -99,10 +99,7 @@ void gui_update(void){
 
     fletuino_set_value_int(NUMERIC_DEBUG1, g.voltage.value_peak);
     fletuino_set_value_int(NUMERIC_DEBUG2, g.current.value_peak); 
-    fletuino_set_value_int(NUMERIC_DEBUG3, MDC);
+    fletuino_set_value_int(NUMERIC_DEBUG3, g.input.momentum_ramp.out);
 
-    // fletuino_set_value_int(NUMERIC_DEBUG1, g.input.pwm_input_periode);
-    // fletuino_set_value_int(NUMERIC_DEBUG2, g.input.pwm_input_value); 
-    // fletuino_set_value_int(NUMERIC_DEBUG3, g.input.pwm_input_gas);
 }
 #endif

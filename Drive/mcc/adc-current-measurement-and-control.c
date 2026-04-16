@@ -48,10 +48,6 @@ void commutation(void){
     g.energized_vector = (g.mode_selector==MODE_MOTOR_FLOATING)? 7 : g.energized_vector;
     // g.energized_vector = (g.mode_selector==MODE_MOTOR_BLOCKED)? 0 : g.energized_vector;
     g.energized_vector = (g.mode_selector==MODE_MOTOR_BLOCKED)? 7 : g.energized_vector;
-    // if ((g.energized_vector==1) || (g.energized_vector == 2)) DEBUG2_SetHigh();
-    // else DEBUG2_SetLow();
-    // if ((g.energized_vector<1) || (g.energized_vector > 6)) DEBUG2_SetHigh();
-    // else DEBUG2_SetLow();
     if (COMMUTATE == 1) PWM_override(g.energized_vector); 
     // DEBUG2_SetLow();
 }
@@ -62,77 +58,44 @@ void sector_counting(void){
    g.speed.sectors_counted = (previous_position_sector != g.position_sector)? g.speed.sectors_counted+1 : g.speed.sectors_counted;
    previous_position_sector = (previous_position_sector != g.position_sector)? g.position_sector : previous_position_sector; 
 }
+ 
+#define TICK_US                 PWM_PERIODE_MICROSECOND     // ISR-Periode in µs
+#define NO_EDGE_TIMEOUT_TICKS   (uint16_t)(20000u / TICK_US) // ~20 ms Timeout
 
-#define PWM_INPUT_READ()   PWM_Momentum_GetValue(); //((PORTB & (2u << 0)) != 0)  // PWM_IN_GetValue(); //((PORTA & (4u << 0)) != 0)  // Beispiel: RC0
-#define NO_EDGE_TIMEOUT_TICKS  (uint16_t)(20000u / TICK_US) // 20 ms Timeout
-#define TICK_US            40u     // ISR-Periode in µs
-#define DUTY_INVALID       0xFFFFu // Marker für ungültig
-
-void MomentumInputSampler(void)
+void PWMInputSampler(void)
 {
     static uint8_t   prev_level = 0;
-    static uint16_t  tick_in_period = 0;
-    static uint16_t  high_in_period = 0;
-    static uint16_t  no_edge_counter = 0;
+    static uint16_t  ticks_in_period = 0;
+    static uint16_t  high_ticks_in_period = 0;
 
-    uint8_t level = PWM_INPUT_READ();
-    // if (PWM_IN_GetValue()==1)
+    uint8_t level = PWM_Momentum_GetValue();
+    uint8_t rising_edge = ((prev_level==0) && (level==1)); 
 
-    //if (level)
-    //    DEBUG2_SetHigh();
-    //else
-    //    DEBUG2_SetLow();
-    // DEBUG2_SetLow();
-
-    // Zähle Perioden-Zeit
-    tick_in_period++;  
-     
-    // Zähle High-Zeit in dieser Periode
-    if (level) {
-         high_in_period++;
-    }
-
-    // rising edge
-    if ((prev_level==0) && (level==1)) {
-        g.input.pwm_input_periode = 12;
-        // Neue Periode erkannt: sichere die letzte Messung
-        if ( tick_in_period > 0) {
-            
-            g.input.pwm_input_periode =  tick_in_period;
-            g.input.pwm_input_value  =  high_in_period;
-            if (g.input.pwm_input_periode > 0){
-                DEBUG2_SetHigh();
-                uint16_t temp = (2048 << 4) / g.input.pwm_input_periode;
-                g.input.pwm_input_gas = (temp * g.input.pwm_input_value) >> 4;
-                DEBUG2_SetLow();
-            }
-            else g.input.pwm_input_gas = 0;
+    ticks_in_period = (ticks_in_period < UINT16_MAX)? ticks_in_period + 1 : ticks_in_period;  
+    high_ticks_in_period = (level == 1) ? high_ticks_in_period + 1 : high_ticks_in_period;
+    
+    // rising edge?
+    if (rising_edge){
+        if (ticks_in_period > 0) {
+            // new periode detected: calculate value
+            uint16_t temp = (((2047 << 4) / ticks_in_period) * high_ticks_in_period) >> 4;
+            g.input.momentum = (temp > 2047)? 2047 : temp;
         }
-        // Neue Periode starten
-         tick_in_period = 0;
-         high_in_period = 0;
-         no_edge_counter = 0;
-
-    } else {
-        // Kein steigender Flankenwechsel: Timeout fortschreiben
-        if ( no_edge_counter < 0xFFFFu)  no_edge_counter++;
-        if ( no_edge_counter >= NO_EDGE_TIMEOUT_TICKS) {
-            // Kein Signal oder DC: invalidieren
-             g.input.pwm_input_gas = 0;
-             g.input.pwm_input_periode =  0;
-             g.input.pwm_input_value  =  0;
+        // start new periode
+        ticks_in_period = 0;
+        high_ticks_in_period = 0;
+    }
+    else{
+        // no rising edge: timeout detection
+        if (ticks_in_period >= NO_EDGE_TIMEOUT_TICKS) {
+            // timeout detected - no pwm periode signal: reset values
+            ticks_in_period = 0;
+            high_ticks_in_period = 0;
+            g.input.momentum = 0;
         }
     }
     prev_level = level;
 }
-/*
-uint16_t pwm_get_duty_permille(void) { return  duty_permille; }
-uint32_t pwm_get_period_us(void)     { return (uint32_t) last_period * TICK_US; }
-uint32_t pwm_get_freq_hz(void) {
-    uint16_t p =  last_period;
-    return (p == 0) ? 0u : (uint32_t)(1000000u / (p * TICK_US));
-}
-*/
 
 uint16_t ADC_Result(enum ADC_CHANNEL channel)
 {
@@ -162,7 +125,6 @@ void current_controller(void){
     // if (g.direction_of_rotation == ANTICLOCKWISE) DEBUG2_SetHigh();
     // if (g.direction_of_rotation == CLOCKWISE) DEBUG2_SetLow();
     
-    // duty_cycle = ((duty_cycle < 300) && (duty_cycle > -300))?0:duty_cycle;
     duty_cycle = abs(duty_cycle);
     MDC = (duty_cycle > PWM_MAX_DUTY)?PWM_MAX_DUTY :duty_cycle; // limit duty cycle to 100%
     MDC = ((g.mode_selector==MODE_MOTOR_FLOATING) || (g.mode_selector==MODE_MOTOR_BLOCKED))?0:MDC;
@@ -181,7 +143,7 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     // DIG 2048      0     ┌────┘    └────┐   
     // DIG 0        -A ────┘              └───
     DEBUG1_SetHigh();
-    if (channel == _I1) MomentumInputSampler();
+    if (channel == _I1) PWMInputSampler();
     if (channel == _I3) sector_counting();
     #ifdef SMART_POWERLAB_HARDWARE
         if (channel !=_I2_PowerLab) {DEBUG1_SetLow();return;}
