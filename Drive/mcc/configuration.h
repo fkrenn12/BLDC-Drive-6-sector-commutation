@@ -4,7 +4,7 @@ Mostly used configuration defines are listet first
 */
 // IMPORTANT: all defines marked with * are not implemented yet
 
-#define VLINK_NOMINAL_VOLTAGE 50
+#define VLINK_NOMINAL_VOLTAGE 50                    // for calculating max rpm speed only
 #define VLINK_CUTOFF_VOLTAGE_LOW 10                 // * switching to error state reaching this low limit
 #define VLINK_CUTOFF_VOLTAGE_HIGH 50                // switching to error state reaching this high limit
 #define SPEED_AT_NOMINAL_VOLTAGE 5000               // rpm at nominal voltage
