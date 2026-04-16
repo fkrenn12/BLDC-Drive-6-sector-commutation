@@ -78,8 +78,8 @@ void PWMInputSampler(void)
     if (rising_edge){
         if (ticks_in_period > 0) {
             // new periode detected: calculate value
-            uint16_t temp = (((2047 << 4) / ticks_in_period) * high_ticks_in_period) >> 4;
-            g.input.momentum = (temp > 2047)? 2047 : temp;
+            uint16_t temp = (((4095 << 4) / ticks_in_period) * high_ticks_in_period) >> 4;
+            g.input.momentum = (temp > 4095)? 4095 : temp;
         }
         // start new periode
         ticks_in_period = 0;

@@ -23,7 +23,7 @@
 // #define DEBUG                    // only one option (DEBUG or any FLETUINO) is allowed
 // #define DEBUG_SERIAL_COMMAND_HANDLING 
 
-#define FLETUINO_APPLICATION_DEMO
+// #define FLETUINO_APPLICATION_DEMO
 // #define FLETUINO_PI_CONTROLLER_SETTINGS
 // #define FLETUINO_MANUAL_CONTROL
 
