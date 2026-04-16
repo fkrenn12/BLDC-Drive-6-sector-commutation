@@ -32,13 +32,9 @@ void statemachine(void){
     static uint8_t state_previouse = START;
     // DEBUG1_SetHigh();
     
-
-    if (g.current.overflow){ 
-        state = OVERCURRENT;
-    }
-    if (g.voltage.overflow){ 
-        state = OVERVOLTAGE;
-    }
+    state = (g.current.overflow)? OVERCURRENT : state;
+    state = (g.voltage.overflow)? OVERVOLTAGE : state;
+    
     g.state = state;  // zum debuggen 
     switch (state){
         case START:     if (abs(g.speed.value) < 100)
@@ -202,7 +198,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.speed.value = (g.direction_of_rotation == CLOCKWISE)? g.speed.value: -g.speed.value; 
         g.speed.out = (g.mode_selector == MODE_SPEEDCONTROLLER)?(int16_t)PIController_Compute(&g.speed.controller, g.speed.ref_ramped, g.speed.value):g.speed.out; 
     } 
-    
+
     // every 50ms reading inputs
     if( ++timer_50ms == 50){
         timer_50ms = 0;
