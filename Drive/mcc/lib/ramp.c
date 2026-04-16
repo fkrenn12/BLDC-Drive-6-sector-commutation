@@ -15,26 +15,27 @@ void ramp_reset(TRamp* ramp){
 }
 
 int16_t ramp_calculate(TRamp* ramp){
+    int16_t temp;
     if (++ramp->counter % ramp->interval == 0){  
         ramp->counter = 0;
         if (ramp->out >= 0){
             if (ramp->in > ramp->out){
-                ramp->out += ramp->upstep;
-                ramp->out = (ramp->out > ramp->in)? ramp->in : ramp->out; // upper border
+                temp = ramp->out + ramp->upstep;
+                ramp->out = (temp > ramp->in)? ramp->in : temp; // upper border
             }
             else if (ramp->in < ramp->out){
-                ramp->out -= ramp->downstep;
-                ramp->out = (ramp->out < ramp->in)? ramp->in : ramp->out; // lower border
+                temp = ramp->out - ramp->downstep;
+                ramp->out = (temp < ramp->in)? ramp->in : temp; // lower border
             }
         }
         else{
             if (ramp->in > ramp->out){
-                ramp->out += ramp->downstep;
-                ramp->out = (ramp->out > ramp->in)? ramp->in : ramp->out; // upper border
+                temp = ramp->out + ramp->downstep;
+                ramp->out = (temp > ramp->in)? ramp->in : temp; // upper border
             }
             else if (ramp->in < ramp->out){
-                ramp->out -= ramp->upstep;
-                ramp->out = (ramp->out < ramp->in)? ramp->in : ramp->out; // lower border
+                temp = ramp->out - ramp->upstep;
+                ramp->out = (temp < ramp->in)? ramp->in : temp; // lower border
             }
         }
     }

@@ -202,6 +202,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
         g.speed.value = (g.direction_of_rotation == CLOCKWISE)? g.speed.value: -g.speed.value; 
         g.speed.out = (g.mode_selector == MODE_SPEEDCONTROLLER)?(int16_t)PIController_Compute(&g.speed.controller, g.speed.ref_ramped, g.speed.value):g.speed.out; 
     } 
+    
     // every 50ms reading inputs
     if( ++timer_50ms == 50){
         timer_50ms = 0;
@@ -286,19 +287,16 @@ int main(void){
                 #endif     
                 if (!g.voltage.overflow && !g.current.overflow)
                 {
-                    LED3_Toggle();
-                    // LED1_SetLow();
+                    LED3_SetHigh();
                 }
                 else{
                     LED3_SetLow();
-                    if (g.voltage.overflow) LED1_Toggle(); //  LED1_SetHigh();
-                    // else LED1_SetLow();
-                    if (g.current.overflow) LED2_Toggle(); // LED2_SetHigh();
-                    // else LED2_SetLow();
+                    if (g.voltage.overflow) LED1_Toggle(); 
+                    if (g.current.overflow) LED2_Toggle(); 
                 }
             }
                                                                                
-            if (eventTimer2 == 2000){ 
+            if (eventTimer2 == 2000){ // every 2 seconds 
                 eventTimer2 = 0;  
             }
             if (eventTimer3 == 50){  // every 50 milliseconds  
