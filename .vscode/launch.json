@@ -1,0 +1,28 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Drive: default",
+            "type": "mplab-core-da",
+            "request": "launch",
+            "project": "Drive",
+            "configuration": "default",
+            "stopOnEntry": true,
+            "preLaunchTask": "Drive: default - Build",
+            "program": "${workspaceFolder}/out/Drive/default.elf"
+        },
+        {
+            "name": "Program Drive: default - Production",
+            "type": "mplab-core-da",
+            "request": "launch",
+            "project": "Drive",
+            "configuration": "default",
+            "noDebug": true,
+            "preLaunchTask": "Drive: default - Build (Production)",
+            "program": "${workspaceFolder}/out/Drive/production/default-production.hex"
+        }
+    ]
+}
