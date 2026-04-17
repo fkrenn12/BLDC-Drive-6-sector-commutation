@@ -101,7 +101,7 @@ void statemachine(void){
                         break;
         case CHANGE_DIRECTION:
                         // wait until speed goes below threshold
-                        if (abs(g.speed.value) < 200){
+                        if (abs(g.speed.value) < 50){
                                 g.direction = g.input.f_r;
                                 state = state_previouse;
                                 g.input.momentum_ramp.out = 0;
