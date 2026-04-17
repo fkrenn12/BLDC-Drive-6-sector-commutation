@@ -6,15 +6,15 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
-#define FCY 100000000UL             //100Mhz
+#define FCY 100000000UL //100Mhz CPU clock (= instruction cycle clock)
 /*
-    DO NOT USE THE SWITCH FOR ADDRESS DEFINITION AS LONG AS YOU NEED UART COMMUNICATION WITH RC10 and RC11.
+    DO NOT USE THE HARDWARE SWITCH FOR ADDRESS DEFINITION AS LONG AS YOU NEED UART COMMUNICATION WITH RC10 and RC11.
     THIS PINS ARE SHARED PINS. 
     FOR PROPER COMMUNICATION SWITCH TO POSITION 0 !!
 */
 #define MYADDRESS "#3"              // define the address hardcoded - uncomment if using the hardware with SW400
 
-#define SMART_POWERLAB_HARDWARE  // comment if using the real hardware drive
+#define SMART_POWERLAB_HARDWARE     // comment if using the real hardware drive
 
 #define CURRENT_CONTROL 1           // 0 = manual control, 1 = automatic control
 #define COMMUTATE 1                 // 0 = no commutation, 1 = commutation

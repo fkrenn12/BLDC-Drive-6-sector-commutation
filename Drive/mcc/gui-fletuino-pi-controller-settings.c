@@ -2,7 +2,7 @@
 
 #ifdef FLETUINO_PI_CONTROLLER_SETTINGS
 uint16_t BUTTON_EMERGENCY_OFF, SLIDER_SPEED_REF, SLIDER_IREF, IREF_RESET, BUTTON_SPEED_REF_RESET, CONTROLLER_SELECTOR, NUMERIC_RPM, NUMERIC_CURRENT, NUMERIC_VOLT;
-uint16_t SLIDER_CURRENT_KI, SLIDER_CURRENT_KP, SLIDER_SPEED_KI, SLIDER_SPEED_KP;
+uint16_t  NUMERIC, NUMERIC_MDC, NUMERIC_CURRENT_REF, SLIDER_CURRENT_KI, SLIDER_CURRENT_KP, SLIDER_SPEED_KI, SLIDER_SPEED_KP;
 
 static void on_speed_changed(const char* event, const char* value);
 static void on_iref_changed(const char* event, const char* value);
@@ -116,9 +116,12 @@ void start_page(){
     //fletuino_numeric(const char* value, const char* scale, const char* offset, int decimals, const char* unit, uint16_t size);
     NUMERIC_RPM = fletuino_numeric(/*value*/0,/*scale*/1.0,/*offset*/0,/*decimals*/0,/*unit*/"rpm",/*size*/30);
     NUMERIC_CURRENT = fletuino_numeric(0, ADC_FACTOR_CURRENT, 0, 3 ," A",30);
+    NUMERIC_CURRENT_REF = fletuino_numeric(0, ADC_FACTOR_CURRENT, 0, 3 ," A",30);
     NUMERIC_VOLT = fletuino_numeric(0, ADC_FACTOR_VLINK, 0, 1 ," V",30);
-    fletuino_bar((CONTROLS){NUMERIC_VOLT, NUMERIC_RPM, NUMERIC_CURRENT},3,"center-space-evenly");
-    SLIDER_IREF = fletuino_slider("Iref - Momentum", /*init*/0, /*min*/-2048, /*max*/2048 ,/*size*/30, /*event*/on_iref_changed);
+    NUMERIC_MDC = fletuino_numeric(0, 1, 0, 0 ,"int",30);
+    NUMERIC= fletuino_numeric(0, 1, 0, 0 ,"err",30);
+    fletuino_bar((CONTROLS){NUMERIC_VOLT, NUMERIC_RPM, NUMERIC_CURRENT_REF, NUMERIC_CURRENT, NUMERIC_MDC, NUMERIC},6,"center-space-evenly");
+    SLIDER_IREF = fletuino_slider("Iref - Momentum", /*init*/0, /*min*/-2048, /*max*/2047 ,/*size*/30, /*event*/on_iref_changed);
     fletuino_set_property_int(SLIDER_IREF, "width", 600);
     IREF_RESET = fletuino_button("Reset momentum", "tag1", 30, on_zero_moment);
     fletuino_bar((CONTROLS){SLIDER_IREF,IREF_RESET},2,"center-space-evenly");
@@ -137,8 +140,11 @@ void start_page(){
 }
 
 void gui_update(void){
-    fletuino_set_value_int(NUMERIC_RPM, g.speed.value);
-    fletuino_set_value_int(NUMERIC_CURRENT, g.current.value);
     fletuino_set_value_int(NUMERIC_VOLT, g.voltage.link);
+    fletuino_set_value_int(NUMERIC_RPM, g.speed.value);
+    fletuino_set_value_int(NUMERIC_CURRENT_REF, g.current.ref);
+    fletuino_set_value_int(NUMERIC_CURRENT, g.current.value);
+    fletuino_set_value_int(NUMERIC_MDC, g.current.controller.integrator_intermediate); 
+    fletuino_set_value_int(NUMERIC, g.current.controller.error); 
 }
 #endif

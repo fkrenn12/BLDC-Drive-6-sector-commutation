@@ -12,6 +12,8 @@ typedef struct _piController{
     fixed32_point_t output;
     fixed32_point_t setpoint;
     fixed32_point_t proportional;
+    fixed32_point_t measured_value;
+    fixed32_point_t integrator_intermediate;
     uint8_t saturated;
 } PIController;
 

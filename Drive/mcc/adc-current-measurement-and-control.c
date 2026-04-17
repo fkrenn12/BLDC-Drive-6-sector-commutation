@@ -129,7 +129,7 @@ void current_controller(void){
     MDC = (duty_cycle > PWM_MAX_DUTY)?PWM_MAX_DUTY :duty_cycle; // limit duty cycle to 100%
     MDC = ((g.mode_selector==MODE_MOTOR_FLOATING) || (g.mode_selector==MODE_MOTOR_BLOCKED))?0:MDC;
     // adjust adc interrupt trigger time
-    PG1TRIGA = MDC >> 1; // PWM_Generator1_ADC_Trigger1 at half of the duty cycle
+    PG1TRIGA = MDC; // >> 1; // PWM_Generator1_ADC_Trigger1 at half of the duty cycle
     PG1TRIGB = (MDC > 1000)?0:(PWM_MAX_DUTY-1000); // switching PWM_Generator1_ADC_Trigger2 to unused periode of duty 
     PG1STATbits.UPDREQ = 1; 
 }
@@ -150,18 +150,20 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     #else
         if (channel != _I2) {DEBUG1_SetLow();return;}
     #endif
-    int32_t i1 = (int32_t)ADC_Result(_I1) - 2048;
-    int32_t i2 = (int32_t)adcVal - 2048;
-    int32_t i3 = (int32_t)ADC_Result(_I3) - 2048;
+    int32_t i1 = (int32_t)ADC_Result(_I1) - (2047 + OFFSET_CURRENT_U); 
+    int32_t i2 = (int32_t)adcVal - (2047 + OFFSET_CURRENT_V);
+    int32_t i3 = (int32_t)ADC_Result(_I3) - (2047 + OFFSET_CURRENT_W);
     g.current.value  = (PG1IOCONL == PWM)? i1 : g.current.value;
     g.current.value  = (PG2IOCONL == PWM)? i2 : g.current.value;
     g.current.value  = (PG3IOCONL == PWM)? i3 : g.current.value;
+
     uint8_t valid_current_value = ((PG1IOCONL == PWM) || (PG2IOCONL == PWM) ||(PG3IOCONL == PWM))?1:0; 
     if (!valid_current_value){
         // max value of the three channels is the current value
         g.current.value = (abs(i1) > abs(i2))?abs(i1):abs(i2);
         g.current.value = (abs(i3) > g.current.value)?abs(i3):g.current.value;
     }
+    
     #ifdef SMART_POWERLAB_HARDWARE
         g.current.value = (g.direction_of_rotation == CLOCKWISE)? -g.current.value : g.current.value;
     #else

@@ -1,5 +1,5 @@
 #include "pi-controller.h"
-
+#include <stdbool.h>
 //Structure defining PI controller parameters
 
 
@@ -17,6 +17,8 @@ void PIController_Init(PIController* controller, fixed32_point_t kp, fixed32_poi
     controller->output = 0;
     controller->error = 0;
     controller->setpoint = 0;
+    controller->measured_value = 0;
+    controller->integrator_intermediate = 0;
 }
 
 //Function to synthetise the PI controller (kr-value)
@@ -38,15 +40,17 @@ void PIController_SetIntegrator(PIController* controller, fixed32_point_t integr
 
 //Function to calculate the PI controller output
 fixed32_point_t PIController_Compute(PIController *controller, fixed32_point_t setpoint, fixed32_point_t measured_value)
-{
-    controller->error = setpoint - measured_value;
+{    
+    controller->measured_value = measured_value;
     controller->setpoint = setpoint;
+    controller->error = setpoint - measured_value;
     controller->proportional = (controller->kp * controller->error) >> FIXED_POINT32_FRACTIONAL_BITS;
+    controller->integrator_intermediate = ((controller->ki  * controller->error)) >> FIXED_POINT32_FRACTIONAL_BITS;
     controller->integrator += ((controller->ki  * controller->error)) >> FIXED_POINT32_FRACTIONAL_BITS;
     fixed32_point_t y = controller->proportional + controller->integrator;
     controller->output = (y > controller->limit_max) ? controller->limit_max : (y < controller->limit_min ? controller->limit_min : y);
     fixed32_point_t saturation = controller->output  -  y;
-    controller->saturated = (saturation < 0) ? 1 : 0;
-    controller->integrator += saturation;
+    controller->saturated = (controller->output != y) ? 1 : 0;
+    controller->integrator += (saturation >> 3);
     return controller->output ;
 }
