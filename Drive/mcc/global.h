@@ -56,7 +56,7 @@ typedef struct _speed{
 }TSpeed;
 
 typedef struct _current{
-    volatile int16_t ref;
+    volatile int32_t ref;
     volatile int32_t value;
     volatile int32_t value_peak;
     volatile int32_t limit;

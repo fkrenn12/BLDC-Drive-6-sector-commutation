@@ -37,7 +37,7 @@ void statemachine(void){
     
     g.state = state;  // zum debuggen 
     switch (state){
-        case START:     if (abs(g.speed.value) < 100)
+        case START:     if (abs(g.speed.value) < 200)
                             g.mode_selector = MODE_MOTOR_BLOCKED;                          
 
                         // direction changed
@@ -101,7 +101,7 @@ void statemachine(void){
                         break;
         case CHANGE_DIRECTION:
                         // wait until speed goes below threshold
-                        if (abs(g.speed.value) < 50){
+                        if (abs(g.speed.value) < 200){
                                 g.direction = g.input.f_r;
                                 state = state_previouse;
                                 g.input.momentum_ramp.out = 0;
