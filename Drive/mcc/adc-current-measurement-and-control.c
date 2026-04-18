@@ -114,8 +114,11 @@ void current_controller(void){
 
     if ((g.mode_selector==MODE_MOTOR_FLOATING) || (g.mode_selector==MODE_MOTOR_BLOCKED))
         duty_cycle = PIController_Compute(&g.current.controller, g.current.ref, 0);
-    else 
+    else{ 
+        DEBUG1_SetHigh();
         duty_cycle = PIController_Compute(&g.current.controller, g.current.ref, g.current.value);
+        DEBUG1_SetLow();
+    }
     
     g.direction_of_rotation = (duty_cycle >= 0)? CLOCKWISE : ANTICLOCKWISE;
 
@@ -131,7 +134,8 @@ void current_controller(void){
     MDC = (duty_cycle > PWM_MAX_DUTY)?PWM_MAX_DUTY :duty_cycle; // limit duty cycle to 100%
     MDC = ((g.mode_selector==MODE_MOTOR_FLOATING) || (g.mode_selector==MODE_MOTOR_BLOCKED))?0:MDC;
     // adjust adc interrupt trigger time
-    PG1TRIGA = MDC;//MDC >> 1; // PWM_Generator1_ADC_Trigger1 at half of the duty cycle
+    uint16_t trig = (g.current.ref !=0)?MDC >> 1:MDC; //Baustelle!
+    PG1TRIGA = trig; // MDC;//MDC >> 1; // PWM_Generator1_ADC_Trigger1 at half of the duty cycle
     PG1TRIGB = (MDC > 1000)?0:(PWM_MAX_DUTY-1000); // switching PWM_Generator1_ADC_Trigger2 to unused periode of duty 
     PG1STATbits.UPDREQ = 1; 
 }
@@ -144,14 +148,15 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
     // DIG 4095     +A          ┌────┐     
     // DIG 2048      0     ┌────┘    └────┐   
     // DIG 0        -A ────┘              └───
-    DEBUG1_SetHigh();
     if (channel == _I1) PWMInputSampler();
     if (channel == _I3) sector_counting();
+    
     #ifdef SMART_POWERLAB_HARDWARE
         if (channel !=_I2_PowerLab) {DEBUG1_SetLow();return;}
     #else
         if (channel != _I2) {DEBUG1_SetLow();return;}
     #endif
+    
     int32_t i1 = (int32_t)ADC_Result(_I1) - (2047 + OFFSET_CURRENT_U); 
     int32_t i2 = (int32_t)adcVal - (2047 + OFFSET_CURRENT_V);
     int32_t i3 = (int32_t)ADC_Result(_I3) - (2047 + OFFSET_CURRENT_W);
@@ -173,8 +178,8 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
         g.current.value = (g.direction_of_rotation == CLOCKWISE)? g.current.value : -g.current.value;
     #endif
     
+    if (CURRENT_CONTROL == 1) current_controller(); 
     
-    commutation();
     g.current.value_peak = (g.current.value_peak > abs(g.current.value))? g.current.value_peak : abs(g.current.value);
     g.voltage.value_peak = (g.voltage.value_peak > (int32_t)ADC_Result(_VLINK))? g.voltage.value_peak : (int32_t)ADC_Result(_VLINK);
     if (abs(g.current.value) > abs(g.current.cutoff)) g.current.overflow = 1;
@@ -183,9 +188,9 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
         PWM_override(VECTOR_FLOAT);  // immediately off
         g.mode_selector = MODE_MOTOR_FLOATING;
     }
-    if (CURRENT_CONTROL == 1) current_controller(); 
     
-    DEBUG1_SetLow();
+    commutation();
+    
 }
 // ########################################################################
 //                  PWM1 EOC Interrupt Service Routine 
@@ -193,7 +198,7 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
 void __attribute__ ( ( interrupt, no_auto_psv ) ) _PWM1Interrupt ( void )
 {
     // only used to generate a proper trigger signal for ozilloskope measurements
-    // DEBUG2_SetHigh();
+    DEBUG2_SetHigh();
     IFS4bits.PWM1IF = 0;
-    // DEBUG2_SetLow();
+    DEBUG2_SetLow();
 }
