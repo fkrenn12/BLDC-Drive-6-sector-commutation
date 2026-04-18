@@ -99,7 +99,7 @@ void gui_update(void){
 
     fletuino_set_value_int(NUMERIC_DEBUG1, g.voltage.value_peak);
     fletuino_set_value_int(NUMERIC_DEBUG2, g.current.value_peak); 
-    fletuino_set_value_int(NUMERIC_DEBUG3, g.current.momentum); //g.input.momentum_ramp.out);
+    fletuino_set_value_int(NUMERIC_DEBUG3, g.current.controller.output); //g.current.ref); //g.input.momentum_ramp.out);
 
 }
 #endif

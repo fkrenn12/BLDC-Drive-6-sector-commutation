@@ -25,6 +25,7 @@ static const uint16_t PWM_W[8] = {CLAMP, FLOAT, CLAMP, CLAMP, FLOAT, PWM,   PWM,
 
 // override pwm with PWM_U, PWM_V or PWM_W depending on sector
 void PWM_override(uint8_t vector){
+    // vector = 2;
     PG1IOCONL = PWM_U[vector];
     PG2IOCONL = PWM_V[vector];
     PG3IOCONL = PWM_W[vector];
@@ -118,7 +119,7 @@ void current_controller(void){
     g.direction_of_rotation = (duty_cycle >= 0)? CLOCKWISE : ANTICLOCKWISE;
 
     // fixed duty for testing and debugging
-    // duty_cycle = 4080;  // fixed duty
+    // duty_cycle = 1080;  // fixed duty
     // g.direction_of_rotation = 1;
 
     // for testing and debugging
@@ -164,12 +165,14 @@ void ADC_Callback(enum ADC_CHANNEL channel, uint16_t adcVal)
         g.current.value = (abs(i3) > g.current.value)?abs(i3):g.current.value;
     }
     
+    
     #ifdef SMART_POWERLAB_HARDWARE
         g.current.value = (g.direction_of_rotation == CLOCKWISE)? -g.current.value : g.current.value;
     #else
         g.current.value = (g.direction_of_rotation == CLOCKWISE)? g.current.value : -g.current.value;
     #endif
-
+    
+    
     commutation();
     g.current.value_peak = (g.current.value_peak > abs(g.current.value))? g.current.value_peak : abs(g.current.value);
     g.voltage.value_peak = (g.voltage.value_peak > (int32_t)ADC_Result(_VLINK))? g.voltage.value_peak : (int32_t)ADC_Result(_VLINK);
