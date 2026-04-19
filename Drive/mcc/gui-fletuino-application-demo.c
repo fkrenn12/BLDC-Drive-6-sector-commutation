@@ -66,7 +66,7 @@ void start_page(){
     //fletuino_numeric(const char* value, const char* scale, const char* offset, int decimals, const char* unit, uint16_t size);
     NUMERIC_DEBUG1 = fletuino_numeric(0, ADC_FACTOR_VLINK, 0, 1 ,"V",30);
     NUMERIC_DEBUG2 = fletuino_numeric(0, ADC_FACTOR_CURRENT, 0, 3 ,"A",30);
-    NUMERIC_DEBUG3= fletuino_numeric(0, 1, 0, 0 ,"DIG",30);
+    NUMERIC_DEBUG3= fletuino_numeric(0, 1, 0, 0 ,"duty",30);
     fletuino_bar((CONTROLS){NUMERIC_DEBUG1, NUMERIC_DEBUG2,NUMERIC_DEBUG3},3,"center-space-evenly");
     NUMERIC_RPM = fletuino_numeric(/*value*/0,/*scale*/1.0,/*offset*/0,/*decimals*/0,/*unit*/"rpm",/*size*/30);
     NUMERIC_CURRENT = fletuino_numeric(0, ADC_FACTOR_CURRENT, 0, 3 ," A",30);

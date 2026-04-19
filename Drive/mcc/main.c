@@ -37,7 +37,7 @@ void statemachine(void){
     
     g.state = state;  // zum debuggen 
     switch (state){
-        case START:     if (abs(g.speed.value) < 200)
+        case START:     if (abs(g.speed.value) < 50)
                             g.mode_selector = MODE_MOTOR_BLOCKED;                          
 
                         // direction changed
@@ -66,7 +66,7 @@ void statemachine(void){
         case RUN_MOMENTUM: 
                         g.mode_selector = MODE_MOMENTUM;
                         // halted?
-                        if (g.current.momentum == 0 && abs(g.speed.value) < 200){ 
+                        if (g.current.momentum == 0 && abs(g.speed.value) < 50){ 
                             g.mode_selector = MODE_MOTOR_BLOCKED; 
                             state = START;
                             break;
@@ -86,7 +86,7 @@ void statemachine(void){
                         // no speed required or not in automatic mode
                         if ((g.input.speedRpm == 0) || (!g.input.a_m)){
                             g.speed.ramp.in = 0;  // slow down
-                            if (abs(g.speed.value) < 200){
+                            if (abs(g.speed.value) < 50){
                                 state = START;
                             }
                             break;
@@ -101,7 +101,7 @@ void statemachine(void){
                         break;
         case CHANGE_DIRECTION:
                         // wait until speed goes below threshold
-                        if (abs(g.speed.value) < 200){
+                        if (abs(g.speed.value) < 50){
                                 g.direction = g.input.f_r;
                                 state = state_previouse;
                                 g.input.momentum_ramp.out = 0;
@@ -226,14 +226,18 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
 //                  Main Function
 // ########################################################################
 int main(void){
-    SYSTEM_Initialize(); 
+    SYSTEM_Initialize();
+    
     TMR1_Initialize();
     UART1_Initialize();
     UART2_Initialize();
     PWM_Initialize();
     GLOBAL_Init();
     Drive_init();
-    
+    // Setting callbacks for ADC1 and interrupt handler for QEI1, QEI2 and QEI3
+    // must be done AFTER all initialization of system and peripheral
+    // ATTN: order is important! do not move following four lines
+    ADC1_ChannelCallbackRegister(ADC_Callback); 
     QEI3_SetInterruptHandler(&commutation);
     QEI2_SetInterruptHandler(&commutation);
     QEI1_SetInterruptHandler(&commutation);
@@ -245,7 +249,6 @@ int main(void){
     #ifdef FLETUINO 
         fletuino_init(UART2_RxBufferedAvailable, UART2_RxBufferedReadByte, UART2_WriteBlockingByte, start_page); 
     #endif
-    ADC1_ChannelCallbackRegister(ADC_Callback);
     
     while (1){   
         static uint16_t eventTimer1 = 0;
