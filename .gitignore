@@ -9,7 +9,5 @@ Makefile*
 Package-*
 private/
 _build/
-!cmake/**/user.cmake
-cmake/**/.generated/*
-cmake/**/CMake*
+cmake/
 out/
