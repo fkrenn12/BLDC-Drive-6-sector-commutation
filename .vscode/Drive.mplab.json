@@ -97,7 +97,12 @@
                 "Drive/mcc/mcc_generated_files/system/interrupt_types.h",
                 "Drive/mcc/mcc_generated_files/system/src/dmt_asm.s",
                 "Drive/mcc/mcc_generated_files/system/src/dmt.c",
-                "Drive/mcc/mcc_generated_files/system/dmt.h"
+                "Drive/mcc/mcc_generated_files/system/dmt.h",
+                "Drive/mcc/mcc_generated_files/spi_host/src/spi1.c",
+                "Drive/mcc/mcc_generated_files/spi_host/spi_host_interface.h",
+                "Drive/mcc/mcc_generated_files/spi_host/spi1.h",
+                "Drive/mcc/mcc_generated_files/spi_host/spi2.h",
+                "Drive/mcc/mcc_generated_files/spi_host/src/spi2.c"
             ]
         }
     ],

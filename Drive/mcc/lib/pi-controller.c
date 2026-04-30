@@ -51,6 +51,6 @@ fixed32_point_t PIController_Compute(PIController *controller, fixed32_point_t s
     controller->output = (y > controller->limit_max) ? controller->limit_max : (y < controller->limit_min ? controller->limit_min : y);
     fixed32_point_t saturation = controller->output  -  y;
     controller->saturated = (controller->output != y) ? 1 : 0;
-    controller->integrator += (saturation >> 3);
+    controller->integrator += (saturation >> 3); // Kc = 1/8 = 0.125
     return controller->output ;
 }
