@@ -8,8 +8,8 @@ typedef struct {
     int16_t ki_scaled;       // Ki * 256 für Festkommaarithmetik
     int32_t integral_sum;    // 32-bit für höhere Präzision
     int16_t error_prev;      // Vorheriger Fehler für Derivative (optional)
-    uint16_t output;
-    uint16_t setpoint;       // Sollwert
+    int16_t output;
+    int16_t setpoint;       // Sollwert
     bool anti_windup_active; // Anti-Windup Status
 } pi_t;
 
@@ -17,8 +17,8 @@ typedef struct {
 // GLOBAL VARIABLES
 // =============================================================================
 volatile pi_t pi = {
-    .kp_scaled = 768,     // Kp = 768/256 = 3
-    .ki_scaled = 5,       // Ki = 10/256 = 0.02
+    .kp_scaled = 350,     // Kp = 350/256 = 1.36
+    .ki_scaled = 150,       // Ki = 150/256 = 0.058
     .integral_sum = 0,
     .output = 0,
     .setpoint = 0, 
@@ -128,23 +128,13 @@ uint16_t ADC_Result(enum ADC_CHANNEL channel)
     return result;
 }
 
-void current_controller(void){
-    int16_t duty_cycle;
-    // current limiter 
-    g.current.ref = (g.current.ref > g.current.limit)? g.current.limit : g.current.ref;
-    g.current.ref = (g.current.ref < -g.current.limit)? -g.current.limit : g.current.ref;
-    /*
-    Regler 16bit version von AVR ATTINY
-    
-    pi.setpoint = 0; // sollwert hier setzen
-    int16_t result = 0; // istwert hier
-    int16_t error = (int16_t)pi.setpoint - (int16_t)result;
-    int16_t p_term = (pi.kp_scaled * error) >> 8;
+int16_t PIController_Compute_16(int16_t setpoint, int16_t value){
+    pi.setpoint = setpoint;
+    int16_t error = pi.setpoint - value;
+    int16_t p_term = ((int32_t)pi.kp_scaled * error) >> 8;
     pi.integral_sum += (int32_t)pi.ki_scaled * error;
-
-    // Anti-Windup - we dont need it at the moment
-    
-    const int32_t integral_limit = 524288L;  // 32768 * 16
+   
+    const int32_t integral_limit = 1048320L;  // 4095 *256
     if (pi.integral_sum > integral_limit) {
         pi.integral_sum = integral_limit;
         pi.anti_windup_active = true;
@@ -158,25 +148,34 @@ void current_controller(void){
     int16_t output_raw = p_term + (int16_t)(pi.integral_sum >> 8);
 
     // saturation
-    int16_t limit = 4095; //  ANPASSEN !!
-    if (output_raw < 1) {
-        pi.output = 1;
-    } else if (output_raw > limit) {
+    int16_t limit = 8190; 
+    if (output_raw > limit) {
         pi.output = limit;
-    } else {
-        pi.output = (uint16_t)output_raw;
+    } else if(output_raw < -limit){
+        pi.output = -limit;
     }
+    else {
+        pi.output = output_raw;
+    }
+    return pi.output;
+}
 
-    */
-    
+void current_controller(void){
+    int16_t duty_cycle;
+    // current limiter 
+    g.current.ref = (g.current.ref > g.current.limit)? g.current.limit : g.current.ref;
+    g.current.ref = (g.current.ref < -g.current.limit)? -g.current.limit : g.current.ref;
+       
     if ((g.mode_selector==MODE_MOTOR_FLOATING) || (g.mode_selector==MODE_MOTOR_BLOCKED))
         duty_cycle = PIController_Compute(&g.current.controller, g.current.ref, 0);
+        // duty_cycle = PIController_Compute_16(g.current.ref, 0);
     else{ 
         DEBUG1_SetHigh();
         duty_cycle = PIController_Compute(&g.current.controller, g.current.ref, g.current.value);
+        // duty_cycle = PIController_Compute_16(g.current.ref, g.current.value);
         DEBUG1_SetLow();
     }
-    
+    g.duty = duty_cycle;
     g.direction_of_rotation = (duty_cycle >= 0)? CLOCKWISE : ANTICLOCKWISE;
 
     // fixed duty for testing and debugging
@@ -188,8 +187,10 @@ void current_controller(void){
     // if (g.direction_of_rotation == CLOCKWISE) DEBUG2_SetLow();
     
     duty_cycle = abs(duty_cycle);
+    
     MDC = (duty_cycle > PWM_MAX_DUTY)?PWM_MAX_DUTY :duty_cycle; // limit duty cycle to 100%
     MDC = ((g.mode_selector==MODE_MOTOR_FLOATING) || (g.mode_selector==MODE_MOTOR_BLOCKED))?0:MDC;
+
     // adjust adc interrupt trigger time
     #ifdef SMART_POWERLAB_HARDWARE
         PG1TRIGA = ((MDC > 500) && (abs(g.current.ref != 0)))?MDC >> 1:MDC;  // compensating current measurement noise error at low current

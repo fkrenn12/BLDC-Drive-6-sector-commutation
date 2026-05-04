@@ -277,7 +277,7 @@ void PWM_Initialize(void){
     PG4IOCONHbits.DTCMPSEL = 0b0;   // Dead time compensation is controlled by PCI Sync logic
     PG4IOCONHbits.PMOD = 0b10;      // PWM Generator outputs operate in Complementary mode
     PG4IOCONHbits.PENH = 1;         // PWM Generator controls the PWMxH output pin
-    PG4IOCONHbits.PENL = 1;         // PWM Generator controls the PWMxL output pin
+    PG4IOCONHbits.PENL = 0;         // PWM Generator controls the PWMxL output pin
     PG4IOCONHbits.POLH = 0;         // Output pin is active-high
     PG4IOCONHbits.POLL = 0;         // Output pin is active-high
 
@@ -322,7 +322,7 @@ void PWM_Initialize(void){
     
     //PWM Generator 1 Interrupt
     IFS4bits.PWM1IF = 0;
-    IEC4bits.PWM1IE = 1;  // 1 if enabled
+    IEC4bits.PWM1IE = 1;  // 1: enabled
     
     //PWM Generator 2 Interrupt
     IFS4bits.PWM2IF = 0;

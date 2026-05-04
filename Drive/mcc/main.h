@@ -20,6 +20,7 @@
 #define COMMUTATE 1                 // 0 = no commutation, 1 = commutation
 #define STATEMACHINE 1              // 0 = no state machine, 1 = state machine
 
+// #define DEBUG_SPI  // uncomment if using SPI for debug output
 // #define DEBUG                    // only one option (DEBUG or any FLETUINO) is allowed
 // #define DEBUG_SERIAL_COMMAND_HANDLING 
 

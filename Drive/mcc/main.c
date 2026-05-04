@@ -13,6 +13,7 @@
 #include "lib/ramp.h"
 #include "serial-command-interpreter.h"
 #include "temperatur-measurement.h"
+#include "peripheral/spi.h"
 #ifdef FLETUINO_PI_CONTROLLER_SETTINGS
     #include "gui-fletuino-pi-controller-settings.h"
 #endif
@@ -246,6 +247,15 @@ int main(void){
     LED2_SetLow();
     LED3_SetLow();
 
+    #ifdef DEBUG_SPI
+        SPI_DAC_MCP48CMB24_Initialize();
+        SPI_IOEXPANDER_MCP23S18_Initialize();
+        // you must define SPIEN with MCC
+        // SPIEN_SetHigh();  // CS pin controlled by SPIEN
+        // SPIEN_SetLow();
+    #endif
+
+    MCP23S18_WriteRegister(0x00,0x00); // config A as output
     #ifdef FLETUINO 
         fletuino_init(UART2_RxBufferedAvailable, UART2_RxBufferedReadByte, UART2_WriteBlockingByte, start_page); 
     #endif
@@ -275,7 +285,13 @@ int main(void){
             eventTimer1++;
             eventTimer2++;
             eventTimer3++;
-
+            #ifdef DEBUG_SPI 
+                // example of writung values to debug dac
+                // SPI_DAC_MCP48CMB24_Ch0(dac0);
+                // SPI_DAC_MCP48CMB24_Ch1(dac0);
+                // SPI_DAC_MCP48CMB24_Ch2(dac0);
+                // SPI_DAC_MCP48CMB24_Ch3(dac0);    
+            #endif
             if (eventTimer1 == 100){  // every 100 milliseconds 
                 eventTimer1 = 0;    
                 #if defined(DEBUG)
@@ -296,8 +312,16 @@ int main(void){
                 }
             }
                                                                                
-            if (eventTimer2 == 2000){ // every 2 seconds 
+            if (eventTimer2 == 100){ // every 100 milliseconds 
                 eventTimer2 = 0;  
+                #ifdef DEBUG_SPI 
+                    static uint8_t state = 0;
+                    // you must define SPIEN with MCC
+                    // SPIEN_SetHigh();  
+                    // SPIEN_SetLow();
+                    MCP23S18_WriteRegister(0x14,state); // write to OLATA register
+                    state = ( state == 0x00)?0xff:0x00;
+                #endif
             }
             if (eventTimer3 == 50){  // every 50 milliseconds  
                 eventTimer3 = 0;   

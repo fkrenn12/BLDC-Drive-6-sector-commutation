@@ -85,6 +85,7 @@ typedef struct _global{
     volatile int32_t vlink;
     volatile int16_t temperature; // deci-degC
     volatile uint8_t state;  // for debugging only
+    volatile int16_t duty;  // for debugging only
     TSpeed speed;
     TCurrent current; 
     TInput input;
