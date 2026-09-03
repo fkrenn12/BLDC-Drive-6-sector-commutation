@@ -1,6 +1,7 @@
-out/*
-_build/*
-
+# Generated build output
+out/
+_build/
+cmake/
 .generated_files/
 build/
 dist/
@@ -8,6 +9,6 @@ nbproject/
 Makefile*
 Package-*
 private/
-_build/
-cmake/
-out/
+
+# Machine-specific VS Code and MPLAB settings
+.vscode/*-local.json

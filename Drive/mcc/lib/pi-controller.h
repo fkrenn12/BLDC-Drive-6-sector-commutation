@@ -24,3 +24,4 @@ void PIController_ResetIntegrator(PIController* controller);
 void PIController_SetIntegrator(PIController* controller, fixed32_point_t integrator);
 fixed32_point_t PIController_GetIntegrator(PIController* controller);
 fixed32_point_t PIController_Compute(PIController *controller, fixed32_point_t setpoint, fixed32_point_t measured_value);
+int16_t PIController_Compute_16(PIController *controller, int16_t setpoint, int16_t measured_value);

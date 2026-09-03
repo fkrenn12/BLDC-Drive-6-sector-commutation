@@ -1,4 +1,5 @@
 {
+    "C_Cpp.intelliSenseEngine": "disabled",
     "mplab.clangd.arguments": [
         "--compile-commands-dir=${workspaceFolder}\\_build\\Drive\\default"
     ],
@@ -8,5 +9,6 @@
         "embedded-debug",
         "gdb",
         "mplab-core-da"
-    ]
+    ],
+    "mplab.clangd.compileCommandsDir": "${workspaceFolder}\\_build\\Drive\\default"
 }

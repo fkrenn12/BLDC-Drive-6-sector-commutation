@@ -3,28 +3,6 @@
 
 extern TGlobal g;
 
-typedef struct {
-    int16_t kp_scaled;       // Kp * 256 für Festkommaarithmetik
-    int16_t ki_scaled;       // Ki * 256 für Festkommaarithmetik
-    int32_t integral_sum;    // 32-bit für höhere Präzision
-    int16_t error_prev;      // Vorheriger Fehler für Derivative (optional)
-    int16_t output;
-    int16_t setpoint;       // Sollwert
-    bool anti_windup_active; // Anti-Windup Status
-} pi_t;
-
-// =============================================================================
-// GLOBAL VARIABLES
-// =============================================================================
-volatile pi_t pi = {
-    .kp_scaled = 350,     // Kp = 350/256 = 1.36
-    .ki_scaled = 150,       // Ki = 150/256 = 0.058
-    .integral_sum = 0,
-    .output = 0,
-    .setpoint = 0, 
-    .anti_windup_active = false
-};
-
 #define PWM 0x0000      // NO override, PWM is on Pins
 #define FLOAT 0x3000    // Override both (PWM_L and PWM_H) with 0 
 #define CLAMP 0x3400    // Override PWM_H with 0 and PWM_L with 1
@@ -128,38 +106,6 @@ uint16_t ADC_Result(enum ADC_CHANNEL channel)
     return result;
 }
 
-int16_t PIController_Compute_16(int16_t setpoint, int16_t value){
-    pi.setpoint = setpoint;
-    int16_t error = pi.setpoint - value;
-    int16_t p_term = ((int32_t)pi.kp_scaled * error) >> 8;
-    pi.integral_sum += (int32_t)pi.ki_scaled * error;
-   
-    const int32_t integral_limit = 1048320L;  // 4095 *256
-    if (pi.integral_sum > integral_limit) {
-        pi.integral_sum = integral_limit;
-        pi.anti_windup_active = true;
-    } else if (pi.integral_sum < -integral_limit) {
-        pi.integral_sum = -integral_limit;
-        pi.anti_windup_active = true;
-    } else {
-        pi.anti_windup_active = false;
-    }
-    
-    int16_t output_raw = p_term + (int16_t)(pi.integral_sum >> 8);
-
-    // saturation
-    int16_t limit = 8190; 
-    if (output_raw > limit) {
-        pi.output = limit;
-    } else if(output_raw < -limit){
-        pi.output = -limit;
-    }
-    else {
-        pi.output = output_raw;
-    }
-    return pi.output;
-}
-
 void current_controller(void){
     int16_t duty_cycle;
     // current limiter 
@@ -168,11 +114,11 @@ void current_controller(void){
        
     if ((g.mode_selector==MODE_MOTOR_FLOATING) || (g.mode_selector==MODE_MOTOR_BLOCKED))
         duty_cycle = PIController_Compute(&g.current.controller, g.current.ref, 0);
-        // duty_cycle = PIController_Compute_16(g.current.ref, 0);
+        // duty_cycle = PIController_Compute_16(&g.current.controller, g.current.ref, 0);
     else{ 
         DEBUG1_SetHigh();
         duty_cycle = PIController_Compute(&g.current.controller, g.current.ref, g.current.value);
-        // duty_cycle = PIController_Compute_16(g.current.ref, g.current.value);
+        // duty_cycle = PIController_Compute_16(&g.current.controller, g.current.ref, (int16_t)g.current.value);
         DEBUG1_SetLow();
     }
     g.duty = duty_cycle;

@@ -46,11 +46,44 @@ fixed32_point_t PIController_Compute(PIController *controller, fixed32_point_t s
     controller->error = setpoint - measured_value;
     controller->proportional = (controller->kp * controller->error) >> FIXED_POINT32_FRACTIONAL_BITS;
     controller->integrator_intermediate = ((controller->ki  * controller->error)) >> FIXED_POINT32_FRACTIONAL_BITS;
-    controller->integrator += ((controller->ki  * controller->error)) >> FIXED_POINT32_FRACTIONAL_BITS;
-    fixed32_point_t y = controller->proportional + controller->integrator;
+
+    fixed32_point_t integrator_candidate = controller->integrator + controller->integrator_intermediate;
+    fixed32_point_t y = controller->proportional + integrator_candidate;
     controller->output = (y > controller->limit_max) ? controller->limit_max : (y < controller->limit_min ? controller->limit_min : y);
-    fixed32_point_t saturation = controller->output  -  y;
     controller->saturated = (controller->output != y) ? 1 : 0;
-    controller->integrator += (saturation >> 3); // Kc = 1/8 = 0.125
+
+    if (!controller->saturated ||
+        (controller->output == controller->limit_max && controller->error < 0) ||
+        (controller->output == controller->limit_min && controller->error > 0)) {
+        controller->integrator = integrator_candidate;
+    }
+
     return controller->output ;
+}
+
+int16_t PIController_Compute_16(PIController *controller, int16_t setpoint, int16_t measured_value)
+{
+    int16_t error = setpoint - measured_value;
+    int32_t proportional = ((int32_t)(int16_t)controller->kp * error) >> FIXED_POINT32_FRACTIONAL_BITS;
+    int32_t integrator_intermediate = ((int32_t)(int16_t)controller->ki * error) >> FIXED_POINT32_FRACTIONAL_BITS;
+    int32_t integrator_candidate = controller->integrator + integrator_intermediate;
+    int32_t output_unlimited = proportional + integrator_candidate;
+    int32_t output = (output_unlimited > controller->limit_max) ? controller->limit_max :
+                     (output_unlimited < controller->limit_min ? controller->limit_min : output_unlimited);
+
+    controller->setpoint = setpoint;
+    controller->measured_value = measured_value;
+    controller->error = error;
+    controller->proportional = proportional;
+    controller->integrator_intermediate = integrator_intermediate;
+    controller->output = output;
+    controller->saturated = (output != output_unlimited) ? 1 : 0;
+
+    if (!controller->saturated ||
+        (output == controller->limit_max && error < 0) ||
+        (output == controller->limit_min && error > 0)) {
+        controller->integrator = integrator_candidate;
+    }
+
+    return (int16_t)controller->output;
 }
