@@ -247,7 +247,7 @@ int main(void){
     LED2_SetLow();
     LED3_SetLow();
 
-    #ifdef DEBUG_SPI
+    #if defined(DEBUG_SPI)
         SPI_DAC_MCP48CMB24_Initialize();
         SPI_IOEXPANDER_MCP23S18_Initialize();
         // you must have defined SPIEN with MCC
@@ -285,7 +285,7 @@ int main(void){
             eventTimer1++;
             eventTimer2++;
             eventTimer3++;
-            #ifdef DEBUG_SPI 
+            #if defined(DEBUG_SPI)
                 // example of writung values to debug dac
                 // SPI_DAC_MCP48CMB24_Ch0(dac0);
                 // SPI_DAC_MCP48CMB24_Ch1(dac0);

@@ -1,7 +1,7 @@
 
 #include "spi.h"
 
-void SPI_DAC_MCP48CMB24_Initialize(void){
+void SPI1_Initialize(void){
     /****************************************************************************
      * Set the PPS
      ***************************************************************************/
@@ -38,15 +38,26 @@ void SPI_DAC_MCP48CMB24_Initialize(void){
 }
 
 void SPI_IOEXPANDER_MCP23S18_Initialize(void){
-    SPI_DAC_MCP48CMB24_Initialize();
+    SPI1_Initialize();
 }
 
+void SPI_DAC_MCP48CMB24_Initialize(void){
+    SPI1_Initialize();
+}
 
 void SPI1_ByteWrite(uint8_t byteData)
 {
     while(SPI1STATLbits.SPITBF == 1); // wait until available buffer
-    SPI1CON2L = 0b0111; // // bitsize 8bit
+    SPI1CON2Lbits.WLENGTH = 0b0111; // // bitsize 8bit
     SPI1BUFL = byteData;
+    SPI1BUFH = 0;
+}
+
+void SPI1_WordWrite(uint16_t wordData)
+{
+    while(SPI1STATLbits.SPITBF == 1); // wait until available buffer
+    SPI1CON2Lbits.WLENGTH = 0b01111; // bitsize 16bit
+    SPI1BUFL = wordData;
     SPI1BUFH = 0;
 }
 
@@ -78,4 +89,28 @@ void MCP23S18_ReadRegister(uint8_t reg_addr)
     SPI1BUFH = (0x4100 | reg_addr); 
 
     while(SPI1STATLbits.SPIRBF == 0);  // Warten bis RX Buffer Daten hat
+}
+
+// KI generated version
+uint8_t MCP23S18_ReadRegister1(uint8_t reg_addr)
+{
+    uint8_t value;
+
+    MCP23S18_CS_SetLow();
+
+    while (SPI1STATLbits.SPITBF == 1);
+
+    SPI1CON2Lbits.WLENGTH = 0b10111; // 24 Bit
+
+    SPI1BUFL = 0x0000;                // Dummy-Byte
+    SPI1BUFH = 0x4100 | reg_addr;    // Read opcode + Registeradresse
+
+    while (SPI1STATLbits.SPIRBF == 0);
+
+    // Je nach Receive-Alignment des dsPIC:
+    value = (uint8_t)(SPI1BUFL >> 8);
+
+    MCP23S18_CS_SetHigh();
+
+    return value;
 }

@@ -5,6 +5,7 @@
 void SPI_DAC_MCP48CMB24_Initialize(void);
 void SPI_IOEXPANDER_MCP23S18_Initialize(void);
 void MCP23S18_WriteRegister(uint8_t reg_addr, uint8_t byteData);
+uint8_t MCP23S18_ReadRegister1(uint8_t reg_addr);
 void SPI1_WordWrite(uint16_t wordData);
 void SPI1_ByteWrite(uint8_t byteData);
 
@@ -40,3 +41,12 @@ static inline void SPI_DAC_MCP48CMB24_Ch3(uint16_t data16bit)
     SPI1BUFH = (((data16bit >> 8) & 0x000F) | 0x1800);
 }
 
+static inline void MCP23S18_CS_SetLow(void)
+{
+    // Implementation for setting MCP23S18 CS pin low
+}
+
+static inline void MCP23S18_CS_SetHigh(void)
+{
+    // Implementation for setting MCP23S18 CS pin high
+}
