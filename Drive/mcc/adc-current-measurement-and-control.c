@@ -46,9 +46,10 @@ void commutation(void){
     // DEBUG2_SetHigh();
     g.position_sector =  SWAP_B0_B3[((PORTC & 0b11100000) >> 5)]; // we need to correct wiring of sensor signal to get correct sector
     g.energized_vector = (g.direction_of_rotation==((MOTOR_DIRECTION_INVERTED)? ANTICLOCKWISE: CLOCKWISE)) ? ENERGIZED_VECTOR_CLOCKWISE[g.position_sector]: ENERGIZED_VECTOR_ANTICLOCKWISE[g.position_sector];
-    g.energized_vector = (g.mode_selector==MODE_MOTOR_FLOATING)? 7 : g.energized_vector;
+    g.energized_vector = (g.mode_selector==MODE_MOTOR_FLOATING)? VECTOR_FLOAT : g.energized_vector;
     // g.energized_vector = (g.mode_selector==MODE_MOTOR_BLOCKED)? 0 : g.energized_vector;
-    g.energized_vector = (g.mode_selector==MODE_MOTOR_BLOCKED)? 7 : g.energized_vector;
+    g.energized_vector = (g.mode_selector==MODE_MOTOR_BLOCKED)? VECTOR_FLOAT : g.energized_vector;
+    g.energized_vector = (g.position_sector==0)? VECTOR_FLOAT : g.energized_vector; // sector 0 is not allowed for energized vector
     if (COMMUTATE == 1) PWM_override(g.energized_vector); 
     // DEBUG2_SetLow();
 }
@@ -79,8 +80,8 @@ void PWMInputSampler(void)
     if (rising_edge){
         if (ticks_in_period > 0) {
             // new periode detected: calculate value
-            uint16_t temp = (((2047 << 4) / ticks_in_period) * high_ticks_in_period) >> 4;
-            g.input.momentum = (temp > 2047)? 2047 : temp;
+            uint16_t temp = (((2047u << 4) / ticks_in_period) * high_ticks_in_period) >> 4;  // avoid 32bit division overflow by shifting 4 bits to the right
+            g.input.momentum = (temp > 2047u) ? 2047u : temp;
         }
         // start new periode
         ticks_in_period = 0;

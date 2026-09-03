@@ -5,10 +5,11 @@
 
 
 //Function to initialize the PI controller
-void PIController_Init(PIController* controller, fixed32_point_t kp, fixed32_point_t ki, fixed32_point_t limit_min, fixed32_point_t limit_max)
+void PIController_Init(PIController* controller, fixed32_point_t kp, fixed32_point_t ki, fixed32_point_t kaw, fixed32_point_t limit_min, fixed32_point_t limit_max)
 {
     controller->kp = kp;
     controller->ki = ki;
+    controller->kaw = kaw;
     controller->limit_max = limit_max;
     controller->limit_min = limit_min;
     controller->proportional = 0;
@@ -52,11 +53,8 @@ fixed32_point_t PIController_Compute(PIController *controller, fixed32_point_t s
     controller->output = (y > controller->limit_max) ? controller->limit_max : (y < controller->limit_min ? controller->limit_min : y);
     controller->saturated = (controller->output != y) ? 1 : 0;
 
-    if (!controller->saturated ||
-        (controller->output == controller->limit_max && controller->error < 0) ||
-        (controller->output == controller->limit_min && controller->error > 0)) {
-        controller->integrator = integrator_candidate;
-    }
+    controller->integrator = integrator_candidate +
+        ((controller->kaw * (controller->output - y)) >> FIXED_POINT32_FRACTIONAL_BITS);
 
     return controller->output ;
 }
@@ -79,11 +77,8 @@ int16_t PIController_Compute_16(PIController *controller, int16_t setpoint, int1
     controller->output = output;
     controller->saturated = (output != output_unlimited) ? 1 : 0;
 
-    if (!controller->saturated ||
-        (output == controller->limit_max && error < 0) ||
-        (output == controller->limit_min && error > 0)) {
-        controller->integrator = integrator_candidate;
-    }
+    controller->integrator = integrator_candidate +
+        ((controller->kaw * (output - output_unlimited)) >> FIXED_POINT32_FRACTIONAL_BITS);
 
     return (int16_t)controller->output;
 }

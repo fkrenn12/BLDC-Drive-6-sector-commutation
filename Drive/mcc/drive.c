@@ -8,12 +8,14 @@ void Drive_init(void){
     PIController_Init(&g.current.controller,
         double_to_fixed32(CURRENT_CONTROLLER_KP),  // defined in configuration.h 
         double_to_fixed32(CURRENT_CONTROLLER_KI),  // defined in configuration.h
+        double_to_fixed32(1.0),                    // back-calculation gain
         double_to_fixed32(-3.99951171875),  // -8191 = ANTICLOWISE and max. duty cycle
         double_to_fixed32(3.99951171875));  //  8191 = CLOCKWISE and max. duty cycle
     
     PIController_Init(&g.speed.controller,
         double_to_fixed32(SPEED_CONTROLLER_KP), // defined in configuration.h 
         double_to_fixed32(SPEED_CONTROLLER_KI), // defined in configuration.h
+        double_to_fixed32(0.25),                // back-calculation gain
         double_to_fixed32(-1.0 * CURRENT_USAGE_OF_MAX_CURRENT),  // -2048 max neg current (ANTICLOCKWISE)
         double_to_fixed32(0.99951171875 * CURRENT_USAGE_OF_MAX_CURRENT));  // 2047 max pos current (CLOCKWISE)
 
