@@ -250,7 +250,7 @@ int main(void){
     #ifdef DEBUG_SPI
         SPI_DAC_MCP48CMB24_Initialize();
         SPI_IOEXPANDER_MCP23S18_Initialize();
-        // you must define SPIEN with MCC
+        // you must have defined SPIEN with MCC
         // SPIEN_SetHigh();  // CS pin controlled by SPIEN
         // SPIEN_SetLow();
     #endif
