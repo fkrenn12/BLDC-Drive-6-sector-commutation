@@ -91,7 +91,7 @@ void MCP23S18_ReadRegister(uint8_t reg_addr)
     while(SPI1STATLbits.SPIRBF == 0);  // Warten bis RX Buffer Daten hat
 }
 
-// KI generated version
+// KI generated version -- not tested 
 uint8_t MCP23S18_ReadRegister1(uint8_t reg_addr)
 {
     uint8_t value;
