@@ -8,18 +8,15 @@
 
 // https://chummersone.github.io/qformat.html
 
-
-// Signed Q4.12
-// Fractional value range: -8 to 7.999755859375
+#define FIXED_POINT16_FRACTIONAL_BITS 12
+// Signed int16 fixed-point format with 12 fractional bits
+// Value range: -8 to 7.999755859375
 // Resolution: 0.000244140625
 
-// Signed Q8.23
-// Fractional value range: -256 to 255.9999998807907
-// Resolution: 0.0000001192092895
-
-
-#define FIXED_POINT16_FRACTIONAL_BITS 12
 #define FIXED_POINT32_FRACTIONAL_BITS 11
+// Signed int32 fixed-point format with 11 fractional bits
+// Value range: -1048576 to 1048575.99951171875
+// Resolution: 0.00048828125
 
 typedef int16_t fixed16_point_t;
 typedef int32_t fixed32_point_t;
