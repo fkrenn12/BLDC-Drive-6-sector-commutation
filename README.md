@@ -8,12 +8,6 @@ A dsPIC33CK-based BLDC motor control firmware with UART/RS485 communication, rin
 - Clock: Fcy = 100 MHz
 - UART: UART1 (RS485), UART2 (debug console)
 
-## Features
-
-## Project Structure
-
-## Getting Started
-
 ### Prerequisites
 - Windows 10 or newer
 - Microchip XC16 v2.10 or a compatible XC16 version
@@ -47,11 +41,6 @@ After opening the repository in VS Code, allow the MPLAB extension to configure 
 - Ensure Fcy = 100 MHz configuration
 - Build (production) and program
 
-### Pin Configuration (PPS and modes)
-
-## License
-
-Add your chosen license (e.g., MIT).
 
 
 
