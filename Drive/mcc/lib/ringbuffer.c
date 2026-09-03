@@ -25,6 +25,16 @@ static inline bool rb_is_line_term(uint8_t ch) {
     return (ch == '\n') || (ch == '\r') || (ch == '\0');
 } 
 
+static inline void rb_lock(volatile RingBuffer *rb) {
+    if (rb->write_lock) rb->write_lock();
+    if (rb->read_lock) rb->read_lock();
+}
+
+static inline void rb_unlock(volatile RingBuffer *rb) {
+    if (rb->read_unlock) rb->read_unlock();
+    if (rb->write_unlock) rb->write_unlock();
+}
+
 // Initializes the ring buffer
 #if DYNAMIC_BUFFERSIZE == 1
 void RingBuffer_Init(volatile RingBuffer *rb, uint16_t buffer_size)
@@ -47,6 +57,7 @@ void RingBuffer_Init(volatile RingBuffer *rb)
     rb->head = 0;
     rb->tail = 0;
     rb->count = 0;
+    rb->line_count = 0;
     rb->write_lock = NULL;
     rb->write_unlock = NULL;
     rb->read_lock = NULL;
@@ -87,28 +98,27 @@ void RingBuffer_Free(volatile RingBuffer *rb) {
 
 // Returns true if the ring buffer is full
 bool RingBuffer_IsFull(volatile RingBuffer *rb) {
-    if (rb->write_lock) rb->write_lock();
-    if (rb->read_lock) rb->read_lock();
+    rb_lock(rb);
     bool is_full = rb->count == rb->size; // Compare against actual capacity
-    if (rb->write_unlock) rb->write_unlock();
-    if (rb->read_unlock) rb->read_unlock();
+    rb_unlock(rb);
     return is_full;
 }
 
 // Returns true if the ring buffer is empty
 bool RingBuffer_IsEmpty(volatile RingBuffer *rb) {
-    if (rb->write_lock) rb->write_lock();
-    if (rb->read_lock) rb->read_lock();
+    rb_lock(rb);
     bool is_empty = rb->count == 0;
-    if (rb->write_unlock) rb->write_unlock();
-    if (rb->read_unlock) rb->read_unlock();
+    rb_unlock(rb);
     return is_empty;
 }
 
 // Writes a single byte into the ring buffer
 bool RingBuffer_Write(volatile RingBuffer *rb, char data) {
-    if (RingBuffer_IsFull(rb)) return false;  // Buffer is full
-    if (rb->read_lock) rb->read_lock();
+    rb_lock(rb);
+    if (rb->count == rb->size) {
+        rb_unlock(rb);
+        return false;
+    }
     rb->buffer[rb->head] = data;              // Store at head position
     rb->head = (rb->head + 1) % rb->size;     // Advance head (wrap-around)
     rb->count++;                              // Increment element count
@@ -116,18 +126,25 @@ bool RingBuffer_Write(volatile RingBuffer *rb, char data) {
     if (rb_is_line_term(data)) {
         rb->line_count++; // one more complete line available
     }
-    if (rb->read_unlock) rb->read_unlock();
+    rb_unlock(rb);
     return true;
 }
 
 // Reads a single byte from the ring buffer
 bool RingBuffer_Read(volatile RingBuffer *rb, char *data) {
-    if (RingBuffer_IsEmpty(rb)) return false; // Buffer is empty
-    if (rb->write_lock) rb->write_lock();
+    if (data == NULL) return false;
+    rb_lock(rb);
+    if (rb->count == 0) {
+        rb_unlock(rb);
+        return false;
+    }
     *data = rb->buffer[rb->tail];             // Load from tail position
     rb->tail = (rb->tail + 1) % rb->size;     // Advance tail (wrap-around)
     rb->count--;                              // Decrement element count
-    if (rb->write_unlock) rb->write_unlock();
+    if (rb_is_line_term((uint8_t)*data) && rb->line_count > 0) {
+        rb->line_count--;
+    }
+    rb_unlock(rb);
     return true;
 }
 // C
@@ -136,7 +153,7 @@ bool RingBuffer_WriteString(volatile RingBuffer *rb, const char *str) {
     uint16_t length = (uint16_t)strlen(str);
     bool ok = true;
 
-    if (rb->read_lock) rb->read_lock();
+    rb_lock(rb);
 
     if (rb->size - rb->count < length) {
         ok = false;
@@ -166,7 +183,7 @@ bool RingBuffer_WriteString(volatile RingBuffer *rb, const char *str) {
         rb->head = (head + length) % size;
     }
 
-    if (rb->read_unlock) rb->read_unlock();
+    rb_unlock(rb);
     return ok;
 }
 /*
@@ -199,10 +216,9 @@ bool RingBuffer_WriteString(volatile RingBuffer *rb, const char *str) {
 
 uint16_t RingBuffer_NumberOfLines(volatile RingBuffer* rb)
 {
-    // Light-weight: just read; optionally guard with read_lock for atomicity
-    if (rb->read_lock) rb->read_lock();
+    rb_lock(rb);
     uint16_t lines = rb->line_count;
-    if (rb->read_unlock) rb->read_unlock();
+    rb_unlock(rb);
     return lines;
 }
 
@@ -211,17 +227,11 @@ bool RingBuffer_ReadLine(volatile RingBuffer* rb, char* out, uint16_t outSize)
 {
     if (out == NULL || outSize == 0) return false;
 
-    // Wenn keine komplette Zeile im Puffer ist, sofort abbrechen
-    if (rb->line_count == 0) {
-        out[0] = '\0';
-        return false;
-    }
-
-    if (rb->write_lock) rb->write_lock();
+    rb_lock(rb);
 
     // Doppelt prüfen nach Lock, falls paralleler Schreiber gerade gezählt hat
     if (rb->line_count == 0 || rb->count == 0) {
-        if (rb->write_unlock) rb->write_unlock();
+        rb_unlock(rb);
         out[0] = '\0';
         return false;
     }
@@ -245,24 +255,26 @@ bool RingBuffer_ReadLine(volatile RingBuffer* rb, char* out, uint16_t outSize)
 
     // Jetzt muss am Kopf ein Terminator stehen (wir wissen: line_count > 0)
     // Konsumiere alle aufeinanderfolgenden Terminatoren (CR/LF/NULL-Cluster)
-    bool consumed_any_terminator = false;
+    uint16_t consumed_terminators = 0;
     while (rb->count > 0) {
         char ch = rb->buffer[rb->tail];
         if (!rb_is_line_term(ch)) break;
         rb->tail = rb_next(rb->tail, rb->size);
         rb->count--;
-        consumed_any_terminator = true;
+        consumed_terminators++;
     }
 
-    // Eine komplette Zeile wurde gelesen -> line_count einmal dekrementieren
-    if (consumed_any_terminator && rb->line_count > 0) {
-        rb->line_count--;
+    // Keep the line counter consistent with the terminators removed above.
+    if (consumed_terminators >= rb->line_count) {
+        rb->line_count = 0;
+    } else {
+        rb->line_count -= consumed_terminators;
     }
 
     // NUL-terminieren
     out[copied] = '\0';
 
-    if (rb->write_unlock) rb->write_unlock();
+    rb_unlock(rb);
     return true;
 }
 
