@@ -5,7 +5,7 @@ void ramp_init(TRamp* ramp, int16_t out, int16_t in, int16_t upstep, int16_t dow
     ramp->in = in;
     ramp->upstep = upstep;
     ramp->downstep = downstep;
-    ramp->interval = interval;
+    ramp->interval = (interval > 0) ? interval : 1;
     ramp->counter = 0;
 }
 
@@ -15,7 +15,7 @@ void ramp_reset(TRamp* ramp){
 }
 
 int16_t ramp_calculate(TRamp* ramp){
-    int16_t temp;
+    int32_t temp;
     if (++ramp->counter % ramp->interval == 0){  
         ramp->counter = 0;
         if (ramp->out >= 0){
